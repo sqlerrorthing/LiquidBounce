@@ -291,8 +291,10 @@
     cursor: pointer;
 
     & > .img-wrapper {
+      transition: opacity 0.3s ease;
       width: 25px;
       height: 25px;
+      opacity: 0.6;
     }
 
     & > span {
@@ -303,10 +305,14 @@
     }
 
     &:hover {
+      & > .img-wrapper {
+        opacity: 1;
+      }
 
       & > span {
         color: $clickgui-text-color;
       }
     }
   }
+
 </style>
