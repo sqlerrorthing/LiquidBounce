@@ -64,9 +64,9 @@ class TrajectoryInfoRenderer(
         return hitResult
     }
 
-    private fun runSimulation(
+    fun runSimulation(
         maxTicks: Int,
-        outPositions: MutableList<Vec3d>,
+        outPositions: MutableList<Vec3d> = mutableListOf(),
     ): HitResult? {
         var currTicks = 0
 
