@@ -223,10 +223,10 @@ object ModuleManager : EventListener, Iterable<ClientModule> by modules {
             ModuleTeams,
             ModuleAutoChatGame,
             ModuleFocus,
+            ModuleAutoPearl,
             ModuleAntiStaff,
             ModuleFlagCheck,
             ModulePacketLogger,
-            ModuleAutoPearl,
 
             // Movement
             ModuleAirJump,
