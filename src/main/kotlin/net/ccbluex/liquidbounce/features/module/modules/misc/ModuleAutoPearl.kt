@@ -37,7 +37,7 @@ private const val MAX_SIMULATED_TICKS = 240
  *
  * @author sqlerrorthing
  */
-object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, state = true, aliases = arrayOf("PearlFollower")) {
+object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arrayOf("PearlFollower")) {
 
     private object Rotate : ToggleableConfigurable(this, "Rotate", true) {
         val rotations = tree(RotationsConfigurable(this))
