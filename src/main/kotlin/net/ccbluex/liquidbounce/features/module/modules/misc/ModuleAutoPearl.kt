@@ -1,7 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import com.oracle.truffle.runtime.collection.ArrayQueue
-import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
@@ -49,12 +48,14 @@ private const val DIFF_STABILIZATION = 0.2
  */
 object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arrayOf("PearlFollower")) {
 
+    private val mode by enumChoice("Mode", Modes.TRIGGER)
+
     init {
-        tree(Limits)
         tree(Rotate)
+        tree(Limits)
     }
 
-    private object Limits : Configurable("Limits") {
+    private object Limits : ToggleableConfigurable(this, "Limits", true) {
         val angle by int("Angle", 180, 0..180, suffix = "°")
         val activationDistance by float("MinDistance", 8.0f, 0.0f..10.0f, suffix = "m")
         val destDistance by float("DestinationDistance", 8.0f, 0.0f..30.0f, suffix = "m")
@@ -63,8 +64,6 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     private object Rotate : ToggleableConfigurable(this, "Rotate", true) {
         val rotations = tree(RotationsConfigurable(this))
     }
-
-    private val mode by enumChoice("Mode", Modes.TRIGGER)
 
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
@@ -149,7 +148,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             pos = pearlPos
         )?.pos ?: return
 
-        if (Limits.activationDistance > destination.distanceTo(player.pos)) {
+        if (Limits.enabled && Limits.activationDistance > destination.distanceTo(player.pos)) {
             return
         }
 
@@ -165,7 +164,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     }
 
     private fun canTrigger(pearl: EnderPearlEntity): Boolean {
-        if (Limits.angle < RotationManager.rotationDifference(pearl)) {
+        if (Limits.enabled && Limits.angle < RotationManager.rotationDifference(pearl)) {
             return false
         }
 
@@ -193,7 +192,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             rotation = angles
         ).runSimulation(MAX_SIMULATED_TICKS)?.pos ?: return false
 
-        return Limits.destDistance > destination.distanceTo(simulatedDestination)
+        return !Limits.enabled || Limits.destDistance > destination.distanceTo(simulatedDestination)
     }
 
     private fun transformAngles(rotation: Rotation): Rotation {
