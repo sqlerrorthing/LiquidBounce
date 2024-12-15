@@ -2,12 +2,14 @@ package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import com.oracle.truffle.runtime.collection.ArrayQueue
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
 import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
@@ -15,6 +17,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
+import net.ccbluex.liquidbounce.utils.combat.shouldBeAttacked
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
@@ -46,6 +49,11 @@ private const val DIFF_STABILIZATION = 0.2
  */
 object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arrayOf("PearlFollower")) {
 
+    init {
+        tree(Limits)
+        tree(Rotate)
+    }
+
     private object Limits : Configurable("Limits") {
         val angle by int("Angle", 180, 0..180, suffix = "°")
         val activationDistance by float("MinDistance", 8.0f, 0.0f..10.0f, suffix = "m")
@@ -56,6 +64,8 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         val rotations = tree(RotationsConfigurable(this))
     }
 
+    private val mode by enumChoice("Mode", Modes.TRIGGER)
+
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
 
@@ -65,11 +75,6 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         get() = if (OFFHAND_SLOT.itemStack.item == Items.ENDER_PEARL) {
             OFFHAND_SLOT
         } else { findHotbarItemSlot(Items.ENDER_PEARL) }
-
-    init {
-        tree(Limits)
-        tree(Rotate)
-    }
 
     @Suppress("unused")
     private val pearlSpawnHandler = handler<PacketEvent> { event ->
@@ -134,11 +139,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         velocity: Vec3d,
         pearlPos: Vec3d
     ) {
-        if (Limits.angle < RotationManager.rotationDifference(pearl)) {
-            return
-        }
-
-        if (pearl.ownerUuid == player.uuid) {
+        if (!canTrigger(pearl)) {
             return
         }
 
@@ -160,6 +161,25 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
         if (queue.size() == 0) {
             queue.add(rotation)
+        }
+    }
+
+    private fun canTrigger(pearl: EnderPearlEntity): Boolean {
+        if (Limits.angle < RotationManager.rotationDifference(pearl)) {
+            return false
+        }
+
+        if (pearl.owner == null) {
+            return mode == Modes.TRIGGER
+        }
+
+        if (pearl.ownerUuid == player.uuid) {
+            return false
+        }
+
+        return when(mode) {
+            Modes.TRIGGER -> pearl.owner!!.shouldBeAttacked()
+            Modes.TARGET -> ModuleKillAura.targetTracker.lockedOnTarget?.uuid == pearl.ownerUuid
         }
     }
 
@@ -272,5 +292,10 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     override fun disable() {
         queue.clear()
         super.disable()
+    }
+
+    private enum class Modes(override val choiceName: String) : NamedChoice {
+        TRIGGER("Trigger"),
+        TARGET("Target")
     }
 }
