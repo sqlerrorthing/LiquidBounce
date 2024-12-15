@@ -1,6 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
 import com.oracle.truffle.runtime.collection.ArrayQueue
+import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -13,11 +14,16 @@ import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.Traj
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
+import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
+import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
+import net.ccbluex.liquidbounce.utils.math.minus
+import net.ccbluex.liquidbounce.utils.math.plus
+import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity
@@ -39,12 +45,15 @@ private const val MAX_SIMULATED_TICKS = 240
  */
 object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arrayOf("PearlFollower")) {
 
+    private object Limits : Configurable("Limits") {
+        val angle by int("Angle", 180, 0..180, suffix = "°")
+        val activationDistance by float("MinDistance", 8.0f, 0.0f..10.0f, suffix = "m")
+        val destDistance by float("DestinationDistance", 8.0f, 0.0f..30.0f, suffix = "m")
+    }
+
     private object Rotate : ToggleableConfigurable(this, "Rotate", true) {
         val rotations = tree(RotationsConfigurable(this))
     }
-
-    private val angleLimit by int("AngleLimit", 180, 0..180, suffix = "°")
-    private val distanceLimit by float("DistanceLimit", 8.0f, 0.0f..10.0f, suffix = "m")
 
     private val combatPauseTime by int("CombatPauseTime", 0, 0..40, "ticks")
     private val slotResetDelay by intRange("SlotResetDelay", 0..0, 0..40, "ticks")
@@ -52,6 +61,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     private val queue = ArrayQueue<Rotation>()
 
     init {
+        tree(Limits)
         tree(Rotate)
     }
 
@@ -78,26 +88,12 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         val entity = data.entityType.create(world) as EnderPearlEntity
         entity.onSpawnPacket(data)
 
-        if(angleLimit < RotationManager.rotationDifference(entity)) {
-            return@handler
-        }
-
-        if (entity.ownerUuid == player.uuid) {
-            return@handler
-        }
-
-        val dest = calculatePearlTeleportDestPos(
-            owner = entity.owner ?: player,
+        proceedPearl(
+            pearl = entity,
+            // entity.velocity & entity.pos doesnt work, dont use it
             velocity = with(data) { Vec3d(velocityX, velocityY, velocityZ) },
-            pos = with(data) { Vec3d(x, y, z) }
-        ) ?: return@handler
-
-        if (distanceLimit > dest.pos.distanceTo(player.pos)) {
-            return@handler
-        }
-
-        val rotation = calculatePearlTrajectory(player.eyePos, dest.pos) ?: return@handler
-        queue.add(rotation)
+            pearlPos = with(data) { Vec3d(x, y, z) }
+        )
     }
 
     @Suppress("unused")
@@ -132,12 +128,79 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         useHotbarSlotOrOffhand(itemSlot, slotResetDelay.random(), yaw, pitch)
     }
 
+    private fun proceedPearl(
+        pearl: EnderPearlEntity,
+        velocity: Vec3d,
+        pearlPos: Vec3d
+    ) {
+        if (Limits.angle < RotationManager.rotationDifference(pearl)) {
+            return
+        }
+
+        if (pearl.ownerUuid == player.uuid) {
+            return
+        }
+
+        val dest = calculatePearlTeleportDestPos(
+            owner = pearl.owner ?: player,
+            velocity = velocity,
+            pos = pearlPos
+        ) ?: return
+
+        if (Limits.activationDistance > dest.pos.distanceTo(player.pos)) {
+            return
+        }
+
+        val rotation = calculatePearlTrajectory(player.eyePos, dest.pos) ?: return
+
+        if (!canThrow(rotation, dest.pos)) {
+            return
+        }
+
+        if (queue.size() == 0) {
+            queue.add(rotation)
+        }
+    }
+
     private val enderPearlSlot: HotbarItemSlot? get() {
         if (OFFHAND_SLOT.itemStack.item == Items.ENDER_PEARL) {
             return OFFHAND_SLOT
         }
 
         return findHotbarItemSlot(Items.ENDER_PEARL)
+    }
+
+    private fun canThrow(
+        angles: Rotation,
+        destination: Vec3d
+    ): Boolean {
+        val info = TrajectoryInfo.GENERIC
+        val yawRadians = angles.yaw / 180f * Math.PI.toFloat()
+        val pitchRadians = angles.pitch / 180f * Math.PI.toFloat()
+
+        val interpolatedOffset = player.interpolateCurrentPosition(mc.renderTickCounter.getTickDelta(true)) - player.pos
+
+        var velocity = Vec3d(
+            -sin(yawRadians) * cos(pitchRadians).toDouble(),
+            -sin((angles.pitch + info.roll).toRadians()).toDouble(),
+            cos(yawRadians) * cos(pitchRadians).toDouble()
+        ).normalize() * info.initialVelocity
+
+        velocity += Vec3d(
+            player.velocity.x,
+            if (player.isOnGround) 0.0 else player.velocity.y,
+            player.velocity.z
+        )
+
+        val dest = TrajectoryInfoRenderer(
+            owner = player,
+            velocity = velocity,
+            pos = with(player) { Vec3d(x, eyeY - 0.10000000149011612, z) },
+            trajectoryInfo = info,
+            renderOffset = interpolatedOffset + Vec3d(-cos(yawRadians) * 0.16, 0.0, -sin(yawRadians) * 0.16)
+        ).runSimulation(MAX_SIMULATED_TICKS)?.pos ?: return false
+
+        return Limits.destDistance > destination.distanceTo(dest)
     }
 
     private fun transformAngles(rotation: Rotation): Rotation {
