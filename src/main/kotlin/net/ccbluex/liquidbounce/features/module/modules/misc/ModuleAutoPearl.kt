@@ -9,8 +9,8 @@ import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.HotbarItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.TrajectoryInfo
-import net.ccbluex.liquidbounce.features.module.modules.render.trajectories.TrajectoryInfoRenderer
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfo
+import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -141,19 +141,19 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             return
         }
 
-        val dest = calculatePearlTeleportDestPos(
+        val destination = calculatePearlTeleportDestPos(
             owner = pearl.owner ?: player,
             velocity = velocity,
             pos = pearlPos
-        ) ?: return
+        )?.pos ?: return
 
-        if (Limits.activationDistance > dest.pos.distanceTo(player.pos)) {
+        if (Limits.activationDistance > destination.distanceTo(player.pos)) {
             return
         }
 
-        val rotation = calculatePearlTrajectory(player.eyePos, dest.pos) ?: return
+        val rotation = calculatePearlTrajectory(player.eyePos, destination) ?: return
 
-        if (!canThrow(rotation, dest.pos)) {
+        if (!canThrow(rotation, destination)) {
             return
         }
 
@@ -174,30 +174,10 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         angles: Rotation,
         destination: Vec3d
     ): Boolean {
-        val info = TrajectoryInfo.GENERIC
-        val yawRadians = angles.yaw / 180f * Math.PI.toFloat()
-        val pitchRadians = angles.pitch / 180f * Math.PI.toFloat()
-
-        val interpolatedOffset = player.interpolateCurrentPosition(mc.renderTickCounter.getTickDelta(true)) - player.pos
-
-        var velocity = Vec3d(
-            -sin(yawRadians) * cos(pitchRadians).toDouble(),
-            -sin((angles.pitch + info.roll).toRadians()).toDouble(),
-            cos(yawRadians) * cos(pitchRadians).toDouble()
-        ).normalize() * info.initialVelocity
-
-        velocity += Vec3d(
-            player.velocity.x,
-            if (player.isOnGround) 0.0 else player.velocity.y,
-            player.velocity.z
-        )
-
-        val dest = TrajectoryInfoRenderer(
-            owner = player,
-            velocity = velocity,
-            pos = with(player) { Vec3d(x, eyeY - 0.10000000149011612, z) },
-            trajectoryInfo = info,
-            renderOffset = interpolatedOffset + Vec3d(-cos(yawRadians) * 0.16, 0.0, -sin(yawRadians) * 0.16)
+        val dest = TrajectoryInfoRenderer.getHypotheticalTrajectory(
+            entity = player,
+            trajectoryInfo = TrajectoryInfo.GENERIC,
+            rotation = angles
         ).runSimulation(MAX_SIMULATED_TICKS)?.pos ?: return false
 
         return Limits.destDistance > destination.distanceTo(dest)
