@@ -14,16 +14,11 @@ import net.ccbluex.liquidbounce.utils.render.trajectory.TrajectoryInfoRenderer
 import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
-import net.ccbluex.liquidbounce.utils.client.toRadians
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
-import net.ccbluex.liquidbounce.utils.entity.interpolateCurrentPosition
 import net.ccbluex.liquidbounce.utils.inventory.OFFHAND_SLOT
 import net.ccbluex.liquidbounce.utils.inventory.useHotbarSlotOrOffhand
 import net.ccbluex.liquidbounce.utils.item.findHotbarItemSlot
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.math.minus
-import net.ccbluex.liquidbounce.utils.math.plus
-import net.ccbluex.liquidbounce.utils.math.times
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity
@@ -35,6 +30,12 @@ import net.minecraft.util.math.Vec3d
 import kotlin.math.*
 
 private const val MAX_SIMULATED_TICKS = 240
+
+/**
+ * I actually don't know how2 turn the player's camera to the direction where i want to throw the ender pearl
+ * without this crutch
+ */
+private const val DIFF_STABILIZATION = 0.2
 
 /**
  * Auto pearl module
@@ -60,18 +61,18 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
 
     private val queue = ArrayQueue<Rotation>()
 
+    private val enderPearlSlot: HotbarItemSlot?
+        get() = if (OFFHAND_SLOT.itemStack.item == Items.ENDER_PEARL) {
+            OFFHAND_SLOT
+        } else { findHotbarItemSlot(Items.ENDER_PEARL) }
+
     init {
         tree(Limits)
         tree(Rotate)
     }
 
-    override fun disable() {
-        queue.clear()
-        super.disable()
-    }
-
     @Suppress("unused")
-    val pearlSpawnHandler = handler<PacketEvent> { event ->
+    private val pearlSpawnHandler = handler<PacketEvent> { event ->
         if (event.packet !is EntitySpawnS2CPacket) {
             return@handler
         }
@@ -115,7 +116,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
                 val yawDiff = abs(serverRotations.yaw - rotation.yaw)
                 val pitchDiff = abs(serverRotations.pitch - rotation.pitch)
 
-                yawDiff <= 0.2 && pitchDiff <= 0.2
+                yawDiff <= DIFF_STABILIZATION && pitchDiff <= DIFF_STABILIZATION
             }
         }
 
@@ -141,7 +142,7 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
             return
         }
 
-        val destination = calculatePearlTeleportDestPos(
+        val destination = runSimulation(
             owner = pearl.owner ?: player,
             velocity = velocity,
             pos = pearlPos
@@ -162,25 +163,17 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         }
     }
 
-    private val enderPearlSlot: HotbarItemSlot? get() {
-        if (OFFHAND_SLOT.itemStack.item == Items.ENDER_PEARL) {
-            return OFFHAND_SLOT
-        }
-
-        return findHotbarItemSlot(Items.ENDER_PEARL)
-    }
-
     private fun canThrow(
         angles: Rotation,
         destination: Vec3d
     ): Boolean {
-        val dest = TrajectoryInfoRenderer.getHypotheticalTrajectory(
+        val simulatedDestination = TrajectoryInfoRenderer.getHypotheticalTrajectory(
             entity = player,
             trajectoryInfo = TrajectoryInfo.GENERIC,
             rotation = angles
         ).runSimulation(MAX_SIMULATED_TICKS)?.pos ?: return false
 
-        return Limits.destDistance > destination.distanceTo(dest)
+        return Limits.destDistance > destination.distanceTo(simulatedDestination)
     }
 
     private fun transformAngles(rotation: Rotation): Rotation {
@@ -229,9 +222,10 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         val diff: Vec3d = targetPos.subtract(startPos)
 
         val horizontalDistance = MathHelper.sqrt((diff.x * diff.x + diff.z * diff.z).toFloat()).toDouble()
+        val pearlInfo = TrajectoryInfo.GENERIC
 
-        val velocity = 1.5
-        val gravity = 0.03
+        val velocity = pearlInfo.initialVelocity
+        val gravity = pearlInfo.gravity
 
         val velocity2 = velocity * velocity
         val velocity4 = velocity2 * velocity2
@@ -250,7 +244,6 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         val pitch = Math.toDegrees(pitchRad).toFloat()
         var yaw = Math.toDegrees(yawRad).toFloat()
 
-
         yaw -= 90f
         if (yaw > 180.0f) {
             yaw -= 360.0f
@@ -261,16 +254,23 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         return Rotation(yaw, -pitch)
     }
 
-    private fun calculatePearlTeleportDestPos(
+    private fun runSimulation(
         owner: Entity,
         velocity: Vec3d,
-        pos: Vec3d
+        pos: Vec3d,
+        trajectoryInfo: TrajectoryInfo = TrajectoryInfo.GENERIC,
+        renderOffset: Vec3d = Vec3d.ZERO
     ): HitResult? =
         TrajectoryInfoRenderer(
             owner = owner,
             velocity = velocity,
             pos = pos,
-            trajectoryInfo = TrajectoryInfo.GENERIC,
-            renderOffset = Vec3d.ZERO
+            trajectoryInfo = trajectoryInfo,
+            renderOffset = renderOffset
         ).runSimulation(MAX_SIMULATED_TICKS)
+
+    override fun disable() {
+        queue.clear()
+        super.disable()
+    }
 }
