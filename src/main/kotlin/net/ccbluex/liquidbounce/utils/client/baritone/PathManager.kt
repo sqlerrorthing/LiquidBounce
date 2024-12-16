@@ -54,20 +54,15 @@ interface PathManager {
         override val isBaritone: Boolean
             get() = Default.isBaritone
 
-        override fun moveTo(pos: BlockPos, ignoreY: Boolean) =
-            Default.moveTo(pos, ignoreY)
+        override fun moveTo(pos: BlockPos, ignoreY: Boolean) = Default.moveTo(pos, ignoreY)
 
-        override fun moveInDirection(yaw: Float) =
-            Default.moveInDirection(yaw)
+        override fun moveInDirection(yaw: Float) = Default.moveInDirection(yaw)
 
-        override fun pause() =
-            Default.pause()
+        override fun pause() = Default.pause()
 
-        override fun resume() =
-            Default.resume()
+        override fun resume() = Default.resume()
 
-        override fun stop() =
-            Default.stop()
+        override fun stop() = Default.stop()
 
         operator fun not(): Boolean = !this.isBaritone
     }

@@ -19,5 +19,7 @@ object BaritoneUtil {
     val isWalking get() = mostResentInControl is ICustomGoalProcess
 }
 
+operator fun BaritoneUtil.not(): Boolean = !isAvailable
+
 private val mostResentInControl: IBaritoneProcess?
     get() = BaritoneUtil.baritone.pathingControlManager.mostRecentInControl().orElse(null)
