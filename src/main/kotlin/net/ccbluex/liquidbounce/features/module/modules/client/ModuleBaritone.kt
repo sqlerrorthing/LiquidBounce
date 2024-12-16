@@ -6,10 +6,9 @@ import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.client.ModuleBaritone.Movement.Parkour
 import net.ccbluex.liquidbounce.render.engine.toColor
 import net.ccbluex.liquidbounce.render.engine.toColor4b
-import net.ccbluex.liquidbounce.utils.client.BaritoneUtil
+import net.ccbluex.liquidbounce.utils.client.baritone.BaritoneUtil
 import java.awt.Color
 
 /**

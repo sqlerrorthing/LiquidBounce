@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.utils.client
+package net.ccbluex.liquidbounce.utils.client.baritone
 
 import baritone.api.BaritoneAPI
 import baritone.api.process.IBaritoneProcess

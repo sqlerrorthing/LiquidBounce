@@ -18,10 +18,18 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
+import baritone.api.pathing.goals.GoalStrictDirection
+import net.ccbluex.liquidbounce.config.types.Choice
+import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
+import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.lang.translation
+import net.ccbluex.liquidbounce.utils.client.baritone.BaritoneUtil
+import net.ccbluex.liquidbounce.utils.client.baritone.goals.GoalDirection
+import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 
 /**
@@ -31,9 +39,43 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIOR
  */
 object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
 
-    @Suppress("unused")
-    private val moveInputHandler = handler<MovementInputEvent>(priority = FIRST_PRIORITY) { event ->
-        event.directionalInput = event.directionalInput.copy(forwards = true)
+    private val modes = choices(this, "Mode", Smart, arrayOf(Smart, Simple))
+
+    private object Smart : Choice("Smart") {
+        override val parent: ChoiceConfigurable<*>
+            get() = modes
+
+        override fun enable() {
+            if(!BaritoneUtil.isAvailable) {
+                notification(
+                    this.name,
+                    "Baritone is not installed! Install it first.",
+                    NotificationEvent.Severity.ERROR
+                )
+
+                ModuleAutoWalk.enabled = false
+                return
+            }
+
+            BaritoneUtil.baritone.customGoalProcess.setGoalAndPath(GoalDirection(player.yaw))
+        }
+
+        override fun disable() {
+            if(!BaritoneUtil.isAvailable) {
+                return
+            }
+
+            BaritoneUtil.baritone.pathingBehavior.cancelEverything()
+        }
     }
 
+    private object Simple : Choice("Simple") {
+        override val parent: ChoiceConfigurable<*>
+            get() = modes
+
+        @Suppress("unused")
+        private val moveInputHandler = handler<MovementInputEvent>(priority = FIRST_PRIORITY) { event ->
+            event.directionalInput = event.directionalInput.copy(forwards = true)
+        }
+    }
 }
