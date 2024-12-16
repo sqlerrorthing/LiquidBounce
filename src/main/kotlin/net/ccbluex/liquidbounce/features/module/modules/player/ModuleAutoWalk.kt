@@ -36,7 +36,7 @@ import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIOR
  */
 object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
 
-    private val modes = choices(this, "Mode", Smart, arrayOf(Smart, Simple))
+    private val modes = choices(this, "Mode", Smart, arrayOf(Smart, Simple)).apply { tagBy(this) }
 
     private object Smart : Choice("Smart") {
         override val parent: ChoiceConfigurable<*>
