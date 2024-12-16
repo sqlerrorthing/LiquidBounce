@@ -19,11 +19,8 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
 import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent;
 import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent;
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove;
-import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
@@ -38,6 +35,7 @@ import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -68,35 +66,10 @@ public class MixinKeyboardInput extends MixinInput {
 
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;sneaking:Z", shift = At.Shift.AFTER), allow = 1)
     private void injectMovementInputEvent(boolean slowDown, float f, CallbackInfo ci) {
-        var event = new MovementInputEvent(new DirectionalInput(this.pressingForward, this.pressingBack, this.pressingLeft, this.pressingRight), this.jumping, this.sneaking);
-
-        EventManager.INSTANCE.callEvent(event);
-
-        var directionalInput = event.getDirectionalInput();
-
-        this.pressingForward = directionalInput.getForwards();
-        this.pressingBack = directionalInput.getBackwards();
-        this.pressingLeft = directionalInput.getLeft();
-        this.pressingRight = directionalInput.getRight();
-        this.movementForward = KeyboardInput.getMovementMultiplier(directionalInput.getForwards(), directionalInput.getBackwards());
-        this.movementSideways = KeyboardInput.getMovementMultiplier(directionalInput.getLeft(), directionalInput.getRight());
-
-        this.fixStrafeMovement();
-
-        if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
-            this.movementForward = 0f;
-
-            ModuleSprint sprint = ModuleSprint.INSTANCE;
-
-            if (sprint.shouldSprintOmnidirectionally()) {
-                this.movementSideways = 0f;
-            }
-        }
-
-        this.jumping = event.getJumping();
-        this.sneaking = event.getSneaking();
+        this.proceedKeyboardTick(new DirectionalInput(this.pressingForward, this.pressingBack, this.pressingLeft, this.pressingRight), this.jumping, this.sneaking, this::fixStrafeMovement);
     }
 
+    @Unique
     private void fixStrafeMovement() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         RotationManager rotationManager = RotationManager.INSTANCE;

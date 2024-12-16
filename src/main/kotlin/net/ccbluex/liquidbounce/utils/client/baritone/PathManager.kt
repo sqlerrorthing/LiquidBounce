@@ -48,11 +48,9 @@ interface PathManager {
             }
         }
 
-        override val isPathing: Boolean
-            get() = Default.isPathing
+        override val isPathing get() = Default.isPathing
 
-        override val isBaritone: Boolean
-            get() = Default.isBaritone
+        override val isBaritone get() = Default.isBaritone
 
         override fun moveTo(pos: BlockPos, ignoreY: Boolean) = Default.moveTo(pos, ignoreY)
 
@@ -81,8 +79,7 @@ object BaritonePathManager : PathManager {
 
     override val isBaritone = true
 
-    override val isPathing: Boolean
-        get() = baritone.pathingBehavior.isPathing
+    override val isPathing get() = baritone.pathingBehavior.isPathing
 
     override fun moveTo(pos: BlockPos, ignoreY: Boolean) = if(ignoreY) {
         baritone.customGoalProcess.setGoalAndPath(GoalXZ(pos.x, pos.z))
