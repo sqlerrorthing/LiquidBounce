@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
 import net.ccbluex.liquidbounce.features.module.modules.misc.antibot.ModuleAntiBot
-import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeWithNameProtect
+import net.ccbluex.liquidbounce.features.module.modules.misc.nameprotect.sanitizeForeignInput
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.regular
@@ -31,7 +31,6 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.text.MutableText
-import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TextColor
 import net.minecraft.util.Formatting
@@ -48,14 +47,7 @@ class NametagTextFormatter(private val entity: Entity) {
             outputText.append(this.pingText).append(" ")
         }
 
-        val name = with(entity.displayName!!) {
-            if ('§' in this.string) {
-                this.formatLegacyText()
-            } else {
-                this
-            }
-        }.sanitizeWithNameProtect()
-
+        val name = entity.displayName!!
         val nameColor = this.nameColor
 
         val nameText: Text = if (nameColor != null) {
@@ -138,49 +130,6 @@ class NametagTextFormatter(private val entity: Entity) {
 
 private fun Formatting.toTextColor(): TextColor {
     return TextColor(this.colorValue!!, this.name)
-}
-
-private fun Text.formatLegacyText(): Text {
-    val result = Text.empty()
-    var currentStyle = Style.EMPTY
-
-    val chars = this.string.toCharArray()
-    val buffer = StringBuilder()
-
-    var i = 0
-    while (i < chars.size) {
-        if (chars[i] == '§' && i + 1 < chars.size) {
-            if (buffer.isNotEmpty()) {
-                result.append(Text.literal(buffer.toString()).setStyle(currentStyle))
-                buffer.setLength(0)
-            }
-
-            currentStyle = Formatting.byCode(chars[i++])?.applyFormatting(currentStyle) ?: currentStyle
-        } else {
-            buffer.append(chars[i])
-        }
-
-        i++
-    }
-
-    if (buffer.isNotEmpty()) {
-        result.append(Text.literal(buffer.toString()).setStyle(currentStyle))
-    }
-
-    return result
-}
-
-private fun Formatting.applyFormatting(style: Style): Style = when {
-    isColor -> style.withColor(this)
-    else -> when (this) {
-        Formatting.RESET -> Style.EMPTY
-        Formatting.BOLD -> style.withBold(true)
-        Formatting.OBFUSCATED -> style.withObfuscated(true)
-        Formatting.STRIKETHROUGH -> style.withStrikethrough(true)
-        Formatting.UNDERLINE -> style.withUnderline(true)
-        Formatting.ITALIC -> style.withItalic(true)
-        else -> style
-    }
 }
 
 operator fun MutableText.plus(text: MutableText): MutableText {
