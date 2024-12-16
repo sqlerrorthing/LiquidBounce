@@ -23,6 +23,7 @@ import net.ccbluex.liquidbounce.utils.aiming.Rotation
 import net.ccbluex.liquidbounce.utils.block.DIRECTIONS_EXCLUDING_UP
 import net.ccbluex.liquidbounce.utils.block.isBlastResistant
 import net.ccbluex.liquidbounce.utils.block.raycast
+import net.ccbluex.liquidbounce.utils.client.baritone.PathManager
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.network
 import net.ccbluex.liquidbounce.utils.client.player
@@ -116,8 +117,13 @@ fun ClientPlayerEntity.isCloseToEdge(
     return wouldBeCloseToFallOff(pos) || wouldBeCloseToFallOff(playerPosInTwoTicks)
 }
 
-val ClientPlayerEntity.pressingMovementButton
-    get() = input.pressingForward || input.pressingBack || input.pressingLeft || input.pressingRight
+val ClientPlayerEntity.pressingMovementButton get() = if(PathManager.isPathing) {
+        with(mc.options) {
+            forwardKey.isPressed || backKey.isPressed || leftKey.isPressed || rightKey.isPressed
+        }
+    } else {
+        input.pressingForward || input.pressingBack || input.pressingLeft || input.pressingRight
+    }
 
 val Entity.exactPosition
     get() = Vec3d(x, y, z)

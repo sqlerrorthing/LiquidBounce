@@ -66,33 +66,35 @@ public class MixinInput {
     }
 
     @Unique
-    public void proceedKeyboardTick(DirectionalInput baseDirectionalInput, boolean jumping, boolean sneaking, Runnable additive) {
+    public void proceedKeyboardTick(DirectionalInput baseDirectionalInput, boolean jumping, boolean sneaking, boolean update, Runnable additive) {
         var event = new MovementInputEvent(baseDirectionalInput, jumping, sneaking);
 
         EventManager.INSTANCE.callEvent(event);
 
-        var directionalInput = event.getDirectionalInput();
+        if (update) {
+            var directionalInput = event.getDirectionalInput();
 
-        this.pressingForward = directionalInput.getForwards();
-        this.pressingBack = directionalInput.getBackwards();
-        this.pressingLeft = directionalInput.getLeft();
-        this.pressingRight = directionalInput.getRight();
-        this.movementForward = KeyboardInput.getMovementMultiplier(directionalInput.getForwards(), directionalInput.getBackwards());
-        this.movementSideways = KeyboardInput.getMovementMultiplier(directionalInput.getLeft(), directionalInput.getRight());
+            this.pressingForward = directionalInput.getForwards();
+            this.pressingBack = directionalInput.getBackwards();
+            this.pressingLeft = directionalInput.getLeft();
+            this.pressingRight = directionalInput.getRight();
+            this.movementForward = KeyboardInput.getMovementMultiplier(directionalInput.getForwards(), directionalInput.getBackwards());
+            this.movementSideways = KeyboardInput.getMovementMultiplier(directionalInput.getLeft(), directionalInput.getRight());
 
-        additive.run();
+            additive.run();
 
-        if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
-            this.movementForward = 0f;
+            if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
+                this.movementForward = 0f;
 
-            ModuleSprint sprint = ModuleSprint.INSTANCE;
+                ModuleSprint sprint = ModuleSprint.INSTANCE;
 
-            if (sprint.shouldSprintOmnidirectionally()) {
-                this.movementSideways = 0f;
+                if (sprint.shouldSprintOmnidirectionally()) {
+                    this.movementSideways = 0f;
+                }
             }
-        }
 
-        this.jumping = event.getJumping();
-        this.sneaking = event.getSneaking();
+            this.jumping = event.getJumping();
+            this.sneaking = event.getSneaking();
+        }
     }
 }

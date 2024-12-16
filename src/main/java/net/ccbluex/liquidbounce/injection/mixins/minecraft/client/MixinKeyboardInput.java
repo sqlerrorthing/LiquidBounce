@@ -66,7 +66,7 @@ public class MixinKeyboardInput extends MixinInput {
 
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;sneaking:Z", shift = At.Shift.AFTER), allow = 1)
     private void injectMovementInputEvent(boolean slowDown, float f, CallbackInfo ci) {
-        this.proceedKeyboardTick(new DirectionalInput(this.pressingForward, this.pressingBack, this.pressingLeft, this.pressingRight), this.jumping, this.sneaking, this::fixStrafeMovement);
+        this.proceedKeyboardTick(new DirectionalInput(this.pressingForward, this.pressingBack, this.pressingLeft, this.pressingRight), this.jumping, this.sneaking, true, this::fixStrafeMovement);
     }
 
     @Unique
