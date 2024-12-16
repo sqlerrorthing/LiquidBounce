@@ -136,7 +136,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (!BaritoneUtil) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("AutoJump", elytraAutoJump)
+                        createSetting("Jump", elytraAutoJump)
                         createSetting("Swap", elytraAutoSwap)
                     }
                 }
