@@ -179,8 +179,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
     }
 }
 
-@Suppress("unchecked_cast")
-private fun <T> Configurable.createSetting(
+private inline fun <reified T> Configurable.createSetting(
     name: String,
     setting: Settings.Setting<T>,
     minRangedValue: Int = 0,

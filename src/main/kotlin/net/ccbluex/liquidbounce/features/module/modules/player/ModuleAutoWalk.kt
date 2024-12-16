@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player
 
-import baritone.api.pathing.goals.GoalStrictDirection
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
@@ -26,9 +25,7 @@ import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.lang.translation
-import net.ccbluex.liquidbounce.utils.client.baritone.BaritoneUtil
-import net.ccbluex.liquidbounce.utils.client.baritone.goals.GoalDirection
+import net.ccbluex.liquidbounce.utils.client.baritone.PathManager
 import net.ccbluex.liquidbounce.utils.client.notification
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 
@@ -46,7 +43,7 @@ object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
             get() = modes
 
         override fun enable() {
-            if(!BaritoneUtil.isAvailable) {
+            if(!PathManager) {
                 notification(
                     this.name,
                     "Baritone is not installed! Install it first.",
@@ -57,15 +54,11 @@ object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
                 return
             }
 
-            BaritoneUtil.baritone.customGoalProcess.setGoalAndPath(GoalDirection(player.yaw))
+            PathManager.moveInDirection(player.yaw)
         }
 
         override fun disable() {
-            if(!BaritoneUtil.isAvailable) {
-                return
-            }
-
-            BaritoneUtil.baritone.pathingBehavior.cancelEverything()
+            PathManager.stop()
         }
     }
 
