@@ -187,3 +187,7 @@ data class Color4b(val r: Int, val g: Int, val b: Int, val a: Int) {
     private fun darkerChannel(value: Int) = (value * 0.7).toInt().coerceAtLeast(0)
 
 }
+
+fun Color.toColor4b(): Color4b = Color4b(this)
+
+fun Color4b.toColor(): Color = Color(r, g, b, a)

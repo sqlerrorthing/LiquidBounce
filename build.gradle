@@ -69,6 +69,14 @@ repositories {
         name = "Lenni0451"
         url = "https://maven.lenni0451.net/everything"
     }
+    maven {
+        name = "meteor-maven-snapshots"
+        url = "https://maven.meteordev.org/snapshots"
+    }
+    maven {
+        name = 'babbaj-maven'
+        url = 'https://babbaj.github.io/maven/'
+    }
 }
 
 loom {
@@ -89,6 +97,8 @@ dependencies {
     modRuntimeOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modCompileOnly "de.florianmichael:ViaFabricPlus:${project.viafabricplus_version}"
+    modImplementation "meteordevelopment:baritone:${project.baritone_version}-SNAPSHOT"
+    implementation 'dev.babbaj:nether-pathfinder:1.5'
 
     // Minecraft Authlib
     includeDependency ("com.github.CCBlueX:mc-authlib:${project.mc_authlib_version}") {
