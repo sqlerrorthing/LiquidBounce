@@ -101,7 +101,8 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 with(BaritoneAPI.getSettings()) {
                     createSetting("BlockPlacement", blockPlacementPenalty, maxRangedValue = 300)
                     createSetting("BlockBreakAdditionalPenalty", blockBreakAdditionalPenalty)
-                    createSetting("BreakCorrectBlockPenaltyMultiplier", breakCorrectBlockPenaltyMultiplier, maxRangedValue = 20)
+                    createSetting("BreakCorrectBlockPenaltyMultiplier",
+                        breakCorrectBlockPenaltyMultiplier, maxRangedValue = 20)
                     createSetting("PlaceIncorrectBlockPenaltyMultiplier", breakCorrectBlockPenaltyMultiplier)
                     createSetting("WalkOnWaterOnePenalty", walkOnWaterOnePenalty)
                     createSetting("JumpPenalty", jumpPenalty)

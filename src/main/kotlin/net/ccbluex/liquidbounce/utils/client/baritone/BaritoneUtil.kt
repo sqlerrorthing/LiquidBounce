@@ -12,7 +12,7 @@ object BaritoneUtil {
     }.getOrDefault(false)
 
     val baritone get() = BaritoneAPI.getProvider().primaryBaritone
-        ?: throw IllegalStateException("Called baritone but it is not available, please make sure to check isBaritoneAvailable")
+        ?: error("Called baritone but it is not available, please make sure to check isBaritoneAvailable")
 
     val isMining get() = mostResentInControl is IMineProcess
 
