@@ -4,7 +4,9 @@ import com.oracle.truffle.runtime.collection.ArrayQueue
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
+import net.ccbluex.liquidbounce.event.events.SimulatedTickEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.event.sequenceHandler
 import net.ccbluex.liquidbounce.event.tickHandler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -32,12 +34,6 @@ import net.minecraft.util.math.Vec3d
 import kotlin.math.*
 
 private const val MAX_SIMULATED_TICKS = 240
-
-/**
- * I actually don't know how2 turn the player's camera to the direction where i want to throw the ender pearl
- * without this crutch
- */
-private const val DIFF_STABILIZATION = 0.2
 
 /**
  * Auto pearl module
@@ -102,34 +98,45 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
     }
 
     @Suppress("unused")
-    private val repeatable = tickHandler {
-        val rotation = queue.poll() ?: return@tickHandler
-        val itemSlot = enderPearlSlot ?: return@tickHandler
+    private val simulatedTickHandler = sequenceHandler<SimulatedTickEvent> {
+        val rotation = queue.peek() ?: return@sequenceHandler
 
         CombatManager.pauseCombatForAtLeast(combatPauseTime)
         if (Rotate.enabled) {
-            waitUntil {
+            RotationManager.aimAt(
+                Rotate.rotations.toAimPlan(rotation),
+                Priority.IMPORTANT_FOR_USAGE_3,
+                this@ModuleAutoPearl
+            )
+        }
+    }
+
+    @Suppress("unused")
+    private val gameTickHandler = tickHandler {
+        val rotation = queue.poll() ?: return@tickHandler
+        val itemSlot = enderPearlSlot ?: return@tickHandler
+
+        if (Rotate.enabled) {
+            val checkDifference = {
+                abs(RotationManager.rotationDifference(RotationManager.serverRotation, rotation)) <= 1.0f
+            }
+
+            waitConditional(20) {
                 RotationManager.aimAt(
                     Rotate.rotations.toAimPlan(rotation),
                     Priority.IMPORTANT_FOR_USAGE_3,
                     this@ModuleAutoPearl
                 )
 
-                val serverRotations = transformAngles(RotationManager.serverRotation)
+                checkDifference()
+            }
 
-                val yawDiff = abs(serverRotations.yaw - rotation.yaw)
-                val pitchDiff = abs(serverRotations.pitch - rotation.pitch)
-
-                yawDiff <= DIFF_STABILIZATION && pitchDiff <= DIFF_STABILIZATION
+            if (!checkDifference()) {
+                return@tickHandler
             }
         }
 
-        val (yaw, pitch) = if (Rotate.enabled) {
-            RotationManager.serverRotation.yaw to RotationManager.serverRotation.pitch
-        } else {
-            rotation.yaw to rotation.pitch
-        }
-
+        val (yaw, pitch) = rotation.normalize()
         useHotbarSlotOrOffhand(itemSlot, slotResetDelay.random(), yaw, pitch)
     }
 
@@ -193,48 +200,6 @@ object ModuleAutoPearl : ClientModule("AutoPearl", Category.MISC, aliases = arra
         ).runSimulation(MAX_SIMULATED_TICKS)?.pos ?: return false
 
         return !Limits.enabled || Limits.destDistance > destination.distanceTo(simulatedDestination)
-    }
-
-    private fun transformAngles(rotation: Rotation): Rotation {
-        var transformedYaw = rotation.yaw
-        var transformedPitch = rotation.pitch
-
-        transformedYaw = (transformedYaw % 360)
-        if (transformedYaw > 180) {
-            transformedYaw -= 360
-        } else if (transformedYaw < -180) {
-            transformedYaw += 360
-        }
-
-        transformedPitch = (transformedPitch % 360)
-        if (transformedPitch > 180) {
-            transformedPitch -= 360
-        } else if (transformedPitch < -180) {
-            transformedPitch += 360
-        }
-
-        if (transformedPitch > 90) {
-            transformedPitch = 180 - transformedPitch
-            transformedYaw += 180
-            transformedYaw = (transformedYaw % 360)
-            if (transformedYaw > 180) {
-                transformedYaw -= 360
-            } else if (transformedYaw < -180) {
-                transformedYaw += 360
-            }
-
-        } else if (transformedPitch < -90) {
-            transformedPitch = -180 - transformedPitch
-            transformedYaw += 180
-            transformedYaw = (transformedYaw % 360)
-            if (transformedYaw > 180) {
-                transformedYaw -= 360
-            } else if (transformedYaw < -180) {
-                transformedYaw += 360
-            }
-        }
-
-        return Rotation(transformedYaw, transformedPitch)
     }
 
     private fun calculatePearlTrajectory(startPos: Vec3d, targetPos: Vec3d): Rotation? {
