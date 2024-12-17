@@ -48,7 +48,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                     Path,
                     Blocks,
                     Goal,
-                    Section
+                    Selection
                 )
             }
         }
@@ -82,14 +82,14 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Box", colorGoalBox)
-                        createSetting("InvertedBox", colorInvertedGoalBox)
+                        createSetting("Color", colorGoalBox)
+                        createSetting("Inverted", colorInvertedGoalBox)
                     }
                 }
             }
         }
 
-        private object Section : Configurable("Section") {
+        private object Selection : Configurable("Selection") {
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
