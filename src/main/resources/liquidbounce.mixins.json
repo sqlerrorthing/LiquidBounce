@@ -7,6 +7,7 @@
   "mixinPriority": 1337,
   "client": [
     "authlib.MixinMinecraftClient",
+    "baritone.MixinBaritone",
     "baritone.MixinPlayerMovementInput",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockCollisionSpliterator",

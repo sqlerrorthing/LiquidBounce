@@ -8,8 +8,8 @@ import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.render.engine.toColor
 import net.ccbluex.liquidbounce.render.engine.toColor4b
+import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
 import net.ccbluex.liquidbounce.utils.client.baritone.BaritoneUtil
-import net.ccbluex.liquidbounce.utils.client.baritone.not
 import java.awt.Color
 
 /**
@@ -19,13 +19,14 @@ import java.awt.Color
  */
 object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivation = true, hide = true) {
     init {
-        if (!BaritoneUtil) {
+        if (BaritoneUtil.isAvailable) {
             with(BaritoneAPI.getSettings()) {
                 createSetting("Break", allowBreak)
                 createSetting("Place", allowPlace)
             }
 
             treeAll(
+                Rotations,
                 Movement,
                 Penalties,
                 Mining,
@@ -35,9 +36,11 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         }
     }
 
+    object Rotations : RotationsConfigurable(this)
+
     private object Mining : Configurable("Mining") {
         init {
-            if (!BaritoneUtil) {
+            if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
                     createSetting("MinMineYLevel", minYLevelWhileMining, maxRangedValue = 2031)
                     createSetting("MaxMineYLevel", maxYLevelWhileMining, maxRangedValue = 2031)
@@ -58,7 +61,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
         private object LegitMine : Configurable("LegitMine") {
             init {
-                if (!BaritoneUtil) {
+                if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createSetting("Allow", legitMine)
                         createSetting("IncludeDiagonals", legitMineIncludeDiagonals)
@@ -71,7 +74,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
     private object Movement : Configurable("Movement") {
         init {
-            if (!BaritoneUtil) {
+            if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
                     createSetting("Sprint", allowSprint)
                     createSetting("JumpAt256", allowJumpAt256)
@@ -85,7 +88,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
         private object Parkour : Configurable("Parkour") {
             init {
-                if (!BaritoneUtil) {
+                if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createSetting("Allow", allowParkour)
                         createSetting("Place", allowParkourPlace)
@@ -98,7 +101,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
     private object Penalties : Configurable("Penalties") {
         init {
-            if (!BaritoneUtil) {
+            if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
                     createSetting("BlockPlacement", blockPlacementPenalty, maxRangedValue = 300)
                     createSetting("BlockBreakAdditionalPenalty", blockBreakAdditionalPenalty)
@@ -114,7 +117,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
     private object Elytra : Configurable("Elytra") {
         init {
-            if (!BaritoneUtil) {
+            if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
                     createSetting("SimulationTicks", elytraSimulationTicks, 1, 100)
                     createSetting("PitchRange", elytraPitchRange, 1, 100)
@@ -134,7 +137,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
         private object Auto : Configurable("Auto") {
             init {
-                if (!BaritoneUtil) {
+                if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createSetting("Jump", elytraAutoJump)
                         createSetting("Swap", elytraAutoSwap)
@@ -145,7 +148,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
         private object Firework : Configurable("Firework") {
             init {
-                if (!BaritoneUtil) {
+                if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createSetting("Speed", elytraFireworkSpeed)
                         createSetting("SetbackUseDelay", elytraFireworkSetbackUseDelay)
@@ -157,7 +160,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
         private object Render : Configurable("Render") {
             init {
-                if (!BaritoneUtil) {
+                if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createSetting("Raytraces", elytraRenderRaytraces)
                         createSetting("HitboxRaytraces", elytraRenderHitboxRaytraces)
@@ -170,7 +173,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
 
     private object Items : Configurable("Items") {
         init {
-            if (!BaritoneUtil) {
+            if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
                     createSetting("Inventory", allowInventory)
                     createSetting("AutoTool", autoTool)

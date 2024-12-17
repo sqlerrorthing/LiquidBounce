@@ -24,6 +24,8 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import kotlin.math.roundToInt
 
+import baritone.api.utils.Rotation as BRotation
+
 data class Rotation(
     var yaw: Float,
     var pitch: Float,
@@ -75,3 +77,9 @@ data class Rotation(
 }
 
 data class VecRotation(val rotation: Rotation, val vec: Vec3d)
+
+fun Rotation.toBaritoneRotation() =
+    BRotation(yaw, pitch)
+
+fun BRotation.toClientRotation() =
+    Rotation(yaw, pitch)

@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.utils.client.baritone.PathManager
 import net.ccbluex.liquidbounce.utils.entity.eyes
 import net.ccbluex.liquidbounce.utils.entity.getMovementDirectionOfInput
 import net.ccbluex.liquidbounce.utils.entity.strafe
@@ -80,7 +81,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         pos = null
 
         // Reset player rotation
-        if (!allowRotationChange) {
+        if (!allowRotationChange && !PathManager.isPathing) {
             val rotation = ModuleRotations.displayRotations()
 
             player.yaw = rotation.yaw
@@ -131,16 +132,16 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
      * Modify the raycast position
      */
     fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float): Vec3d {
-        if (!running || entity != mc.player || !allowCameraInteract) {
+        if (!running || entity != mc.player || (!allowCameraInteract && !PathManager.isPathing)) {
             return original
         }
 
         return pos?.interpolate(tickDelta) ?: original
     }
 
-    fun shouldDisableCrosshair() = running && !allowCameraInteract
+    fun shouldDisableCrosshair() = running && (!allowCameraInteract && !PathManager.isPathing)
 
-    fun shouldDisableRotations() = running && !allowRotationChange
+    fun shouldDisableRotations() = running && (!allowRotationChange && !PathManager.isPathing)
 
     private fun updatePosition(velocity: Vec3d) {
         pos = (pos ?: PositionPair(player.eyes, player.eyes)).apply { this += velocity }
