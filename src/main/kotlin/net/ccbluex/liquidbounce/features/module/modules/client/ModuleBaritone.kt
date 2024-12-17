@@ -28,15 +28,116 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             treeAll(
                 Rotations,
                 Movement,
+                Assumptions,
                 Penalties,
                 Mining,
                 Items,
-                Elytra
+                Elytra,
+                Waypoints,
+                Colors
             )
         }
     }
 
     object Rotations : RotationsConfigurable(this)
+
+    private object Colors : Configurable("Colors") {
+        init {
+            if (BaritoneUtil.isAvailable) {
+                treeAll(
+                    Path,
+                    Blocks,
+                    Goal,
+                    Section
+                )
+            }
+        }
+
+        private object Path : Configurable("Path") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Current", colorCurrentPath)
+                        createSetting("Next", colorNextPath)
+                        createSetting("BestPathSoFar", colorBestPathSoFar)
+                        createSetting("MostRecentConsidered", colorMostRecentConsidered)
+                    }
+                }
+            }
+        }
+
+        private object Blocks : Configurable("Blocks") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("ToBreak", colorBlocksToBreak)
+                        createSetting("Next", colorBlocksToPlace)
+                        createSetting("ToWalkInto", colorBlocksToWalkInto)
+                    }
+                }
+            }
+        }
+
+        private object Goal : Configurable("Goal") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Box", colorGoalBox)
+                        createSetting("InvertedBox", colorInvertedGoalBox)
+                    }
+                }
+            }
+        }
+
+        private object Section : Configurable("Section") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Color", colorSelection)
+                        createSetting("PosFirst", colorSelectionPos1)
+                        createSetting("PosSecond", colorSelectionPos2)
+                    }
+                }
+            }
+        }
+    }
+
+    private object Waypoints : Configurable("Waypoints") {
+        init {
+            if (BaritoneUtil.isAvailable) {
+                with(BaritoneAPI.getSettings()) {
+                    createSetting("Bed", doBedWaypoints)
+                    createSetting("Death", doDeathWaypoints)
+                }
+            }
+        }
+    }
+
+    private object Assumptions : Configurable("Assumptions") {
+        init {
+            if (BaritoneUtil.isAvailable) {
+                with(BaritoneAPI.getSettings()) {
+                    createSetting("Step", assumeStep)
+                }
+
+                treeAll(
+                    Walk
+                )
+            }
+        }
+
+        private object Walk : Configurable("Walk") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Water", assumeWalkOnWater)
+                        createSetting("Lava", assumeWalkOnLava)
+                        createSetting("Safe", assumeSafeWalk)
+                    }
+                }
+            }
+        }
+    }
 
     private object Mining : Configurable("Mining") {
         init {
@@ -81,8 +182,33 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 }
 
                 treeAll(
+                    Ascends,
+                    Descends,
                     Parkour
                 )
+            }
+        }
+
+        private object Ascends : Configurable("Ascends") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Diagonal", allowDiagonalAscend)
+                        createSetting("WithSprint", sprintAscends)
+                        createSetting("Parkour", allowParkourAscend)
+                    }
+                }
+            }
+        }
+
+        private object Descends : Configurable("Descends") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Diagonal", allowDiagonalDescend)
+                        createSetting("OvershootDiagonal", allowOvershootDiagonalDescend)
+                    }
+                }
             }
         }
 
@@ -92,7 +218,6 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                     with(BaritoneAPI.getSettings()) {
                         createSetting("Allow", allowParkour)
                         createSetting("Place", allowParkourPlace)
-                        createSetting("Ascend", allowParkourAscend)
                     }
                 }
             }
