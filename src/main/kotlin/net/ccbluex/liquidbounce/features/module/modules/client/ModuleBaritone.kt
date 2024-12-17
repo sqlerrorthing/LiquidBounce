@@ -143,15 +143,15 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("MinMineYLevel", minYLevelWhileMining, maxRangedValue = 2031)
-                    createSetting("MaxMineYLevel", maxYLevelWhileMining, maxRangedValue = 2031)
-                    createSetting("MineGoalUpdateInterval", mineGoalUpdateInterval, maxRangedValue = 20)
-                    createSetting("MineMaxOreLocationsCount", mineGoalUpdateInterval, maxRangedValue = 64)
-                    createSetting("PauseMiningForFallingBlocks", pauseMiningForFallingBlocks)
-                    createSetting("ForceInternalMining", forceInternalMining)
+                    createSetting("MinYLevel", minYLevelWhileMining, maxRangedValue = 2031)
+                    createSetting("MaxYLevel", maxYLevelWhileMining, maxRangedValue = 2031)
+                    createSetting("GoalUpdateInterval", mineGoalUpdateInterval, maxRangedValue = 20)
+                    createSetting("MaxOreLocationsCount", mineMaxOreLocationsCount, maxRangedValue = 64)
+                    createSetting("PauseForFallingBlocks", pauseMiningForFallingBlocks)
+                    createSetting("ForceInternal", forceInternalMining)
                     createSetting("OnlyExposedOres", allowOnlyExposedOres)
                     createSetting("UseSword", useSwordToMine)
-                    createSetting("NotificationOnMineFail", notificationOnMineFail)
+                    createSetting("NotificationOnFail", notificationOnMineFail)
                 }
 
                 treeAll(
