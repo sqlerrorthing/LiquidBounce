@@ -155,12 +155,12 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 }
 
                 treeAll(
-                    LegitMine
+                    Legit
                 )
             }
         }
 
-        private object LegitMine : Configurable("LegitMine") {
+        private object Legit : Configurable("Legit") {
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
