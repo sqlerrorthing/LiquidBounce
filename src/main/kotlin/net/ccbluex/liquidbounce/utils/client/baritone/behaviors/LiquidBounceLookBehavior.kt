@@ -41,9 +41,7 @@ class LiquidBounceLookBehavior : ILookBehavior {
 
         when (event.state) {
             EventState.PRE -> {
-                if (target != null) {
-                    processor.nextRotation(target!!.toBaritoneRotation())
-                }
+                processor.nextRotation(target!!.toBaritoneRotation())
             }
             EventState.POST -> {
                 target = null
