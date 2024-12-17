@@ -228,13 +228,26 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("BlockPlacement", blockPlacementPenalty, maxRangedValue = 300)
-                    createSetting("BlockBreakAdditionalPenalty", blockBreakAdditionalPenalty)
-                    createSetting("BreakCorrectBlockPenaltyMultiplier",
-                        breakCorrectBlockPenaltyMultiplier, maxRangedValue = 20)
-                    createSetting("PlaceIncorrectBlockPenaltyMultiplier", breakCorrectBlockPenaltyMultiplier)
                     createSetting("WalkOnWaterOnePenalty", walkOnWaterOnePenalty)
                     createSetting("JumpPenalty", jumpPenalty)
+                }
+
+                treeAll(
+                    Blocks
+                )
+            }
+        }
+
+        private object Blocks : Configurable("Blocks") {
+            init {
+                if (BaritoneUtil.isAvailable) {
+                    with(BaritoneAPI.getSettings()) {
+                        createSetting("Placement", blockPlacementPenalty, maxRangedValue = 300)
+                        createSetting("BreakAdditionalPenalty", blockBreakAdditionalPenalty)
+                        createSetting("BreakCorrectBlockPenaltyMultiplier",
+                            breakCorrectBlockPenaltyMultiplier, maxRangedValue = 20)
+                        createSetting("PlaceIncorrectBlockPenaltyMultiplier", breakCorrectBlockPenaltyMultiplier)
+                    }
                 }
             }
         }
