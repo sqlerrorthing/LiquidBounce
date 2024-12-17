@@ -246,7 +246,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                         createSetting("BreakAdditional", blockBreakAdditionalPenalty)
                         createSetting("BreakCorrectBlockMultiplier",
                             breakCorrectBlockPenaltyMultiplier, maxRangedValue = 20)
-                        createSetting("PlaceIncorrectBlockMultiplier", breakCorrectBlockPenaltyMultiplier)
+                        createSetting("PlaceIncorrectBlockMultiplier", placeIncorrectBlockPenaltyMultiplier)
                     }
                 }
             }
