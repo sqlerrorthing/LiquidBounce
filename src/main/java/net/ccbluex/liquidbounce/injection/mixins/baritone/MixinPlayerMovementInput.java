@@ -14,7 +14,7 @@ public class MixinPlayerMovementInput extends MixinInput {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void hookTick(boolean par1, float par2, CallbackInfo ci) {
-        var options =  MinecraftClient.getInstance().options;
+        var options =  MinecraftClient.getInstance().options
 
         this.proceedKeyboardTick(new DirectionalInput(
                 options.forwardKey.isPressed(),
