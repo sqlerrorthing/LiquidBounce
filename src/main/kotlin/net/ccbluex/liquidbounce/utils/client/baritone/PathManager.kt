@@ -39,8 +39,18 @@ interface PathManager {
      * By default, returns `false` as no pathing operation is active unless overridden by an implementation.
      *
      * @return `true` if there is an active pathing operation, `false` otherwise.
+     * This will be false if there's currently a pause.
      */
     val isPathing: Boolean
+        get() = false
+
+    /**
+     * If there is a current path. Note that the path is not necessarily being executed,
+     * for example when there is a pause in effect.
+     *
+     * @return `true` if there is an active pathing operation, `false` otherwise.
+     */
+    val hasPath: Boolean
         get() = false
 
     /**
@@ -107,6 +117,8 @@ interface PathManager {
 
         override val isPathing get() = Default.isPathing
 
+        override val hasPath: Boolean get() = Default.hasPath
+
         override val isBaritone get() = Default.isBaritone
 
         override fun moveTo(pos: BlockPos, ignoreY: Boolean) = Default.moveTo(pos, ignoreY)
@@ -137,6 +149,8 @@ object BaritonePathManager : PathManager {
     override val isBaritone = true
 
     override val isPathing get() = baritone.pathingBehavior.isPathing
+
+    override val hasPath get() = baritone.pathingBehavior.hasPath()
 
     override fun moveTo(pos: BlockPos, ignoreY: Boolean) = if(ignoreY) {
         baritone.customGoalProcess.setGoalAndPath(GoalXZ(pos.x, pos.z))

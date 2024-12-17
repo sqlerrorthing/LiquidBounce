@@ -8,6 +8,8 @@
   "client": [
     "authlib.MixinMinecraftClient",
     "baritone.MixinBaritone",
+    "baritone.MixinCustomGoalProcess",
+    "baritone.MixinPathingBehavior",
     "baritone.MixinPlayerMovementInput",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockCollisionSpliterator",

@@ -45,6 +45,7 @@ import net.ccbluex.liquidbounce.features.module.modules.render.ModuleDebug
 import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.renderEnvironmentForWorld
 import net.ccbluex.liquidbounce.utils.aiming.*
+import net.ccbluex.liquidbounce.utils.client.baritone.PathManager
 import net.ccbluex.liquidbounce.utils.combat.*
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
 import net.ccbluex.liquidbounce.utils.entity.isBlockAction
@@ -117,6 +118,14 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     internal val ignoreOpenInventory by boolean("IgnoreOpenInventory", true)
     internal val simulateInventoryClosing by boolean("SimulateInventoryClosing", true)
 
+    private val pauseBaritone by boolean("PauseBaritone", true).onChanged {
+        if(it && targetTracker.lockedOnTarget != null && PathManager.isPathing) {
+            PathManager.pause()
+        } else if (!it && targetTracker.lockedOnTarget != null) {
+            PathManager.resume()
+        }
+    }
+
     init {
         tree(KillAuraAutoBlock)
     }
@@ -130,7 +139,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     }
 
     override fun disable() {
-        targetTracker.cleanup()
+        targetTracker.cleanup(unpauseBaritone = pauseBaritone)
         failedHits.clear()
         KillAuraAutoBlock.stopBlocking()
         KillAuraNotifyWhenFail.failedHitsIncrement = 0
@@ -165,7 +174,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
         if (isInInventoryScreen && !ignoreOpenInventory || shouldCleanUpTracker) {
             // Cleanup current target tracker
-            targetTracker.cleanup()
+            targetTracker.cleanup(unpauseBaritone = pauseBaritone)
             return@handler
         }
 
@@ -231,7 +240,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
             // Swap enemy if there is a better enemy (closer to the player crosshair)
             if (chosenEntity is LivingEntity && chosenEntity.shouldBeAttacked() && chosenEntity != target) {
-                targetTracker.lock(chosenEntity)
+                targetTracker.lock(chosenEntity, pauseBaritone = pauseBaritone)
             }
         } else {
             chosenEntity = target
@@ -325,7 +334,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
      * Update enemy on target tracker
      */
     private fun updateEnemySelection() {
-        targetTracker.validateLock { it.shouldBeAttacked() && it.boxedDistanceTo(player) <= range }
+        targetTracker.validateLock(pauseBaritone) { it.shouldBeAttacked() && it.boxedDistanceTo(player) <= range }
 
         // Update target tracker, since we want to access
         // the maximumDistance in the next step
@@ -359,7 +368,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val spot = getSpot(target, range.toDouble(), situation) ?: continue
 
             // lock on target tracker
-            targetTracker.lock(target)
+            targetTracker.lock(target, pauseBaritone = pauseBaritone)
 
             // aim at target
             val ticks = rotations.howLongToReach(spot.rotation)
@@ -397,7 +406,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
                 priority = Priority.IMPORTANT_FOR_USAGE_2,
                 provider = this@ModuleKillAura
             )
-            targetTracker.lock(targetByPriority)
+            targetTracker.lock(targetByPriority, pauseBaritone = pauseBaritone)
         }
     }
 

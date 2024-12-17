@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.event.events.BaritonePathCancelEverythingEvent
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.NotificationEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -57,8 +58,15 @@ object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
             PathManager.moveInDirection(player.yaw)
         }
 
+        @Suppress("unused")
+        private val cancelHandler = handler<BaritonePathCancelEverythingEvent> { _ ->
+            ModuleAutoWalk.enabled = false
+        }
+
         override fun disable() {
-            PathManager.stop()
+            if(PathManager.hasPath) {
+                PathManager.stop()
+            }
         }
     }
 

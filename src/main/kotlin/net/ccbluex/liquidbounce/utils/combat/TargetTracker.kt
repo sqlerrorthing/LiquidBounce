@@ -24,6 +24,7 @@ import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.event.events.TargetChangeEvent
 import net.ccbluex.liquidbounce.integration.interop.protocol.rest.v1.game.PlayerData
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
+import net.ccbluex.liquidbounce.utils.client.baritone.PathManager
 import net.ccbluex.liquidbounce.utils.client.player
 import net.ccbluex.liquidbounce.utils.client.world
 import net.ccbluex.liquidbounce.utils.entity.boxedDistanceTo
@@ -104,27 +105,35 @@ open class TargetTracker(
         return entities
     }
 
-    fun cleanup() {
-        unlock()
+    fun cleanup(unpauseBaritone: Boolean = false) {
+        unlock(unpauseBaritone = unpauseBaritone)
     }
 
-    fun lock(entity: LivingEntity, reportToUI: Boolean = true) {
+    fun lock(entity: LivingEntity, reportToUI: Boolean = true, pauseBaritone: Boolean = false) {
         lockedOnTarget = entity
+
+        if (pauseBaritone && PathManager.isPathing) {
+            PathManager.pause()
+        }
 
         if (entity is PlayerEntity && reportToUI) {
             EventManager.callEvent(TargetChangeEvent(PlayerData.fromPlayer(entity)))
         }
     }
 
-    private fun unlock() {
+    private fun unlock(unpauseBaritone: Boolean = false) {
         lockedOnTarget = null
+
+        if (unpauseBaritone && PathManager.hasPath) {
+            PathManager.resume()
+        }
     }
 
-    fun validateLock(validator: (Entity) -> Boolean) {
+    fun validateLock(unpauseBaritone: Boolean = false, validator: (Entity) -> Boolean) {
         val lockedOnTarget = lockedOnTarget ?: return
 
         if (!validate(lockedOnTarget) || !validator(lockedOnTarget)) {
-            this.lockedOnTarget = null
+            unlock(unpauseBaritone)
         }
     }
 

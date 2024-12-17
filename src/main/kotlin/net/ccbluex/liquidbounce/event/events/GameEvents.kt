@@ -20,6 +20,7 @@
 
 package net.ccbluex.liquidbounce.event.events
 
+import baritone.api.pathing.goals.Goal
 import net.ccbluex.liquidbounce.event.CancellableEvent
 import net.ccbluex.liquidbounce.event.Event
 import net.ccbluex.liquidbounce.integration.interop.protocol.event.WebSocketEvent
@@ -70,6 +71,12 @@ class CancelBlockBreakingEvent : CancellableEvent()
 /**
  * All events which are related to the minecraft client
  */
+
+@Nameable("baritonePathCancelEverythingEvent")
+class BaritonePathCancelEverythingEvent : Event()
+
+@Nameable("baritoneCustomGoalProcessCreated")
+class BaritoneCustomGoalProcessCreatedEvent(val goal: Goal) : CancellableEvent()
 
 @Nameable("session")
 @WebSocketEvent
