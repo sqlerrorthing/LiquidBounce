@@ -7,6 +7,7 @@ import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.injection.mixins.baritone.MixinSetCommand
 import net.ccbluex.liquidbounce.render.engine.toColor
 import net.ccbluex.liquidbounce.render.engine.toColor4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -292,6 +293,36 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
     }
 }
 
+/**
+ * A mutable map for controlling Baritone settings through client-side wrapper ([ModuleBaritone]) settings.
+ *
+ * The map key represents a Baritone setting ([Settings.Setting]),
+ * and the value is a lambda function that serves as a setter for updating the setting's value.
+ *
+ * The lambda accepts the current setting value of type [Any], corresponding to
+ * the generic type T of the original [Settings.Setting.value].
+ *
+ * Used for dynamic management and synchronization of Baritone settings
+ * through intermediate client-side settings.
+ *
+ * @see Settings.Setting
+ * @see MixinSetCommand
+ */
+private val controlledBaritoneSettingsMutableMap = mutableMapOf<Settings.Setting<*>, (Any) -> Unit>()
+
+/**
+ * Provides read-only access to the controlled Baritone settings map.
+ *
+ * This getter exposes the internal [controlledBaritoneSettingsMutableMap]
+ * as an immutable [Map], preventing direct modifications from outside the class.
+ *
+ * Contains Baritone settings mapped to their respective setter lambdas,
+ * where each lambda can update the corresponding setting's value.
+ *
+ * @return An immutable map of Baritone settings and their setter functions
+ */
+val controlledBaritoneSettings: Map<Settings.Setting<*>, (Any) -> Unit> get() = controlledBaritoneSettingsMutableMap
+
 private fun Configurable.createToggleableConfigurableSetting(
     reference: ToggleableConfigurable,
     setting: Settings.Setting<Boolean>,
@@ -304,6 +335,10 @@ private fun Configurable.createToggleableConfigurableSetting(
 
     if (addToTree) {
         this.tree(reference)
+    }
+
+    controlledBaritoneSettingsMutableMap[setting] = {
+        reference.enabled = it as Boolean
     }
 }
 
@@ -329,24 +364,45 @@ private inline fun <reified T> Configurable.createSetting(
 ): Value<*> = when (val value = setting.value) {
     is Boolean -> boolean(name, value)
         .onChanged { setting.value = it as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set(it as Boolean)
+        } }
 
     is Double -> float(name, value.toFloat(), minRangedValue.toFloat()..maxRangedValue.toFloat())
         .onChanged { setting.value = it.toDouble() as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set((it as Double).toFloat())
+        } }
 
     is Float -> float(name, value, minRangedValue.toFloat()..maxRangedValue.toFloat())
         .onChanged { setting.value = it as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set(it as Float)
+        } }
 
     is Int -> int(name, value, 0..maxRangedValue)
         .onChanged { setting.value = it as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set(it as Int)
+        } }
 
     is Long -> int(name, value.toInt(), minRangedValue..maxRangedValue)
         .onChanged { setting.value = it.toLong() as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set((it as Long).toInt())
+        } }
 
     is String -> text(name, value)
         .onChanged { setting.value = it as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set(it as String)
+        } }
 
     is Color -> color(name, value.toColor4b())
         .onChanged { setting.value = it.toColor() as T }
+        .apply { controlledBaritoneSettingsMutableMap[setting] = {
+            set((it as Color).toColor4b())
+        } }
 
     else -> throw NotImplementedError("Undefined baritone setting class!")
 }

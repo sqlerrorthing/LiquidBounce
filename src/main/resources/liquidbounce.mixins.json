@@ -11,6 +11,7 @@
     "baritone.MixinCustomGoalProcess",
     "baritone.MixinPathingBehavior",
     "baritone.MixinPlayerMovementInput",
+    "baritone.MixinSetCommand",
     "minecraft.block.MixinBlock",
     "minecraft.block.MixinBlockCollisionSpliterator",
     "minecraft.block.MixinBlockView",
