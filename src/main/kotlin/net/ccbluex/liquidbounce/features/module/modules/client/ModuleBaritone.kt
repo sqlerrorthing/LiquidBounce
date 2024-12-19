@@ -417,5 +417,5 @@ private inline fun <reified T> Configurable.createSetting(
             set((it as Color).toColor4b())
         } }
 
-    else -> throw NotImplementedError("Undefined baritone setting class!")
+    else -> throw NotImplementedError("Undefined baritone setting class! ${T::class.java.name}")
 }

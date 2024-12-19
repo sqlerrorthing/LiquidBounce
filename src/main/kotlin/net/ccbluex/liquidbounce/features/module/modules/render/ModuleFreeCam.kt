@@ -132,7 +132,7 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
      * Modify the raycast position
      */
     fun modifyRaycast(original: Vec3d, entity: Entity, tickDelta: Float): Vec3d {
-        if (!running || entity != mc.player || (!allowCameraInteract && !PathManager.isPathing)) {
+        if (!running || entity != mc.player || !allowCameraInteract || PathManager.isPathing) {
             return original
         }
 
