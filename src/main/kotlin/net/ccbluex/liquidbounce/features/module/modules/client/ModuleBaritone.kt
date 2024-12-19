@@ -20,6 +20,19 @@ import java.awt.Color
  * @author sqlerrorthing
  */
 object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivation = true, hide = true) {
+
+    /**
+     * This `init` block initializes settings and configurations related to Baritone.
+     * The check `BaritoneUtil.isAvailable` is **mandatory** to prevent potential errors
+     * if Baritone is not present (e.g class baritone.api.BaritoneAPI not found error (CNDF)).
+     *
+     * Without this check, the code within this block will still
+     * execute, potentially causing `(C)lass (N)ot (D)ef (F)ound` or other issues due to
+     * the absence of the Baritone API.
+     *
+     * If `BaritoneUtil.isAvailable` evaluates to `false`, this entire block will be skipped,
+     * preventing attempts to interact with the Baritone API when it is not loaded.
+     */
     init {
         if (BaritoneUtil.isAvailable) {
             with(BaritoneAPI.getSettings()) {
