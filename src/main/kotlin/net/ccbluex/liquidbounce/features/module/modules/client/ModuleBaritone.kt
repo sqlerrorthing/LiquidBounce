@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.injection.mixins.baritone.MixinSetCommand
+import net.ccbluex.liquidbounce.render.engine.Color4b
 import net.ccbluex.liquidbounce.render.engine.toColor
 import net.ccbluex.liquidbounce.render.engine.toColor4b
 import net.ccbluex.liquidbounce.utils.aiming.RotationsConfigurable
@@ -36,7 +37,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
     init {
         if (BaritoneUtil.isAvailable) {
             with(BaritoneAPI.getSettings()) {
-                createSetting("Place", allowPlace)
+                createValSetting("Place", allowPlace)
                 createToggleableConfigurableSetting(Mining, allowBreak)
             }
 
@@ -71,10 +72,10 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Current", colorCurrentPath)
-                        createSetting("Next", colorNextPath)
-                        createSetting("BestPathSoFar", colorBestPathSoFar)
-                        createSetting("MostRecentConsidered", colorMostRecentConsidered)
+                        createValSetting("Current", colorCurrentPath)
+                        createValSetting("Next", colorNextPath)
+                        createValSetting("BestPathSoFar", colorBestPathSoFar)
+                        createValSetting("MostRecentConsidered", colorMostRecentConsidered)
                     }
                 }
             }
@@ -84,9 +85,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("ToBreak", colorBlocksToBreak)
-                        createSetting("ToPlace", colorBlocksToPlace)
-                        createSetting("ToWalkInto", colorBlocksToWalkInto)
+                        createValSetting("ToBreak", colorBlocksToBreak)
+                        createValSetting("ToPlace", colorBlocksToPlace)
+                        createValSetting("ToWalkInto", colorBlocksToWalkInto)
                     }
                 }
             }
@@ -96,8 +97,8 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Color", colorGoalBox)
-                        createSetting("Inverted", colorInvertedGoalBox)
+                        createValSetting("Color", colorGoalBox)
+                        createValSetting("Inverted", colorInvertedGoalBox)
                     }
                 }
             }
@@ -107,9 +108,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Color", colorSelection)
-                        createSetting("PosFirst", colorSelectionPos1)
-                        createSetting("PosSecond", colorSelectionPos2)
+                        createValSetting("Color", colorSelection)
+                        createValSetting("PosFirst", colorSelectionPos1)
+                        createValSetting("PosSecond", colorSelectionPos2)
                     }
                 }
             }
@@ -120,8 +121,8 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("Bed", doBedWaypoints)
-                    createSetting("Death", doDeathWaypoints)
+                    createValSetting("Bed", doBedWaypoints)
+                    createValSetting("Death", doDeathWaypoints)
                 }
             }
         }
@@ -131,7 +132,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("Step", assumeStep)
+                    createValSetting("Step", assumeStep)
                 }
 
                 treeAll(
@@ -144,9 +145,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Water", assumeWalkOnWater)
-                        createSetting("Lava", assumeWalkOnLava)
-                        createSetting("Safe", assumeSafeWalk)
+                        createValSetting("Water", assumeWalkOnWater)
+                        createValSetting("Lava", assumeWalkOnLava)
+                        createValSetting("Safe", assumeSafeWalk)
                     }
                 }
             }
@@ -157,18 +158,18 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("MinYLevel", minYLevelWhileMining, maxRangedValue = 2031)
-                    createSetting("MaxYLevel", maxYLevelWhileMining, maxRangedValue = 2031)
-                    createSetting("GoalUpdateInterval", mineGoalUpdateInterval, maxRangedValue = 20)
-                    createSetting("MaxOreLocationsCount", mineMaxOreLocationsCount, maxRangedValue = 64)
-                    createSetting("PauseForFallingBlocks", pauseMiningForFallingBlocks)
-                    createSetting("ForceInternal", forceInternalMining)
-                    createSetting("OnlyExposedOres", allowOnlyExposedOres)
-                    createSetting("UseSword", useSwordToMine)
-                    createSetting("NotificationOnFail", notificationOnMineFail)
+                    createNumSetting("MinYLevel", minYLevelWhileMining, 0..2031)
+                    createNumSetting("MaxYLevel", maxYLevelWhileMining, 0..2031)
+                    createNumSetting("GoalUpdateInterval", mineGoalUpdateInterval, 0..20)
+                    createNumSetting("MaxOreLocationsCount", mineMaxOreLocationsCount, 0..64)
+                    createValSetting("PauseForFallingBlocks", pauseMiningForFallingBlocks)
+                    createValSetting("ForceInternal", forceInternalMining)
+                    createValSetting("OnlyExposedOres", allowOnlyExposedOres)
+                    createValSetting("UseSword", useSwordToMine)
+                    createValSetting("NotificationOnFail", notificationOnMineFail)
                     createToggleableConfigurableSetting("LegitMine", legitMine) {
-                        createSetting("IncludeDiagonals", legitMineIncludeDiagonals)
-                        createSetting("YLevel", legitMineYLevel, -64, 320)
+                        createValSetting("IncludeDiagonals", legitMineIncludeDiagonals)
+                        createNumSetting("YLevel", legitMineYLevel, -64..320)
                     }
                 }
             }
@@ -179,10 +180,10 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("Sprint", allowSprint)
-                    createSetting("JumpAt256", allowJumpAt256)
+                    createValSetting("Sprint", allowSprint)
+                    createValSetting("JumpAt256", allowJumpAt256)
                     createToggleableConfigurableSetting("Parkour", allowParkour) {
-                        createSetting("Place", allowParkourPlace)
+                        createValSetting("Place", allowParkourPlace)
                     }
                 }
 
@@ -197,9 +198,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Diagonal", allowDiagonalAscend)
-                        createSetting("WithSprint", sprintAscends)
-                        createSetting("Parkour", allowParkourAscend)
+                        createValSetting("Diagonal", allowDiagonalAscend)
+                        createValSetting("WithSprint", sprintAscends)
+                        createValSetting("Parkour", allowParkourAscend)
                     }
                 }
             }
@@ -210,7 +211,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createToggleableConfigurableSetting("Diagonal", allowDiagonalDescend) {
-                            createSetting("Overshoot", allowOvershootDiagonalDescend)
+                            createValSetting("Overshoot", allowOvershootDiagonalDescend)
                         }
                     }
                 }
@@ -222,8 +223,8 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("WalkOnWater", walkOnWaterOnePenalty)
-                    createSetting("Jump", jumpPenalty)
+                    createNumSetting("WalkOnWater", walkOnWaterOnePenalty, 0..10)
+                    createNumSetting("Jump", jumpPenalty, 0..10)
                 }
 
                 treeAll(
@@ -236,11 +237,11 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Placement", blockPlacementPenalty, maxRangedValue = 300)
-                        createSetting("BreakAdditional", blockBreakAdditionalPenalty)
-                        createSetting("BreakCorrectBlockMultiplier",
-                            breakCorrectBlockPenaltyMultiplier, maxRangedValue = 20)
-                        createSetting("PlaceIncorrectBlockMultiplier", placeIncorrectBlockPenaltyMultiplier)
+                        createNumSetting("Placement", blockPlacementPenalty, 0..300)
+                        createNumSetting("BreakAdditional", blockBreakAdditionalPenalty, 0..10)
+                        createNumSetting("BreakCorrectBlockMultiplier",
+                            breakCorrectBlockPenaltyMultiplier, 0..20)
+                        createNumSetting("PlaceIncorrectBlockMultiplier", placeIncorrectBlockPenaltyMultiplier, 0..10)
                     }
                 }
             }
@@ -251,14 +252,14 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("SimulationTicks", elytraSimulationTicks, 1, 100)
-                    createSetting("PitchRange", elytraPitchRange, 1, 100)
-                    createSetting("MinimumAvoidance", elytraMinimumAvoidance, -10)
-                    createSetting("PredictTerrain", elytraPredictTerrain)
-                    createSetting("EmergencyLand", elytraAllowEmergencyLand)
-                    createSetting("LandOnNetherFortress", elytraAllowLandOnNetherFortress)
-                    createSetting("AutoJump", elytraAutoJump)
-                    createSetting("AutoSwap", elytraAutoSwap)
+                    createNumSetting("SimulationTicks", elytraSimulationTicks, 1..100)
+                    createNumSetting("PitchRange", elytraPitchRange, 1..100)
+                    createNumSetting("MinimumAvoidance", elytraMinimumAvoidance, -10..0)
+                    createValSetting("PredictTerrain", elytraPredictTerrain)
+                    createValSetting("EmergencyLand", elytraAllowEmergencyLand)
+                    createValSetting("LandOnNetherFortress", elytraAllowLandOnNetherFortress)
+                    createValSetting("AutoJump", elytraAutoJump)
+                    createValSetting("AutoSwap", elytraAutoSwap)
                 }
 
                 treeAll(
@@ -272,9 +273,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Speed", elytraFireworkSpeed)
-                        createSetting("SetbackUseDelay", elytraFireworkSetbackUseDelay)
-                        createSetting("Conserve", elytraConserveFireworks)
+                        createNumSetting("Speed", elytraFireworkSpeed, 0..10)
+                        createNumSetting("SetbackUseDelay", elytraFireworkSetbackUseDelay, 0..10)
+                        createValSetting("Conserve", elytraConserveFireworks)
                     }
                 }
             }
@@ -285,9 +286,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createToggleableConfigurableSetting("Raytraces", elytraRenderRaytraces) {
-                            createSetting("Hitbox", elytraRenderHitboxRaytraces)
+                            createValSetting("Hitbox", elytraRenderHitboxRaytraces)
                         }
-                        createSetting("Simulation", elytraRenderSimulation)
+                        createValSetting("Simulation", elytraRenderSimulation)
                     }
                 }
             }
@@ -298,8 +299,8 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
-                    createSetting("Inventory", allowInventory)
-                    createSetting("AutoTool", autoTool)
+                    createValSetting("Inventory", allowInventory)
+                    createValSetting("AutoTool", autoTool)
                 }
             }
         }
@@ -369,53 +370,76 @@ private inline fun Configurable.createToggleableConfigurableSetting(
     this.createToggleableConfigurableSetting(reference, setting)
 }
 
-private inline fun <reified T> Configurable.createSetting(
+private inline fun <reified T: Number> Configurable.createNumSetting(
     name: String,
     setting: Settings.Setting<T>,
-    minRangedValue: Int = 0,
-    maxRangedValue: Int = 10
-): Value<*> = when (val value = setting.value) {
-    is Boolean -> boolean(name, value)
-        .onChanged { setting.value = it as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set(it as Boolean)
-        } }
+    range: IntRange
+): Value<*> {
+    return when (setting.value) {
+        is Double -> createGenericBaritoneSetting<Float, Double>(
+            { n, v -> float(n, v, range.first.toFloat()..range.last.toFloat()) },
+            name, setting, Double::toFloat, Float::toDouble
+        )
+        is Float -> createGenericBaritoneSettingOfSharedType<Float>(
+            { n, v -> float(n, v, range.first.toFloat()..range.last.toFloat()) },
+            name, setting
+        )
+        is Long -> createGenericBaritoneSetting<Int, Long>(
+            { n, v -> int(n, v, range) },
+            name, setting, Long::toInt, Int::toLong,
+        )
+        is Int -> createGenericBaritoneSettingOfSharedType<Int>(
+            { n, v -> int(n, v, range) },
+            name, setting
+        )
+        else -> throw NotImplementedError("Unknown number value type! ${T::class.java.name}")
+    }
+}
 
-    is Double -> float(name, value.toFloat(), minRangedValue.toFloat()..maxRangedValue.toFloat())
-        .onChanged { setting.value = it.toDouble() as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set((it as Double).toFloat())
-        } }
+private inline fun <reified T> Configurable.createValSetting(name: String, setting: Settings.Setting<T>): Value<*> {
+    return when (setting.value) {
+        is Boolean -> createGenericBaritoneSettingOfSharedType(this::boolean, name, setting)
+        is String -> createGenericBaritoneSettingOfSharedType(this::text, name, setting)
+        is Color -> createGenericBaritoneSetting(this::color, name, setting, Color::toColor4b, Color4b::toColor)
+        else -> throw NotImplementedError("Unknown non-number value type! ${T::class.java.name}")
+    }
+}
 
-    is Float -> float(name, value, minRangedValue.toFloat()..maxRangedValue.toFloat())
-        .onChanged { setting.value = it as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set(it as Float)
-        } }
+/**
+ * [createGenericBaritoneSetting] for the case when the type is shared between baritone and LiquidBounce.
+ */
+private inline fun <reified T: Any> createGenericBaritoneSettingOfSharedType(
+    configurableGenerator: (String, T) -> Value<T>,
+    name: String,
+    setting: Settings.Setting<*>,
+): Value<T> {
+    return createGenericBaritoneSetting(configurableGenerator, name, setting, { it }, { it })
+}
 
-    is Int -> int(name, value, 0..maxRangedValue)
-        .onChanged { setting.value = it as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set(it as Int)
-        } }
+/**
+ * Generates a preconfigured LiquidBounce-configurable for a given baritone setting
+ *
+ * @param L The type of the value in LiquidBounce's type system
+ * @param B The type of the value in Baritone's type system
+ *
+ * @param toLiquidBounceConverter translates the given type from the baritone type system to the LB type system
+ * @param toBaritoneConverter translates the given type from the LB type system to the baritone type system
+ */
+private inline fun <reified L: Any, reified B> createGenericBaritoneSetting(
+    configurableGenerator: (String, L) -> Value<L>,
+    name: String,
+    setting: Settings.Setting<*>,
+    crossinline toLiquidBounceConverter: (B) -> L,
+    crossinline toBaritoneConverter: (L) -> B
+): Value<L> {
+    @Suppress("UNCHECKED_CAST")
+    val castedSetting = setting as Settings.Setting<B>
 
-    is Long -> int(name, value.toInt(), minRangedValue..maxRangedValue)
-        .onChanged { setting.value = it.toLong() as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set((it as Long).toInt())
-        } }
-
-    is String -> text(name, value)
-        .onChanged { setting.value = it as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set(it as String)
-        } }
-
-    is Color -> color(name, value.toColor4b())
-        .onChanged { setting.value = it.toColor() as T }
-        .apply { controlledBaritoneSettingsMutableMap[setting] = {
-            set((it as Color).toColor4b())
-        } }
-
-    else -> throw NotImplementedError("Undefined baritone setting class! ${T::class.java.name}")
+    return configurableGenerator(name, toLiquidBounceConverter(setting.value!!))
+        .onChanged { castedSetting.value = toBaritoneConverter(it) }
+        .apply {
+            controlledBaritoneSettingsMutableMap[setting] = {
+                set(toLiquidBounceConverter(it as B))
+            }
+        }
 }
