@@ -139,9 +139,9 @@ object ModuleFreeCam : ClientModule("FreeCam", Category.RENDER, disableOnQuit = 
         return pos?.interpolate(tickDelta) ?: original
     }
 
-    fun shouldDisableCrosshair() = running && (!allowCameraInteract && !PathManager.isPathing)
+    fun shouldDisableCrosshair() = running && !allowCameraInteract && !PathManager.isPathing
 
-    fun shouldDisableRotations() = running && (!allowRotationChange && !PathManager.isPathing)
+    fun shouldDisableRotations() = running && !allowRotationChange && !PathManager.isPathing
 
     private fun updatePosition(velocity: Vec3d) {
         pos = (pos ?: PositionPair(player.eyes, player.eyes)).apply { this += velocity }

@@ -135,7 +135,7 @@ val ALL_EVENT_CLASSES: Array<KClass<out Event>> = arrayOf(
     BlockAttackEvent::class,
     QueuePacketEvent::class,
     BaritoneCustomGoalProcessCreatedEvent::class,
-    BaritonePathCancelEverythingEvent::class
+    BaritonePathCancelEverythingEvent::class,
 )
 
 /**

@@ -119,7 +119,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
     internal val simulateInventoryClosing by boolean("SimulateInventoryClosing", true)
 
     private val pauseBaritone by boolean("PauseBaritone", true).onChanged {
-        if(it && targetTracker.lockedOnTarget != null && PathManager.isPathing) {
+        if (it && targetTracker.lockedOnTarget != null && PathManager.isPathing) {
             PathManager.pause()
         } else if (!it && targetTracker.lockedOnTarget != null) {
             PathManager.resume()

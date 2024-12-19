@@ -78,8 +78,6 @@ data class Rotation(
 
 data class VecRotation(val rotation: Rotation, val vec: Vec3d)
 
-fun Rotation.toBaritoneRotation() =
-    BRotation(yaw, pitch)
+fun Rotation.toBaritoneRotation() = BRotation(yaw, pitch)
 
-fun BRotation.toClientRotation() =
-    Rotation(yaw, pitch)
+fun BRotation.toClientRotation() = Rotation(yaw, pitch)

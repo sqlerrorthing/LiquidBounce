@@ -21,7 +21,7 @@ public class MixinCustomGoalProcess {
         var event = new BaritoneCustomGoalProcessCreatedEvent(goal);
         EventManager.INSTANCE.callEvent(event);
 
-        if(event.isCancelled()) ci.cancel();
+        if (event.isCancelled()) ci.cancel();
     }
 
 }

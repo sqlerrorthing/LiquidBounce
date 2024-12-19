@@ -71,7 +71,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
                         createSetting("ToBreak", colorBlocksToBreak)
-                        createSetting("Next", colorBlocksToPlace)
+                        createSetting("ToPlace", colorBlocksToPlace)
                         createSetting("ToWalkInto", colorBlocksToWalkInto)
                     }
                 }
@@ -263,24 +263,14 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                     createSetting("PredictTerrain", elytraPredictTerrain)
                     createSetting("EmergencyLand", elytraAllowEmergencyLand)
                     createSetting("LandOnNetherFortress", elytraAllowLandOnNetherFortress)
+                    createSetting("AutoJump", elytraAutoJump)
+                    createSetting("AutoSwap", elytraAutoSwap)
                 }
 
                 treeAll(
-                    Auto,
                     Firework,
                     Render
                 )
-            }
-        }
-
-        private object Auto : Configurable("Auto") {
-            init {
-                if (BaritoneUtil.isAvailable) {
-                    with(BaritoneAPI.getSettings()) {
-                        createSetting("Jump", elytraAutoJump)
-                        createSetting("Swap", elytraAutoSwap)
-                    }
-                }
             }
         }
 

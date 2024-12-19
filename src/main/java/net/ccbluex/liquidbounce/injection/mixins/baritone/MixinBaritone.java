@@ -27,7 +27,7 @@ public abstract class MixinBaritone implements IBaritone {
 
     @Inject(method = "getLookBehavior", at = @At("HEAD"), cancellable = true, remap = false)
     public void hookLookBehavior(CallbackInfoReturnable<ILookBehavior> cir) {
-        if(lookBehavior == null) {
+        if (lookBehavior == null) {
             lookBehavior = new LiquidBounceLookBehavior();
             getGameEventHandler().registerEventListener(lookBehavior);
         }

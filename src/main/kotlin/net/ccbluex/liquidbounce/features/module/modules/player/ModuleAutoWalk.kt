@@ -44,7 +44,7 @@ object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
             get() = modes
 
         override fun enable() {
-            if(!PathManager) {
+            if (!PathManager) {
                 notification(
                     this.name,
                     "Baritone is not installed! Install it first.",
@@ -64,7 +64,7 @@ object ModuleAutoWalk : ClientModule("AutoWalk", Category.PLAYER) {
         }
 
         override fun disable() {
-            if(PathManager.hasPath) {
+            if (PathManager.hasPath) {
                 PathManager.stop()
             }
         }
