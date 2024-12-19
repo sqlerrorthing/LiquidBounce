@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.features.module.modules.client
 import baritone.api.BaritoneAPI
 import baritone.api.Settings
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.config.types.Value
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
@@ -21,8 +22,8 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
     init {
         if (BaritoneUtil.isAvailable) {
             with(BaritoneAPI.getSettings()) {
-                createSetting("Break", allowBreak)
                 createSetting("Place", allowPlace)
+                createToggleableConfigurableSetting(Mining, allowBreak)
             }
 
             treeAll(
@@ -30,7 +31,6 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 Movement,
                 Assumptions,
                 Penalties,
-                Mining,
                 Items,
                 Elytra,
                 Waypoints,
@@ -139,7 +139,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
         }
     }
 
-    private object Mining : Configurable("Mining") {
+    private object Mining : ToggleableConfigurable(this, "Mining", false /* no matter. */) {
         init {
             if (BaritoneUtil.isAvailable) {
                 with(BaritoneAPI.getSettings()) {
@@ -152,19 +152,7 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                     createSetting("OnlyExposedOres", allowOnlyExposedOres)
                     createSetting("UseSword", useSwordToMine)
                     createSetting("NotificationOnFail", notificationOnMineFail)
-                }
-
-                treeAll(
-                    Legit
-                )
-            }
-        }
-
-        private object Legit : Configurable("Legit") {
-            init {
-                if (BaritoneUtil.isAvailable) {
-                    with(BaritoneAPI.getSettings()) {
-                        createSetting("Allow", legitMine)
+                    createToggleableConfigurableSetting("LegitMine", legitMine) {
                         createSetting("IncludeDiagonals", legitMineIncludeDiagonals)
                         createSetting("YLevel", legitMineYLevel, -64, 320)
                     }
@@ -179,12 +167,14 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
                 with(BaritoneAPI.getSettings()) {
                     createSetting("Sprint", allowSprint)
                     createSetting("JumpAt256", allowJumpAt256)
+                    createToggleableConfigurableSetting("Parkour", allowParkour) {
+                        createSetting("Place", allowParkourPlace)
+                    }
                 }
 
                 treeAll(
                     Ascends,
-                    Descends,
-                    Parkour
+                    Descends
                 )
             }
         }
@@ -205,19 +195,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Diagonal", allowDiagonalDescend)
-                        createSetting("OvershootDiagonal", allowOvershootDiagonalDescend)
-                    }
-                }
-            }
-        }
-
-        private object Parkour : Configurable("Parkour") {
-            init {
-                if (BaritoneUtil.isAvailable) {
-                    with(BaritoneAPI.getSettings()) {
-                        createSetting("Allow", allowParkour)
-                        createSetting("Place", allowParkourPlace)
+                        createToggleableConfigurableSetting("Diagonal", allowDiagonalDescend) {
+                            createSetting("Overshoot", allowOvershootDiagonalDescend)
+                        }
                     }
                 }
             }
@@ -290,8 +270,9 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             init {
                 if (BaritoneUtil.isAvailable) {
                     with(BaritoneAPI.getSettings()) {
-                        createSetting("Raytraces", elytraRenderRaytraces)
-                        createSetting("HitboxRaytraces", elytraRenderHitboxRaytraces)
+                        createToggleableConfigurableSetting("Raytraces", elytraRenderRaytraces) {
+                            createSetting("Hitbox", elytraRenderHitboxRaytraces)
+                        }
                         createSetting("Simulation", elytraRenderSimulation)
                     }
                 }
@@ -309,6 +290,35 @@ object ModuleBaritone : ClientModule("Baritone", Category.CLIENT, disableActivat
             }
         }
     }
+}
+
+private fun Configurable.createToggleableConfigurableSetting(
+    reference: ToggleableConfigurable,
+    setting: Settings.Setting<Boolean>,
+    addToTree: Boolean = true
+) {
+    reference.enabled = setting.value
+    reference.onChangedListener = {
+        setting.value = it
+    }
+
+    if (addToTree) {
+        this.tree(reference)
+    }
+}
+
+private inline fun Configurable.createToggleableConfigurableSetting(
+    name: String,
+    setting: Settings.Setting<Boolean>,
+    crossinline block: ToggleableConfigurable.() -> Unit
+) {
+    val reference = object : ToggleableConfigurable(ModuleBaritone, name, setting.value) {
+        init {
+            block(this)
+        }
+    }
+
+    this.createToggleableConfigurableSetting(reference, setting)
 }
 
 private inline fun <reified T> Configurable.createSetting(
