@@ -9,10 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * @author 00101110001100010111000101111
- * @since 12/17/2024
- **/
 @Mixin(CustomGoalProcess.class)
 public class MixinCustomGoalProcess {
 
