@@ -117,7 +117,7 @@ fun ClientPlayerEntity.isCloseToEdge(
     return wouldBeCloseToFallOff(pos) || wouldBeCloseToFallOff(playerPosInTwoTicks)
 }
 
-val ClientPlayerEntity.pressingMovementButton get() = if(PathManager.isPathing) {
+val ClientPlayerEntity.pressingMovementButton get() = if (PathManager.isPathing) {
         with(mc.options) {
             forwardKey.isPressed || backKey.isPressed || leftKey.isPressed || rightKey.isPressed
         }
