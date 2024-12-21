@@ -18,7 +18,7 @@ public class MixinSetCommand {
         var onChangeListener = ModuleBaritoneKt.getControlledBaritoneSettings()
                 .getOrDefault(setting, null);
 
-        if(onChangeListener != null) {
+        if (onChangeListener != null) {
             onChangeListener.invoke(setting.value);
         }
     }
