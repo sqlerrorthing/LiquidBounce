@@ -22,7 +22,6 @@ import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.utils.input.invoke
 
 /**
  * NoPush module
@@ -51,7 +50,7 @@ object ModuleNoPush : ClientModule("NoPush", Category.MOVEMENT) {
                 return@handler
             }
 
-            if (mc.options.jumpKey() || mc.options.sneakKey()) {
+            if (mc.options.jumpKey.isPressed || mc.options.sneakKey.isPressed) {
                 return@handler
             }
 

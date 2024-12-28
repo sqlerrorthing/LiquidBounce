@@ -19,7 +19,6 @@
 
 package net.ccbluex.liquidbounce.utils.input
 
-import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.minecraft.util.ActionResult
 
@@ -88,5 +87,3 @@ val keyList: Set<String>
             .toSet()
 
 fun ActionResult.shouldSwingHand() = this is ActionResult.Success && this.swingSource == ActionResult.SwingSource.CLIENT
-
-operator fun KeyBinding.invoke(): Boolean = this.isPressed
