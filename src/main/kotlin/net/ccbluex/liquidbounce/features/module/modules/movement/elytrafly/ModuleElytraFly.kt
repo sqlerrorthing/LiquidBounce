@@ -20,8 +20,14 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly
 
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.MinecraftShortcuts
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraBounce
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraStatic
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraVanilla
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.entity.EquipmentSlot
+import net.minecraft.item.Items
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
 
 /**
@@ -35,6 +41,42 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes
 object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
     val modes = choices("Mode", ElytraVanilla, arrayOf(
         ElytraStatic,
-        ElytraVanilla
+        ElytraVanilla,
+        ElytraBounce
+    ))
+}
+
+internal interface ElytraFlyHelper : MinecraftShortcuts
+
+internal val ElytraFlyHelper.isInConditions: Boolean get() {
+    if (player.hasVehicle()) {
+        return false
+    }
+
+    val itemStack = player.getEquippedStack(EquipmentSlot.CHEST)
+
+    if (itemStack.item != Items.ELYTRA) {
+        return false
+    }
+
+    if (player.abilities.flying) {
+        return false
+    }
+
+    if (player.isClimbing) {
+        return false
+    }
+
+    if (itemStack.willBreakNextUse()) {
+        return false
+    }
+
+    return itemStack.contains(DataComponentTypes.GLIDER)
+}
+
+internal fun ElytraFlyHelper.startFallFlying() {
+    network.sendPacket(ClientCommandC2SPacket(
+        player,
+        ClientCommandC2SPacket.Mode.START_FALL_FLYING
     ))
 }
