@@ -20,38 +20,30 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.mode
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.tickHandler
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ElytraFlyHelper
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly
-import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instant
-import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly.instantStop
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.isInConditions
 import net.ccbluex.liquidbounce.utils.entity.moving
 import net.ccbluex.liquidbounce.utils.entity.set
 import net.ccbluex.liquidbounce.utils.entity.strafe
-import net.minecraft.entity.EquipmentSlot
-import net.minecraft.item.Items
 
-internal object ElytraVanilla : Choice("Vanilla") {
+internal object ElytraVanilla : Choice("Vanilla"), ElytraFlyHelper {
 
+    private val instant by boolean("Instant", true)
+    private val instantStop by boolean("InstantStop", false)
+    private object Speed : ToggleableConfigurable(this, "Speed", true) {
+        val vertical by float("Vertical", 0.5f, 0.1f..2f)
+        val horizontal by float("Horizontal", 1f, 0.1f..2f)
+    }
 
     override val parent: ChoiceConfigurable<Choice>
-        get() = ModuleElytraFly.modes
+        get() = ModuleElytraFly.modes as ChoiceConfigurable<Choice>
 
 
     val repeatable = tickHandler {
-
-        if (player.vehicle != null) {
-            return@tickHandler
-        }
-
-        // Find the chest slot
-        val chestSlot = player.getEquippedStack(EquipmentSlot.CHEST)
-
-        if (player.abilities.creativeMode) {
-            return@tickHandler
-        }
-
-        // If the player doesn't have an elytra in the chest slot
-        if (chestSlot.item != Items.ELYTRA) {
+        if (!isInConditions) {
             return@tickHandler
         }
 
@@ -62,18 +54,18 @@ internal object ElytraVanilla : Choice("Vanilla") {
 
         // If player is flying
         if (player.isGliding) {
-            if (ModuleElytraFly.Speed.enabled) {
+            if (Speed.enabled) {
                 if (player.moving) {
-                    player.strafe(speed = ModuleElytraFly.Speed.horizontal.toDouble())
+                    player.strafe(speed = Speed.horizontal.toDouble())
                 }
                 player.velocity.y = when {
-                    mc.options.jumpKey.isPressed -> ModuleElytraFly.Speed.vertical.toDouble()
-                    mc.options.sneakKey.isPressed -> -ModuleElytraFly.Speed.vertical.toDouble()
+                    mc.options.jumpKey.isPressed -> Speed.vertical.toDouble()
+                    mc.options.sneakKey.isPressed -> -Speed.vertical.toDouble()
                     else -> return@tickHandler
                 }
             }
             // If the player has an elytra and wants to fly instead
-        } else if (chestSlot.item == Items.ELYTRA && player.input.playerInput.jump) {
+        } else if (player.input.playerInput.jump) {
             if (instant) {
                 // Jump must be off due to abnormal speed boosts
                 player.input.set(

@@ -18,32 +18,22 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly
 
-import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraStatic
 import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraVanilla
 
+
 /**
  * ElytraFly module
  *
  * Makes you fly faster on Elytra.
+ *
+ * @author sqlerrorthing, Razzy52
  */
 
 object ModuleElytraFly : ClientModule("ElytraFly", Category.MOVEMENT) {
-
-    val instant by boolean("Instant", true)
-    val instantStop by boolean("InstantStop", false)
-    object Speed : ToggleableConfigurable(this, "Speed", true) {
-        val vertical by float("Vertical", 0.5f, 0.1f..2f)
-        val horizontal by float("Horizontal", 1f, 0.1f..2f)
-    }
-
-    init {
-        tree(Speed)
-    }
-
-    internal val modes = choices("Mode", ElytraVanilla, arrayOf(
+    val modes = choices("Mode", ElytraVanilla, arrayOf(
         ElytraStatic,
         ElytraVanilla
     ))

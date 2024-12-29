@@ -25,6 +25,8 @@ import net.ccbluex.liquidbounce.event.EventManager;
 import net.ccbluex.liquidbounce.event.events.PlayerAfterJumpEvent;
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.movement.*;
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.ModuleElytraFly;
+import net.ccbluex.liquidbounce.features.module.modules.movement.elytrafly.modes.ElytraBounce;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleRotations;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold;
@@ -220,6 +222,21 @@ public abstract class MixinLivingEntity extends MixinEntity {
 
     @Unique
     private boolean previousElytra = false;
+
+    @Unique
+    private boolean isPreviousElytraGliding = false;
+
+    @Inject(method = "isGliding", at = @At("TAIL"), cancellable = true)
+    private void hookRecastOnLand(CallbackInfoReturnable<Boolean> cir) {
+        boolean original = cir.getReturnValue();
+
+        var elytraFly = ModuleElytraFly.INSTANCE;
+        if (elytraFly.getRunning() && isPreviousElytraGliding && !original && (elytraFly.getModes().getActiveChoice() instanceof ElytraBounce elytraBounce)) {
+            cir.setReturnValue(elytraBounce.recastElytra());
+        }
+
+        isPreviousElytraGliding = original;
+    }
 
     @Inject(method = "tickGliding", at = @At("TAIL"))
     public void recastIfLanded(CallbackInfo callbackInfo) {
