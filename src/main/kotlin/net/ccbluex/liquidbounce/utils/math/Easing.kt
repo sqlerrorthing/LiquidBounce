@@ -25,33 +25,67 @@ import kotlin.math.pow
  * Functions from https://easings.net.
  */
 @Suppress("unused")
-enum class Easing(override val choiceName: String) : NamedChoice {
+enum class Easing(
+    override val choiceName: String,
+    private val transformFunction: (Float) -> Number
+) : NamedChoice {
 
-    LINEAR("Linear") {
-        override fun transform(x: Float) = x
-    },
-    QUAD_IN("QuadIn") {
-        override fun transform(x: Float) = x * x
-    },
-    QUAD_OUT("QuadOut") {
-        override fun transform(x: Float) = 1 - (1 - x) * (1 - x)
-    },
-    QUAD_IN_OUT("QuadInOut") {
-        override fun transform(x: Float) = 2 * (1 - x) * x * x + x * x
-    },
-    EXPONENTIAL_IN("ExponentialIn") {
-        override fun transform(x: Float) = if (x == 0f) 0f else 2f.pow(10f * x - 10f)
-    },
-    EXPONENTIAL_OUT("ExponentialOut") {
-        override fun transform(x: Float) = if (x == 1f) 1f else 1f - 2f.pow(-10f * x)
-    },
-    NONE("None") {
-        override fun transform(x: Float) = 1f
+    LINEAR("Linear", { x ->
+        x
+    }),
 
+    /**
+     * https://easings.net/#easeInQuad
+     */
+    QUAD_IN("QuadIn", { x ->
+        x * x
+    }),
+
+    /**
+     * https://easings.net/#easeOutQuad
+     */
+    QUAD_OUT("QuadOut", { x ->
+        1 - (1 - x) * (1 - x)
+    }),
+
+    /**
+     * https://easings.net/#easeInOutQuad
+     */
+    QUAD_IN_OUT("QuadInOut", { x ->
+        2 * (1 - x) * x * x + x * x
+    }),
+
+    /**
+     * https://easings.net/#easeInExpo
+     */
+    EXPONENTIAL_IN("ExponentialIn", { x ->
+        if (x == 0f) 0 else 2f.pow(10f * x - 10f)
+    }),
+
+    /**
+     * https://easings.net/#easeOutExpo
+     */
+    EXPONENTIAL_OUT("ExponentialOut", { x ->
+        if (x == 1f) 1 else 1f - 2f.pow(-10f * x)
+    }),
+
+    /**
+     * https://easings.net/#easeOutExpo
+     */
+    EXPONENTIAL_IN_OUT("ExponentialInOut", { x ->
+        when {
+            x == 0f -> 0f
+            x == 1f -> 1f
+            x < 0.5f -> 2f.pow(20f * x - 10) / 2
+            else -> (2f - 2f.pow(-20f * x + 10)) / 2
+        }
+    }),
+
+    NONE("None", { 0 }) {
         override fun getFactor(startTime: Long, currentTime: Long, time: Float) = 1f
     };
 
-    abstract fun transform(x: Float): Float
+    fun transform(x: Float) = transformFunction(x).toFloat()
 
     open fun getFactor(startTime: Long, currentTime: Long, time: Float): Float {
         val delta = currentTime - startTime
