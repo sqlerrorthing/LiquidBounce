@@ -35,7 +35,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 
 @Nameable("gameTick")
-class GameTickEvent : Event()
+object GameTickEvent : Event()
 
 /**
  * We can use this event to populate the render task queue with tasks that should be
@@ -43,7 +43,7 @@ class GameTickEvent : Event()
  * and allows to also schedule tasks off-schedule.
  */
 @Nameable("gameRenderTaskQueue")
-class GameRenderTaskQueueEvent : Event()
+object GameRenderTaskQueueEvent : Event()
 
 @Nameable("key")
 @WebSocketEvent
@@ -51,17 +51,17 @@ class KeyEvent(val key: InputUtil.Key, val action: Int) : Event()
 
 // Input events
 @Nameable("inputHandle")
-class InputHandleEvent : Event()
+object InputHandleEvent : Event()
 
 @Nameable("movementInput")
-class MovementInputEvent(var directionalInput: DirectionalInput, var jumping: Boolean, var sneaking: Boolean) : Event()
+class MovementInputEvent(var directionalInput: DirectionalInput, var jump: Boolean, var sneak: Boolean) : Event()
 
 @Nameable("mouseRotation")
 class MouseRotationEvent(var cursorDeltaX: Double, var cursorDeltaY: Double) : CancellableEvent()
 
 @Nameable("keybindChange")
 @WebSocketEvent
-class KeybindChangeEvent : Event()
+object KeybindChangeEvent: Event()
 
 @Nameable("keybindIsPressed")
 class KeybindIsPressedEvent(val keyBinding: KeyBinding, var isPressed: Boolean) : Event()
@@ -124,7 +124,7 @@ class ServerConnectEvent(val serverName: String, val serverAddress: String) : Ev
 
 @Nameable("disconnect")
 @WebSocketEvent
-class DisconnectEvent : Event()
+object DisconnectEvent : Event()
 
 @Nameable("overlayMessage")
 @WebSocketEvent

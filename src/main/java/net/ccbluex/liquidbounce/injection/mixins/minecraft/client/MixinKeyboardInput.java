@@ -19,8 +19,11 @@
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
 import net.ccbluex.liquidbounce.event.EventManager;
+import net.ccbluex.liquidbounce.event.events.MovementInputEvent;
 import net.ccbluex.liquidbounce.event.events.RotatedMovementInputEvent;
+import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleInventoryMove;
+import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
 import net.ccbluex.liquidbounce.utils.aiming.AimPlan;
 import net.ccbluex.liquidbounce.utils.aiming.Rotation;
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager;
@@ -31,6 +34,7 @@ import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.util.PlayerInput;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -57,20 +61,45 @@ public class MixinKeyboardInput extends MixinInput {
                 ? InputTracker.INSTANCE.isPressedOnAny(keyBinding) : keyBinding.isPressed();
     }
 
-    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;pressingBack:Z", ordinal = 0))
-    private void hookInventoryMoveSprint(boolean slowDown, float f, CallbackInfo ci) {
+    /**
+     * At settings.backKey.isPressed()
+     */
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;isPressed()Z", ordinal = 1))
+    private void hookInventoryMoveSprint(CallbackInfo ci) {
         if (ModuleInventoryMove.INSTANCE.shouldHandleInputs(this.settings.sprintKey)) {
             this.settings.sprintKey.setPressed(InputTracker.INSTANCE.isPressedOnAny(this.settings.sprintKey));
         }
     }
 
-    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/input/KeyboardInput;sneaking:Z", shift = At.Shift.AFTER), allow = 1)
-    private void injectMovementInputEvent(boolean slowDown, float f, CallbackInfo ci) {
-        this.proceedKeyboardTick(new DirectionalInput(this.pressingForward, this.pressingBack, this.pressingLeft, this.pressingRight), this.jumping, this.sneaking, true, this::fixStrafeMovement);
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void injectMovementInputEvent(CallbackInfo ci) {
+        var event = new MovementInputEvent(new DirectionalInput(this.playerInput.forward(), this.playerInput.backward(), this.playerInput.left(), this.playerInput.right()), this.playerInput.jump(), this.playerInput.sneak());
+
+        EventManager.INSTANCE.callEvent(event);
+
+        var directionalInput = event.getDirectionalInput();
+
+        playerInput = new PlayerInput(directionalInput.getForwards(), directionalInput.getBackwards(), directionalInput.getLeft(), directionalInput.getRight(), playerInput.jump(), playerInput.sneak(), playerInput.sprint());
+        this.movementForward = KeyboardInput.getMovementMultiplier(directionalInput.getForwards(), directionalInput.getBackwards());
+        this.movementSideways = KeyboardInput.getMovementMultiplier(directionalInput.getLeft(), directionalInput.getRight());
+
+        this.liquid_bounce$fixStrafeMovement();
+
+        if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
+            this.movementForward = 0f;
+
+            ModuleSprint sprint = ModuleSprint.INSTANCE;
+
+            if (sprint.shouldSprintOmnidirectionally()) {
+                this.movementSideways = 0f;
+            }
+        }
+
+        playerInput = new PlayerInput(playerInput.forward(), playerInput.backward(), playerInput.left(), playerInput.right(), event.getJump(), event.getSneak(), playerInput.sprint());
     }
 
     @Unique
-    private void fixStrafeMovement() {
+    private void liquid_bounce$fixStrafeMovement() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         RotationManager rotationManager = RotationManager.INSTANCE;
         Rotation rotation = rotationManager.getCurrentRotation();

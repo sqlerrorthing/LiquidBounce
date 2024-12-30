@@ -36,6 +36,7 @@ import net.minecraft.block.EntityShapeContext
 import net.minecraft.block.ShapeContext
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.TntEntity
 import net.minecraft.entity.damage.DamageSource
@@ -44,20 +45,19 @@ import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.entity.mob.CreeperEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.vehicle.TntMinecartEntity
+import net.minecraft.item.consume.UseAction
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
 import net.minecraft.stat.Stats
-import net.minecraft.util.UseAction
+import net.minecraft.util.Hand
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.Difficulty
-import net.minecraft.world.GameRules
 import net.minecraft.world.RaycastContext
-import net.minecraft.world.explosion.Explosion
 import net.minecraft.world.explosion.ExplosionBehavior
-import java.util.function.Predicate
+import net.minecraft.world.explosion.ExplosionImpl
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -86,8 +86,10 @@ fun ClientPlayerEntity.isCloseToEdge(
 
     val simulatedInput = SimulatedPlayer.SimulatedPlayerInput.fromClientPlayer(directionalInput)
 
-    simulatedInput.jumping = false
-    simulatedInput.sneaking = false
+    simulatedInput.set(
+        jump = false,
+        sneak = false
+    )
 
     val simulatedPlayer = SimulatedPlayer.fromClientPlayer(
         simulatedInput
@@ -117,12 +119,13 @@ fun ClientPlayerEntity.isCloseToEdge(
     return wouldBeCloseToFallOff(pos) || wouldBeCloseToFallOff(playerPosInTwoTicks)
 }
 
-val ClientPlayerEntity.pressingMovementButton get() = if (PathManager.isPathing) {
+val ClientPlayerEntity.pressingMovementButton
+    get() = if (PathManager.isPathing) {
         with(mc.options) {
             forwardKey.isPressed || backKey.isPressed || leftKey.isPressed || rightKey.isPressed
         }
     } else {
-        input.pressingForward || input.pressingBack || input.pressingLeft || input.pressingRight
+        input.playerInput.forward || input.playerInput.backward || input.playerInput.left || input.playerInput.right
     }
 
 val Entity.exactPosition
@@ -139,6 +142,14 @@ val ClientPlayerEntity.directionYaw: Float
 
 val ClientPlayerEntity.isBlockAction: Boolean
     get() = isUsingItem && activeItem.useAction == UseAction.BLOCK
+
+fun Entity.lastRenderPos() = Vec3d(this.lastRenderX, this.lastRenderY, this.lastRenderZ)
+
+val Hand.equipmentSlot: EquipmentSlot
+    get() = when (this) {
+        Hand.MAIN_HAND -> EquipmentSlot.MAINHAND
+        Hand.OFF_HAND -> EquipmentSlot.OFFHAND
+    }
 
 /**
  * Check if the player can step up by [height] blocks.
@@ -365,12 +376,14 @@ fun PlayerEntity.wouldBlockHit(source: PlayerEntity): Boolean {
 fun LivingEntity.getEffectiveDamage(source: DamageSource, damage: Float, ignoreShield: Boolean = false): Float {
     val world = this.world
 
-    if (this.isInvulnerableTo(source))
+    if (this.isAlwaysInvulnerableTo(source)) {
         return 0.0F
+    }
 
     // EDGE CASE!!! Might cause weird bugs
-    if (this.isDead)
+    if (this.isDead) {
         return 0.0F
+    }
 
     var amount = damage
 
@@ -413,16 +426,16 @@ fun LivingEntity.getEffectiveDamage(source: DamageSource, damage: Float, ignoreS
 
 fun LivingEntity.getExplosionDamageFromEntity(entity: Entity): Float {
     return when (entity) {
-        is EndCrystalEntity -> getDamageFromExplosion(entity.pos, entity, 6f, 12f, 144f)
-        is TntEntity -> getDamageFromExplosion(entity.pos.add(0.0, 0.0625, 0.0), entity, 4f, 8f, 64f)
+        is EndCrystalEntity -> getDamageFromExplosion(entity.pos, 6f, 12f, 144f)
+        is TntEntity -> getDamageFromExplosion(entity.pos.add(0.0, 0.0625, 0.0), 4f, 8f, 64f)
         is TntMinecartEntity -> {
             val d = 5f
-            getDamageFromExplosion(entity.pos, entity, 4f + d * 1.5f)
+            getDamageFromExplosion(entity.pos, 4f + d * 1.5f)
         }
 
         is CreeperEntity -> {
-            val f = if (entity.shouldRenderOverlay()) 2f else 1f
-            getDamageFromExplosion(entity.pos, entity, entity.explosionRadius * f)
+            val f = if (entity.isCharged) 2f else 1f
+            getDamageFromExplosion(entity.pos, entity.explosionRadius * f)
         }
 
         else -> 0f
@@ -435,7 +448,6 @@ fun LivingEntity.getExplosionDamageFromEntity(entity: Entity): Float {
 @Suppress("LongParameterList")
 fun LivingEntity.getDamageFromExplosion(
     pos: Vec3d,
-    exploding: Entity? = null,
     power: Float = 6f,
     explosionRange: Float = power * 2f, // allows setting precomputed values
     damageDistance: Float = explosionRange * explosionRange,
@@ -460,7 +472,7 @@ fun LivingEntity.getDamageFromExplosion(
         val exposure = if (useTweakedMethod) {
             getExposureToExplosion(pos, exclude, include, maxBlastResistance, entityBoundingBox)
         } else {
-            Explosion.getExposure(pos, this)
+            ExplosionImpl.calculateReceivedDamage(pos, this)
         }
 
         val distanceDecay = 1.0 - (sqrt(this.squaredDistanceTo(pos)) / explosionRange.toDouble())
@@ -471,25 +483,14 @@ fun LivingEntity.getDamageFromExplosion(
             return 0f
         }
 
-        val explosion = Explosion(
-            world,
-            exploding,
-            pos.x,
-            pos.y,
-            pos.z,
-            power,
-            false,
-            world.getDestructionType(GameRules.BLOCK_EXPLOSION_DROP_DECAY)
-        )
-
-        return getEffectiveDamage(world.damageSources.explosion(explosion), preprocessedDamage.toFloat())
+        return getEffectiveDamage(world.damageSources.explosion(null), preprocessedDamage.toFloat())
     } finally {
         ShapeFlag.noShapeChange = false
     }
 }
 
 /**
- * Basically [Explosion.getExposure] but this method allows us to exclude blocks using [exclude].
+ * Basically [ExplosionImpl.calculateReceivedDamage] but this method allows us to exclude blocks using [exclude].
  */
 @Suppress("NestedBlockDepth")
 fun LivingEntity.getExposureToExplosion(
@@ -505,9 +506,9 @@ fun LivingEntity.getExposureToExplosion(
             isDescending,
             entityBoundingBox1.minY,
             mainHandStack,
-            Predicate { state -> canWalkOnFluid(state) },
+            { state -> canWalkOnFluid(state) },
             this
-        ) // TODO does this work?
+        )
     } ?: ShapeContext.of(this)
 
     val stepX = 1.0 / ((entityBoundingBox1.maxX - entityBoundingBox1.minX) * 2.0 + 1.0)
@@ -627,14 +628,14 @@ fun ClientPlayerEntity.warp(pos: Vec3d? = null, onGround: Boolean = false) {
 
     if (vehicle != null) {
         pos?.let(vehicle::setPosition)
-        network.sendPacket(VehicleMoveC2SPacket(vehicle))
+        network.sendPacket(VehicleMoveC2SPacket.fromVehicle(vehicle))
         return
     }
 
     if (pos != null) {
-        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(pos.x, pos.y, pos.z, onGround))
+        network.sendPacket(PlayerMoveC2SPacket.PositionAndOnGround(pos.x, pos.y, pos.z, onGround, horizontalCollision))
     } else {
-        network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(onGround))
+        network.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(onGround, horizontalCollision))
     }
 }
 

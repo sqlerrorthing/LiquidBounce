@@ -19,39 +19,27 @@
 
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.client;
 
-import net.ccbluex.liquidbounce.event.EventManager;
-import net.ccbluex.liquidbounce.event.events.MovementInputEvent;
-import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSuperKnockback;
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals;
 import net.ccbluex.liquidbounce.features.module.modules.movement.ModuleSprint;
-import net.ccbluex.liquidbounce.utils.movement.DirectionalInput;
 import net.minecraft.client.input.Input;
-import net.minecraft.client.input.KeyboardInput;
+import net.minecraft.util.PlayerInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Input.class)
-public class MixinInput {
-    @Shadow
-    public boolean pressingRight;
-    @Shadow
-    public boolean pressingLeft;
-    @Shadow
-    public boolean pressingBack;
-    @Shadow
-    public boolean pressingForward;
+public abstract class MixinInput {
+
     @Shadow
     public float movementForward;
+
     @Shadow
     public float movementSideways;
-    @Shadow
-    public boolean jumping;
 
-    @Shadow public boolean sneaking;
+    @Shadow
+    public PlayerInput playerInput;
 
     @Inject(method = "hasForwardMovement", cancellable = true, at = @At("RETURN"))
     private void hookOmnidirectionalSprintA(final CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
@@ -65,36 +53,4 @@ public class MixinInput {
         callbackInfoReturnable.setReturnValue(!ModuleSprint.INSTANCE.shouldPreventSprint() && (ModuleSprint.INSTANCE.shouldSprintOmnidirectionally() ? hasMovement : callbackInfoReturnable.getReturnValue()));
     }
 
-    @Unique
-    public void proceedKeyboardTick(DirectionalInput baseDirectionalInput, boolean jumping, boolean sneaking, boolean update, Runnable additive) {
-        var event = new MovementInputEvent(baseDirectionalInput, jumping, sneaking);
-
-        EventManager.INSTANCE.callEvent(event);
-
-        if (update) {
-            var directionalInput = event.getDirectionalInput();
-
-            this.pressingForward = directionalInput.getForwards();
-            this.pressingBack = directionalInput.getBackwards();
-            this.pressingLeft = directionalInput.getLeft();
-            this.pressingRight = directionalInput.getRight();
-            this.movementForward = KeyboardInput.getMovementMultiplier(directionalInput.getForwards(), directionalInput.getBackwards());
-            this.movementSideways = KeyboardInput.getMovementMultiplier(directionalInput.getLeft(), directionalInput.getRight());
-
-            additive.run();
-
-            if (ModuleSuperKnockback.INSTANCE.shouldStopMoving()) {
-                this.movementForward = 0f;
-
-                ModuleSprint sprint = ModuleSprint.INSTANCE;
-
-                if (sprint.shouldSprintOmnidirectionally()) {
-                    this.movementSideways = 0f;
-                }
-            }
-
-            this.jumping = event.getJumping();
-            this.sneaking = event.getSneaking();
-        }
-    }
 }
