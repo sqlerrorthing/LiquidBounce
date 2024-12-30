@@ -27,7 +27,7 @@ import kotlin.math.pow
 @Suppress("unused")
 enum class Easing(
     override val choiceName: String,
-    private val transformFunction: (Float) -> Number
+    val transform: (Float) -> Float
 ) : NamedChoice {
 
     LINEAR("Linear", { x ->
@@ -59,14 +59,14 @@ enum class Easing(
      * https://easings.net/#easeInExpo
      */
     EXPONENTIAL_IN("ExponentialIn", { x ->
-        if (x == 0f) 0 else 2f.pow(10f * x - 10f)
+        if (x == 0f) 0.0f else 2f.pow(10f * x - 10f)
     }),
 
     /**
      * https://easings.net/#easeOutExpo
      */
     EXPONENTIAL_OUT("ExponentialOut", { x ->
-        if (x == 1f) 1 else 1f - 2f.pow(-10f * x)
+        if (x == 1f) 1.0f else 1f - 2f.pow(-10f * x)
     }),
 
     /**
@@ -81,11 +81,9 @@ enum class Easing(
         }
     }),
 
-    NONE("None", { 0 }) {
+    NONE("None", { 0f }) {
         override fun getFactor(startTime: Long, currentTime: Long, time: Float) = 1f
     };
-
-    fun transform(x: Float) = transformFunction(x).toFloat()
 
     open fun getFactor(startTime: Long, currentTime: Long, time: Float): Float {
         val delta = currentTime - startTime
