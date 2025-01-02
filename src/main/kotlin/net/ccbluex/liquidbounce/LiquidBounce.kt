@@ -59,6 +59,7 @@ import net.ccbluex.liquidbounce.utils.client.ErrorHandler
 import net.ccbluex.liquidbounce.utils.client.InteractionTracker
 import net.ccbluex.liquidbounce.utils.client.TpsObserver
 import net.ccbluex.liquidbounce.utils.client.mc
+import net.ccbluex.liquidbounce.utils.client.movementbot.MovementBot
 import net.ccbluex.liquidbounce.utils.combat.CombatManager
 import net.ccbluex.liquidbounce.utils.combat.combatTargetsConfigurable
 import net.ccbluex.liquidbounce.utils.input.InputTracker
@@ -161,6 +162,7 @@ object LiquidBounce : EventListener {
             FontManager
             PostRotationExecutor
             TpsObserver
+            MovementBot
 
             // Register commands and modules
             CommandManager.registerInbuilt()
