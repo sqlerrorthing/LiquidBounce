@@ -249,7 +249,10 @@ fun ItemStack.getArmorColor(): Int? {
     }
 }
 
-fun PlayerInventory.findBestToolToMineBlock(blockState: BlockState?, ignoreDurability: Boolean = true): IntObjectImmutablePair<ItemStack>? {
+fun PlayerInventory.findBestToolToMineBlock(
+    blockState: BlockState?,
+    ignoreDurability: Boolean = true
+): IntObjectImmutablePair<ItemStack>? {
     val (hotbarSlot, stack) =
         (0..8).map {
             it to getStack(it)
