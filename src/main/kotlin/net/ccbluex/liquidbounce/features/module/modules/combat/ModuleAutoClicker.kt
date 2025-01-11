@@ -47,7 +47,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
         val clickScheduler = tree(ClickScheduler(this, true))
         internal val requiresNoInput by boolean("RequiresNoInput", false)
         private val objectiveType by enumChoice("Objective", ObjectiveType.ANY)
-        private val onItemUse by enumChoice("OnItemUse", Use.WAIT)
+        private val onBlockBreaking by enumChoice("OnBlockBreaking", Breaking.WAIT)
         private val weapon by enumChoice("Weapon", Weapon.ANY)
         private val delayPostStopUse by int("DelayPostStopUse", 0, 0..20, "ticks")
 
@@ -65,9 +65,8 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
             ANY("Any")
         }
 
-        enum class Use(override val choiceName: String) : NamedChoice {
+        enum class Breaking(override val choiceName: String) : NamedChoice {
             WAIT("Wait"),
-            STOP("Stop"),
             IGNORE("Ignore")
         }
 
@@ -94,9 +93,9 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
         }
 
         suspend fun Sequence<*>.encounterItemUse(): Boolean {
-            return when (onItemUse) {
-                Use.WAIT -> {
-                    this.waitUntil { !player.isUsingItem }
+            return when (onBlockBreaking) {
+                Breaking.WAIT -> {
+                    this.waitUntil { !interaction.isBreakingBlock }
 
                     if (delayPostStopUse > 0) {
                         waitTicks(delayPostStopUse)
@@ -105,17 +104,7 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
                     true
                 }
 
-                Use.STOP -> {
-                    interaction.stopUsingItem(player)
-
-                    if (delayPostStopUse > 0) {
-                        waitTicks(delayPostStopUse)
-                    }
-
-                    true
-                }
-
-                Use.IGNORE -> false
+                Breaking.IGNORE -> false
             }
         }
 
@@ -157,10 +146,8 @@ object ModuleAutoClicker : ClientModule("AutoClicker", Category.COMBAT, aliases 
                 }
             }
 
-            if (player.usingItem) {
-                val encounterItemUse = encounterItemUse()
-
-                if (encounterItemUse) {
+            if (interaction.isBreakingBlock) {
+                if (encounterItemUse()) {
                     return@tickHandler
                 }
             }
