@@ -55,6 +55,7 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
     private val maxDistance by float("MaxDistance", 256.0f, 128.0f..1280.0f)
     private val maxCount by int("MaxCount", 8, 1..64)
     private val highlightUnbreakable by boolean("HighlightUnbreakable", true)
+    private val compact by boolean("Compact", true)
 
     private val fontRenderer
         get() = FontManager.FONT_RENDERER
@@ -98,7 +99,21 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
                     val screenPos = WorldToScreen.calculateScreenPos(bedState.pos.add(0.0, renderY.toDouble(), 0.0))
                         ?: return@forEachWithSelf
                     val distance = sqrt(distSq)
-                    val surrounding = bedState.surroundingBlocks
+                    val surrounding = if (compact) {
+                        bedState.surroundingBlocks.groupBy { surrounding ->
+                            surrounding.block
+                        }.map { (block, group) ->
+                            group.reduce { acc, item ->
+                                SurroundingBlock(
+                                    block = block,
+                                    count = acc.count + item.count,
+                                    layer = minOf(acc.layer, item.layer)
+                                )
+                            }
+                        }
+                    } else {
+                        bedState.surroundingBlocks
+                    }
 
                     val z = 1000.0F * (self.size - i - 1) / self.size
 
@@ -172,16 +187,18 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
                             )
                             commit(buf)
 
-                            // layer
-                            val layerText = process(ROMAN_NUMERALS[it.layer], color)
-                            draw(
-                                layerText,
-                                topLeftX.toFloat(),
-                                0F,
-                                shadow = true,
-                                scale = fontScale,
-                            )
-                            commit(buf)
+                            if (!compact) {
+                                // layer
+                                val layerText = process(ROMAN_NUMERALS[it.layer], color)
+                                draw(
+                                    layerText,
+                                    topLeftX.toFloat(),
+                                    0F,
+                                    shadow = true,
+                                    scale = fontScale,
+                                )
+                                commit(buf)
+                            }
                         }
                     }
                 }
