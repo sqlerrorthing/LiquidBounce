@@ -99,21 +99,7 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
                     val screenPos = WorldToScreen.calculateScreenPos(bedState.pos.add(0.0, renderY.toDouble(), 0.0))
                         ?: return@forEachWithSelf
                     val distance = sqrt(distSq)
-                    val surrounding = if (compact) {
-                        bedState.surroundingBlocks.groupBy { surrounding ->
-                            surrounding.block
-                        }.map { (block, group) ->
-                            group.reduce { acc, item ->
-                                SurroundingBlock(
-                                    block = block,
-                                    count = acc.count + item.count,
-                                    layer = minOf(acc.layer, item.layer)
-                                )
-                            }
-                        }
-                    } else {
-                        bedState.surroundingBlocks
-                    }
+                    val surrounding = bedState.surroundingBlocks
 
                     val z = 1000.0F * (self.size - i - 1) / self.size
 
@@ -263,7 +249,21 @@ object ModuleBedPlates : ClientModule("BedPlates", Category.RENDER) {
             }
         }
 
-        return result
+        return if (compact) {
+            result.groupBy { surrounding ->
+                surrounding.block
+            }.map { (block, group) ->
+                group.reduce { acc, item ->
+                    SurroundingBlock(
+                        block = block,
+                        count = acc.count + item.count,
+                        layer = minOf(acc.layer, item.layer)
+                    )
+                }
+            }.toSet()
+        } else {
+            result
+        }
     }
 
     private fun BlockPos.getBedPlates(headState: BlockState): BedState {
