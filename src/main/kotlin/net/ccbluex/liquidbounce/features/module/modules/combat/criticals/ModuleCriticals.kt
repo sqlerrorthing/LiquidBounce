@@ -195,8 +195,8 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
     }
 
     fun shouldWaitForCrit(target: Entity, ignoreState: Boolean = false) = when {
-        CriticalsBlink.running && CriticalsBlink.isInState -> false
-        else -> CriticalsJump.shouldWaitForCrit(target, ignoreState)
+        !running -> false
+        else -> (modes.activeChoice as? CriticalsMode)?.shouldWaitForCriticalHit(target, ignoreState) ?: false
     }
 
     fun allowsCriticalHit(ignoreOnGround: Boolean = false): Boolean {

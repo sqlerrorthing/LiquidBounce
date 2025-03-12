@@ -18,20 +18,16 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.CriticalsMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.wouldDoCriticalHit
 import net.ccbluex.liquidbounce.utils.client.Timer
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
-object CriticalsTimer : Choice("Timer") {
-
-    override val parent: ChoiceConfigurable<*>
-        get() = ModuleCriticals.modes
+object CriticalsTimer : CriticalsMode("Timer") {
 
     private val speed by float("Speed", 0.8f, 0.1f..1.0f)
     private val range by float("Range", 4.0f, 0.0f..10.0f)

@@ -18,20 +18,15 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.modes
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.CriticalsMode
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 /**
  * Same thing as NoGround NoFall mode
  */
-object CriticalsNoGround : Choice("NoGround") {
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
+object CriticalsNoGround : CriticalsMode("NoGround") {
 
     @Suppress("unused")
     private val packetHandler = handler<PacketEvent> { event ->

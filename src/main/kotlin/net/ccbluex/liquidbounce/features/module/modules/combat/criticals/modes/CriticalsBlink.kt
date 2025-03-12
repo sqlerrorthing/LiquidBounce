@@ -18,23 +18,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.QueuePacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.CriticalsMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.wouldDoCriticalHit
 import net.ccbluex.liquidbounce.utils.client.PacketQueueManager
 import net.ccbluex.liquidbounce.utils.combat.findEnemy
+import net.minecraft.entity.Entity
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket
 import net.minecraft.network.packet.c2s.play.*
 
-object CriticalsBlink : Choice("Blink") {
-
-    override val parent: ChoiceConfigurable<*>
-        get() = ModuleCriticals.modes
+object CriticalsBlink : CriticalsMode("Blink") {
 
     private val delay by intRange("Delay", 300..600, 0..1000, "ms")
     private val range by float("Range", 4.0f, 0.0f..10.0f)
@@ -70,6 +66,8 @@ object CriticalsBlink : Choice("Blink") {
             isInState = false
         }
     }
+
+    override fun shouldWaitForCriticalHit(target: Entity, ignoreState: Boolean) = !isInState
 
     override fun disable() {
         isInState = false

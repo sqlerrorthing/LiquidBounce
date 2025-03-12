@@ -18,28 +18,24 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
 
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.event.events.AttackEntityEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.CriticalsMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.VisualsConfigurable.showCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.canDoCriticalHit
-import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.modes
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 
 /**
  * Packet criticals mode
  */
-object CriticalsPacket : Choice("Packet") {
+object CriticalsPacket : CriticalsMode("Packet") {
 
     private val mode by enumChoice("Mode", Mode.NO_CHEAT_PLUS)
     private val packetType by enumChoice("PacketType", MovePacketType.FULL)
-
-    override val parent: ChoiceConfigurable<Choice>
-        get() = modes
 
     @Suppress("unused")
     private val attackHandler = handler<AttackEntityEvent> { event ->
@@ -53,75 +49,70 @@ object CriticalsPacket : Choice("Packet") {
             return@handler
         }
 
-        when (mode) {
-            Mode.VANILLA -> {
-                p(0.2)
-                p(0.01)
-                showCriticals(event.entity)
-            }
-
-            Mode.NO_CHEAT_PLUS -> {
-                p(0.11)
-                p(0.1100013579)
-                p(0.0000013579)
-                showCriticals(event.entity)
-            }
-
-            Mode.FALLING -> {
-                p(0.0625)
-                p(0.0625013579)
-                p(0.0000013579)
-                showCriticals(event.entity)
-            }
-
-            Mode.LOW -> {
-                p(1e-9)
-                p(0.0)
-                showCriticals(event.entity)
-            }
-
-            Mode.DOWN -> {
-                p(-1e-9)
-                showCriticals(event.entity)
-            }
-
-            Mode.GRIM -> {
-                if (!player.isOnGround) {
-                    // If player is in air, go down a little bit.
-                    // Vanilla still crits and movement is too small
-                    // for simulation checks.
-
-                    // Requires packet type to be .FULL
-                    p(-0.000001)
-
-                    showCriticals(event.entity)
-                }
-            }
-
-            Mode.BLOCKSMC -> {
-                if (player.age % 4 == 0) {
-                    p(0.0011, true)
-                    p(0.0)
-                    showCriticals(event.entity)
-                }
-            }
+        if (mode.doCriticalHit(event.entity)) {
+            showCriticals(event.entity)
         }
     }
 
-    private fun p(mod: Double, onGround: Boolean = false) {
+    private fun sendPacket(mod: Double, onGround: Boolean = false) {
         network.sendPacket(packetType.generatePacket().apply {
             this.y += mod
             this.onGround = onGround
         })
     }
 
-    enum class Mode(override val choiceName: String) : NamedChoice {
-        VANILLA("Vanilla"),
-        NO_CHEAT_PLUS("NoCheatPlus"),
-        FALLING("Falling"),
-        LOW("Low"),
-        DOWN("Down"),
-        GRIM("Grim"),
-        BLOCKSMC("BlocksMC"),
+    @Suppress("unused", "MagicNumber")
+    enum class Mode(
+        override val choiceName: String,
+        val doCriticalHit: (target: Entity) -> Boolean
+    ) : NamedChoice {
+        VANILLA("Vanilla", { _ ->
+            sendPacket(0.2)
+            sendPacket(0.01)
+            true
+        }),
+        NO_CHEAT_PLUS("NoCheatPlus", { _ ->
+            sendPacket(0.11)
+            sendPacket(
+                0.1100013579
+            )
+            sendPacket(0.0000013579)
+            true
+        }),
+        FALLING("Falling", { _ ->
+            sendPacket(0.0625)
+            sendPacket(0.0625013579)
+            sendPacket(0.0000013579)
+            true
+        }),
+        LOW("Low", { _ ->
+            sendPacket(1e-9)
+            sendPacket(0.0)
+            true
+        }),
+        DOWN("Down", { _ ->
+            sendPacket(-1e-9)
+            true
+        }),
+        GRIM("Grim", { _ ->
+            player.isOnGround.apply {
+                if (this) {
+                    // If player is in air, go down a little bit.
+                    // Vanilla still crits and movement is too small
+                    // for simulation checks.
+
+                    // Requires packet type to be .FULL
+                    sendPacket(-0.000001)
+                }
+            }
+        }),
+        BLOCKSMC("BlocksMC", { _ ->
+            (player.age % 4 == 0).apply {
+                if (this) {
+                    sendPacket(0.0011, true)
+                    sendPacket(0.0)
+                }
+            }
+        }),
     }
 }

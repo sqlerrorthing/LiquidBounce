@@ -19,12 +19,11 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.criticals.modes
 
 import com.google.gson.JsonObject
-import net.ccbluex.liquidbounce.config.types.Choice
-import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
 import net.ccbluex.liquidbounce.event.events.MovementInputEvent
 import net.ccbluex.liquidbounce.event.events.PlayerJumpEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleAutoClicker
+import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.CriticalsMode
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.allowsCriticalHit
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.ModuleKillAura
@@ -41,10 +40,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.Vec3d
 
-object CriticalsJump : Choice("Jump") {
-
-    override val parent: ChoiceConfigurable<*>
-        get() = ModuleCriticals.modes
+object CriticalsJump : CriticalsMode("Jump") {
 
     // There are different possible jump heights to crit enemy
     //   Hop: 0.1 (like in Wurst-Client)
@@ -112,7 +108,8 @@ object CriticalsJump : Choice("Jump") {
      * will try to attack the enemy anyway. To maximise damage, this function is used to determine
      * whether it is worth to wait for the fall.
      */
-    fun shouldWaitForCrit(target: Entity, ignoreState: Boolean = false): Boolean {
+    @Suppress("ReturnCount")
+    override fun shouldWaitForCriticalHit(target: Entity, ignoreState: Boolean): Boolean {
         if (!isActive() && !ignoreState) {
             return false
         }
