@@ -26,8 +26,16 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleC
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.VisualsConfigurable.showCriticals
 import net.ccbluex.liquidbounce.features.module.modules.combat.criticals.ModuleCriticals.canDoCriticalHit
 import net.ccbluex.liquidbounce.utils.client.MovePacketType
+import net.ccbluex.liquidbounce.utils.math.component1
+import net.ccbluex.liquidbounce.utils.math.component2
+import net.ccbluex.liquidbounce.utils.math.component3
+import net.minecraft.block.CarpetBlock
+import net.minecraft.block.SnowBlock
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
+import net.minecraft.stat.Stats
+import net.minecraft.util.math.Vec3d
 
 /**
  * Packet criticals mode
@@ -49,9 +57,15 @@ object CriticalsPacket : CriticalsMode("Packet") {
             return@handler
         }
 
-        if (mode.doCriticalHit(event.entity)) {
+        if (mode.doCriticalHit()) {
             showCriticals(event.entity)
         }
+    }
+
+    @Suppress("MagicNumber")
+    override fun shouldWaitForCriticalHit(target: Entity, ignoreState: Boolean) = when {
+        mode == Mode.SNOW -> player.velocity.y > -0.08
+        else -> false
     }
 
     private fun sendPacket(mod: Double, onGround: Boolean = false) {
@@ -64,14 +78,14 @@ object CriticalsPacket : CriticalsMode("Packet") {
     @Suppress("unused", "MagicNumber")
     enum class Mode(
         override val choiceName: String,
-        val doCriticalHit: (target: Entity) -> Boolean
+        val doCriticalHit: () -> Boolean
     ) : NamedChoice {
-        VANILLA("Vanilla", { _ ->
+        VANILLA("Vanilla", {
             sendPacket(0.2)
             sendPacket(0.01)
             true
         }),
-        NO_CHEAT_PLUS("NoCheatPlus", { _ ->
+        NO_CHEAT_PLUS("NoCheatPlus", {
             sendPacket(0.11)
             sendPacket(
                 0.1100013579
@@ -79,22 +93,22 @@ object CriticalsPacket : CriticalsMode("Packet") {
             sendPacket(0.0000013579)
             true
         }),
-        FALLING("Falling", { _ ->
+        FALLING("Falling", {
             sendPacket(0.0625)
             sendPacket(0.0625013579)
             sendPacket(0.0000013579)
             true
         }),
-        LOW("Low", { _ ->
+        LOW("Low", {
             sendPacket(1e-9)
             sendPacket(0.0)
             true
         }),
-        DOWN("Down", { _ ->
+        DOWN("Down", {
             sendPacket(-1e-9)
             true
         }),
-        GRIM("Grim", { _ ->
+        GRIM("Grim", {
             player.isOnGround.apply {
                 if (this) {
                     // If player is in air, go down a little bit.
@@ -106,7 +120,7 @@ object CriticalsPacket : CriticalsMode("Packet") {
                 }
             }
         }),
-        BLOCKSMC("BlocksMC", { _ ->
+        BLOCKSMC("BlocksMC", {
             (player.age % 4 == 0).apply {
                 if (this) {
                     sendPacket(0.0011, true)
@@ -114,5 +128,27 @@ object CriticalsPacket : CriticalsMode("Packet") {
                 }
             }
         }),
+        SNOW("Snow", {
+            val block = world.getBlockState(player.blockPos).block
+
+            (player.isOnGround && (block is CarpetBlock || block is SnowBlock)).apply {
+                if (this) {
+                    network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY))
+                    network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_SPRINTING))
+
+                    val (x, _, z) = player.velocity
+                    player.velocity = Vec3d(
+                        x * 1.12,
+                        0.20,
+                        z * 1.12
+                    )
+
+                    network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY))
+                    network.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.STOP_SPRINTING))
+
+                    player.incrementStat(Stats.JUMP)
+                }
+            }
+        })
     }
 }

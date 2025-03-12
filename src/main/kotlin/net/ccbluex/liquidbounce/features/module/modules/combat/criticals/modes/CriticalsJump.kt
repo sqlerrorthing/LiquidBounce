@@ -234,10 +234,6 @@ object CriticalsJump : CriticalsMode("Jump") {
     }
 
     private fun isActive(): Boolean {
-        if (!ModuleCriticals.running) {
-            return false
-        }
-
         // if both module checks are disabled, we can safely say that we are active
         if (!checkKillaura && !checkAutoClicker) {
             return true
