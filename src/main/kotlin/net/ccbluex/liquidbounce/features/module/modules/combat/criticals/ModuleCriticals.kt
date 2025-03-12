@@ -51,7 +51,7 @@ object ModuleCriticals : ClientModule("Criticals", Category.COMBAT) {
         enableLock()
     }
 
-    val modes = choices("Mode", 1) {
+    internal val modes = choices("Mode", 1) {
         arrayOf(
             NoneChoice(it),
             CriticalsPacket,
