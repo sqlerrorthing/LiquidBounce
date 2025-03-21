@@ -23,12 +23,14 @@
 package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.config.types.Configurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
 import net.ccbluex.liquidbounce.utils.item.isNothing
+import net.ccbluex.liquidbounce.utils.kotlin.emptyEnumSet
 import net.ccbluex.liquidbounce.utils.network.OpenInventorySilentlyPacket
 import net.ccbluex.liquidbounce.utils.network.sendPacket
 import net.minecraft.block.Blocks
@@ -39,29 +41,37 @@ import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket
 import net.minecraft.registry.Registries
 import net.minecraft.registry.tag.ItemTags
 import net.minecraft.util.Hand
+import java.util.*
 
 /**
  * Constraints for inventory actions.
  * This can be used to ensure that the player is not moving or rotating while interacting with the inventory.
  * Also allows to set delays for opening, clicking and closing the inventory.
  */
-open class InventoryConstraints : Configurable("Constraints") {
+sealed class InventoryConstraints : Configurable("Constraints") {
 
     internal val startDelay by intRange("StartDelay", 1..2, 0..20, "ticks")
     internal val clickDelay by intRange("ClickDelay", 2..4, 0..20, "ticks")
     internal val closeDelay by intRange("CloseDelay", 1..2, 0..20, "ticks")
     internal val missChance by intRange("MissChance", 0..0, 0..100, "%")
 
-    private val requiresNoMovement by boolean("RequiresNoMovement", false)
-    private val requiresNoRotation by boolean("RequiresNoRotation", false)
+    private val requirements by multiEnumChoice<InventoryRequirements>("Requires",
+        default = emptyEnumSet(),
+        choices = EnumSet.of(
+            InventoryRequirements.NO_MOVEMENT,
+            InventoryRequirements.NO_ROTATION
+        ).also {
+            if (this is PlayerInventoryConstraints) {
+                it.add(InventoryRequirements.OPEN_INVENTORY)
+            }
+        }
+    )
 
     /**
      * Whether the constraints are met, this will be checked before any inventory actions are performed.
-     * This can be overridden by [PlayerInventoryConstraints] which introduces additional requirements.
      */
-    open fun passesRequirements(action: InventoryAction) =
-        (!requiresNoMovement || player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f) &&
-            (!requiresNoRotation || RotationManager.rotationMatchesPreviousRotation())
+    fun passesRequirements(action: InventoryAction) =
+        requirements.all { it.testRequirement(action) }
 
 }
 
@@ -69,7 +79,19 @@ open class InventoryConstraints : Configurable("Constraints") {
  * Additional constraints for the player inventory. This should be used when interacting with the player inventory
  * instead of a generic container.
  */
-class PlayerInventoryConstraints : InventoryConstraints() {
+class PlayerInventoryConstraints : InventoryConstraints()
+
+private enum class InventoryRequirements(
+    override val choiceName: String,
+    val testRequirement: (action: InventoryAction) -> Boolean
+) : NamedChoice {
+    NO_MOVEMENT("NoMovement", { _ ->
+        player.input.movementForward == 0.0f && player.input.movementSideways == 0.0f
+    }),
+
+    NO_ROTATION("NoRotation", { _ ->
+        RotationManager.rotationMatchesPreviousRotation()
+    }),
 
     /**
      * When this option is not enabled, the inventory will be opened silently
@@ -85,13 +107,9 @@ class PlayerInventoryConstraints : InventoryConstraints() {
      * Sad.
      * :(
      */
-    val requiresOpenInventory by boolean("RequiresInventoryOpen", false)
-
-    override fun passesRequirements(action: InventoryAction) =
-        super.passesRequirements(action) &&
-            (!action.requiresPlayerInventoryOpen() || !requiresOpenInventory ||
-                InventoryManager.isInventoryOpen)
-
+    OPEN_INVENTORY("InventoryOpen", { action ->
+        !action.requiresPlayerInventoryOpen() || InventoryManager.isInventoryOpen
+    })
 }
 
 fun hasInventorySpace() = player.inventory.main.any { it.isEmpty }
