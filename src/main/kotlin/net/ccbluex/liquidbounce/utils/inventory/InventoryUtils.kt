@@ -18,14 +18,13 @@
  *
  *
  */
-@file:Suppress("TooManyFunctions")
+@file:Suppress("TooManyFunctions", "WildcardImport")
 
 package net.ccbluex.liquidbounce.utils.inventory
 
 import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.config.types.NamedChoice
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
-import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ModuleScaffold
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ScaffoldBlockItemSelection
 import net.ccbluex.liquidbounce.utils.aiming.RotationManager
 import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.input.shouldSwingHand
@@ -46,8 +45,9 @@ import java.util.*
 /**
  * Constraints for inventory actions.
  * This can be used to ensure that the player is not moving or rotating while interacting with the inventory.
- * Also allows to set delays for opening, clicking and closing the inventory.
+ * It Also allows setting delays for opening, clicking and closing the inventory.
  */
+@Suppress("MagicNumber")
 sealed class InventoryConstraints : Configurable("Constraints") {
 
     internal val startDelay by intRange("StartDelay", 1..2, 0..20, "ticks")
@@ -202,6 +202,7 @@ fun getArmorColor() = Slots.Armor.firstNotNullOfOrNull { slot ->
  *
  * @see [net.minecraft.client.render.entity.feature.ArmorFeatureRenderer.renderArmor]
  */
+@Suppress("MagicNumber")
 fun ItemStack.getArmorColor(): Int? {
     return if (isIn(ItemTags.DYEABLE)) {
         DyedColorComponent.getColor(this, -6265536) // #FFA06540
@@ -221,7 +222,7 @@ val DISALLOWED_BLOCKS_TO_PLACE = hashSetOf(
 )
 
 /**
- * @see [ModuleScaffold.isBlockUnfavourable]
+ * @see [ScaffoldBlockItemSelection.isBlockUnfavourable]
  */
 val UNFAVORABLE_BLOCKS_TO_PLACE = hashSetOf(
     Blocks.CRAFTING_TABLE,
