@@ -57,7 +57,7 @@
     {/if}
 
     {#if expanded}
-        <div class="choices">
+        <div class="nested-settings">
             {#each nestedSettings as setting (setting.name)}
                 <GenericSetting {skipAnimationDelay} path={thisPath} bind:setting on:change={handleChange} />
             {/each}
@@ -85,7 +85,7 @@
         }
     }
 
-    .choices {
+    .nested-settings {
         border-left: solid 2px $accent-color;
         padding-left: 7px;
     }
