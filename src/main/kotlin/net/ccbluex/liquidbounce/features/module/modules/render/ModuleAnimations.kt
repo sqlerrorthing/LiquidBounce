@@ -83,14 +83,14 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = 
     )
 
     object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
-        private val ignores by multiEnumChoice("Ignores",
+        private val ignore by multiEnumChoice("Ignore",
             Ignores.BLOCKING,
             Ignores.PLACE
         )
 
-        val ignoreBlocking get() = Ignores.BLOCKING in ignores
-        val ignorePlace get() = Ignores.PLACE in ignores
-        val ignoreAmount get() = Ignores.AMOUNT in ignores
+        val ignoreBlocking get() = Ignores.BLOCKING in ignore
+        val ignorePlace get() = Ignores.PLACE in ignore
+        val ignoreAmount get() = Ignores.AMOUNT in ignore
 
         private enum class Ignores(
             override val choiceName: String
