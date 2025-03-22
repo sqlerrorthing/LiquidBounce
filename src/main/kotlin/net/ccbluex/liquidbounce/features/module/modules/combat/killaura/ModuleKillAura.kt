@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiquidBounce. If not, see <https://www.gnu.org/licenses/>.
  */
+@file:Suppress("WildcardImport")
 package net.ccbluex.liquidbounce.features.module.modules.combat.killaura
 
 import com.google.gson.JsonObject
@@ -75,6 +76,7 @@ import kotlin.math.pow
  *
  * Automatically attacks enemies.
  */
+@Suppress("MagicNumber")
 object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Attack speed
@@ -97,7 +99,10 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Target
     val targetTracker = tree(KillAuraTargetTracker)
-    val requirements = tree(KillAuraRequirements)
+    private val requirements by multiEnumChoice<KillAuraRequirements>("Requirements")
+
+    private val requirementsMet
+        get() = requirements.all { it.meets() }
 
     // Rotation
     private val rotations = tree(KillAuraRotationsConfigurable)
@@ -157,7 +162,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         val isInInventoryScreen =
             InventoryManager.isInventoryOpen || mc.currentScreen is GenericContainerScreen
 
-        val shouldResetTarget = player.isSpectator || player.isDead || !requirements.requirementsMet
+        val shouldResetTarget = player.isSpectator || player.isDead || !requirementsMet
 
         if (isInInventoryScreen && !ignoreOpenInventory || shouldResetTarget) {
             // Reset current target
@@ -190,7 +195,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
             val hasUnblocked = KillAuraAutoBlock.stopBlocking()
 
             // Deal with fake swing when there is no target
-            if (KillAuraFailSwing.enabled && requirements.requirementsMet) {
+            if (KillAuraFailSwing.enabled && requirementsMet) {
                 if (hasUnblocked) {
                     waitTicks(KillAuraAutoBlock.tickOff)
                 }
@@ -200,7 +205,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
 
         // Check if the module should (not) continue after the blocking state is updated
-        if (!requirements.requirementsMet) {
+        if (!requirementsMet) {
             return@tickHandler
         }
 
@@ -242,7 +247,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
     }
 
-    @Suppress("CognitiveComplexMethod")
+    @Suppress("CognitiveComplexMethod", "CyclomaticComplexMethod")
     private suspend fun attackTarget(sequence: Sequence, target: Entity, rotation: Rotation) {
         // Make it seem like we are blocking
         KillAuraAutoBlock.makeSeemBlock()
@@ -353,6 +358,7 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
         }
     }
 
+    @Suppress("ReturnCount")
     private fun processTarget(
         entity: LivingEntity,
         maximumRange: Float,
