@@ -61,7 +61,7 @@
                             handleChange(choice)
                         }}
                 >
-                    {choice}
+                    {$spaceSeperatedNames ? convertToSpacedString(choice) : choice}
                 </span>
             {/each}
         </div>
