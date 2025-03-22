@@ -45,8 +45,7 @@ object ModuleReplenish : ClientModule("Replenish", Category.PLAYER, aliases = ar
     private val constraints = tree(PlayerInventoryConstraints())
     private val itemThreshold by int("ItemThreshold", 5, 0..63)
     private val delay by int("Delay", 40, 0..1000, "ms")
-    private val cleanUp by boolean("CleanUp", true)
-    private val usePickupAll by boolean("UsePickupAll", false)
+    private val features by multiEnumChoice("Features", Features.CLEANUP)
     private val insideOf by multiEnumChoice<InsideOf>("InsideOf")
 
     private val trackedHotbarItems = Array<Item>(9) { Items.AIR }
@@ -99,7 +98,7 @@ object ModuleReplenish : ClientModule("Replenish", Category.PLAYER, aliases = ar
                 .filter { it.itemStack.item == item }
                 .sortedWith(
                     // clean up small stacks first when cleanUp is enabled otherwise prioritize larger stacks
-                    if (cleanUp) compareBy { it.itemStack.count } else compareByDescending { it.itemStack.count }
+                    if (Features.CLEANUP in features) compareBy { it.itemStack.count } else compareByDescending { it.itemStack.count }
                 )
 
             // no stack to refill found
@@ -109,7 +108,7 @@ object ModuleReplenish : ClientModule("Replenish", Category.PLAYER, aliases = ar
             }
 
             // refill
-            if (usePickupAll && currentStackNotEmpty) {
+            if (Features.USE_PICKUP_ALL in features && currentStackNotEmpty) {
                 event.schedule(
                     constraints,
                     ClickInventoryAction.click(null, slot, 0, SlotActionType.PICKUP),
@@ -161,6 +160,13 @@ object ModuleReplenish : ClientModule("Replenish", Category.PLAYER, aliases = ar
             (InsideOf.INVENTORIES in insideOf
                 || mc.currentScreen !is InventoryScreen
             )
+
+    private enum class Features(
+        override val choiceName: String
+    ) : NamedChoice {
+        CLEANUP("CleanUp"),
+        USE_PICKUP_ALL("UsePickupAll")
+    }
 
     @Suppress("unused")
     private enum class InsideOf(
