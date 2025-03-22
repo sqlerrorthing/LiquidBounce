@@ -18,7 +18,7 @@
     import BindSetting from "../BindSetting.svelte";
     import VectorSetting from "../VectorSetting.svelte";
     import KeySetting from "../KeySetting.svelte";
-    import MultiChooseSetting from "../MultiShooseSetting.svelte";
+    import MultiChooseSetting from "../MultiChooseSetting.svelte";
 
     export let setting: ModuleSetting;
     export let path: string;
