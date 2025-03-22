@@ -94,6 +94,7 @@
     cursor: pointer;
     font-weight: 500;
     transition: ease color 0.2s;
+    overflow-wrap: anywhere;
 
     &:hover {
       color: $clickgui-text-color;
