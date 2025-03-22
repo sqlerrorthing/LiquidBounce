@@ -43,9 +43,6 @@ import kotlin.math.abs
 @Suppress("MagicNumber")
 object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
     internal val show by multiEnumChoice("Show", NametagShowOptions.entries)
-
-    val background by boolean("Background", true)
-    val border by boolean("Border", true)
     val scale by float("Scale", 2F, 0.25F..4F)
     private val maximumDistance by float("MaximumDistance", 100F, 1F..256F)
     private var nametagsToRender: List<Nametag>? = null

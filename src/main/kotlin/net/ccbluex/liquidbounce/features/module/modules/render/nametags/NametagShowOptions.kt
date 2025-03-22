@@ -9,7 +9,8 @@ internal enum class NametagShowOptions(
     DISTANCE("Distance"),
     PING("Ping"),
     ITEMS("Items"),
-    ITEM_INFO("ItemInfo");
+    ITEM_INFO("ItemInfo"),
+    BORDER("Border");
 
     fun isShowing() = this in ModuleNametags.show
 }

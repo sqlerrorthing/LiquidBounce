@@ -79,7 +79,7 @@ class NametagRenderer {
 
         quadBuffers.drawQuad(env, q1, q2)
 
-        if (ModuleNametags.border) {
+        if (NametagShowOptions.BORDER.isShowing()) {
             lineBuffers.drawQuadOutlines(env, q1, q2)
         }
 

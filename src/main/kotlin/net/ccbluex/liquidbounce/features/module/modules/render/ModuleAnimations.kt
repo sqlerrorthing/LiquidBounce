@@ -20,6 +20,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render
 
 import net.ccbluex.liquidbounce.config.types.Choice
 import net.ccbluex.liquidbounce.config.types.ChoiceConfigurable
+import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
@@ -82,9 +83,22 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = 
     )
 
     object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
-        val ignoreBlocking by boolean("IgnoreBlocking", true)
-        val ignorePlace by boolean("IgnorePlace", true)
-        val ignoreAmount by boolean("IgnoreAmount", false)
+        private val ignores by multiEnumChoice("Ignores",
+            Ignores.BLOCKING,
+            Ignores.PLACE
+        )
+
+        val ignoreBlocking get() = Ignores.BLOCKING in ignores
+        val ignorePlace get() = Ignores.PLACE in ignores
+        val ignoreAmount get() = Ignores.AMOUNT in ignores
+
+        private enum class Ignores(
+            override val choiceName: String
+        ) : NamedChoice {
+            BLOCKING("Blocking"),
+            PLACE("Place"),
+            AMOUNT("Amount")
+        }
     }
 
     /**
