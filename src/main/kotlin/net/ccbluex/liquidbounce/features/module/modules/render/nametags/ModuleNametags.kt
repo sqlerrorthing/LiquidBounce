@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.render.nametags
 
-import net.ccbluex.liquidbounce.config.types.Configurable
 import net.ccbluex.liquidbounce.event.events.GameTickEvent
 import net.ccbluex.liquidbounce.event.events.OverlayRenderEvent
 import net.ccbluex.liquidbounce.event.events.WorldChangeEvent
@@ -31,7 +30,6 @@ import net.ccbluex.liquidbounce.render.engine.Vec3
 import net.ccbluex.liquidbounce.render.renderEnvironmentForGUI
 import net.ccbluex.liquidbounce.utils.combat.shouldBeShown
 import net.ccbluex.liquidbounce.utils.entity.RenderedEntities
-import net.ccbluex.liquidbounce.utils.entity.RenderedEntities.iterator
 import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.math.sq
 import net.minecraft.entity.Entity
@@ -42,22 +40,9 @@ import kotlin.math.abs
  *
  * Makes player name tags more visible and adds useful information.
  */
+@Suppress("MagicNumber")
 object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
-
-    /**
-     * Contains the list of toggleable options for the [NametagTextFormatter]
-     */
-    object ShowOptions : Configurable("Show") {
-        val health by boolean("Health", true)
-        val distance by boolean("Distance", true)
-        val ping by boolean("Ping", true)
-        val items by boolean("Items", true)
-        val itemInfo by boolean("ItemInfo", true)
-    }
-
-    init {
-        tree(ShowOptions)
-    }
+    internal val show by multiEnumChoice("Show", NametagShowOptions.entries)
 
     val background by boolean("Background", true)
     val border by boolean("Border", true)
@@ -144,5 +129,4 @@ object ModuleNametags : ClientModule("Nametags", Category.RENDER) {
      */
     @JvmStatic
     fun shouldRenderNametag(entity: Entity) = entity.shouldBeShown()
-
 }
