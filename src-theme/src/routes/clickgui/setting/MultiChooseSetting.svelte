@@ -46,7 +46,11 @@
     <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded}>
         <div class="title">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
         <div class="right">
-            <span>{cSetting.value.length}/{cSetting.choices.length}</span>
+            <span>
+                <span class="value">{cSetting.value.length}</span>
+                /
+                <span class="value">{cSetting.choices.length}</span>
+            </span>
             <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true} />
         </div>
     </div>
@@ -108,6 +112,11 @@
       font-weight: 500;
       font-size: 12px;
       border: none;
+    }
+
+    & > span > .value {
+      font-family: monospace;
+      line-height: 0;
     }
   }
 
