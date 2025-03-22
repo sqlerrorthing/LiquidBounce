@@ -101,6 +101,7 @@
     }
 
     &.active {
+      background-color: rgba($accent-color, 0.1);
       color: $accent-color;
     }
   }
