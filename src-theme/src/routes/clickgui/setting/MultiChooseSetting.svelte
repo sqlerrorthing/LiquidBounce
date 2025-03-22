@@ -92,6 +92,7 @@
     border-radius: 3px;
     padding: 3px 6px;
     cursor: pointer;
+    font-weight: 500;
     transition: ease color 0.2s;
 
     &:hover {
