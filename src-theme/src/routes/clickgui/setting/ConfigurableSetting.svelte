@@ -1,12 +1,9 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
-    import type {
-        ModuleSetting,
-        ConfigurableSetting,
-    } from "../../../integration/types";
+    import type {ConfigurableSetting, ModuleSetting,} from "../../../integration/types";
     import GenericSetting from "./common/GenericSetting.svelte";
     import ExpandArrow from "./common/ExpandArrow.svelte";
-    import { setItem } from "../../../integration/persistent_storage";
+    import {setItem} from "../../../integration/persistent_storage";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
 
     export let setting: ModuleSetting;
@@ -41,7 +38,7 @@
     </div>
 
     {#if expanded}
-        <div class="nested-settings">
+        <div class="choices">
             {#each cSetting.value as setting (setting.name)}
                 <GenericSetting {skipAnimationDelay} path={thisPath} bind:setting on:change={handleChange}/>
             {/each}
@@ -72,7 +69,7 @@
     }
   }
 
-  .nested-settings {
+  .choices {
     border-left: solid 2px $accent-color;
     padding-left: 7px;
   }

@@ -63,7 +63,7 @@
     </div>
 
     {#if expanded && value.value.length > 0}
-        <div class="nested-settings" transition:fade|global={{ duration: 200, easing: quintOut }}>
+        <div class="choices" transition:fade|global={{ duration: 200, easing: quintOut }}>
             {#each value.value as setting, i (setting.name)}
                 <GenericSetting skipAnimationDelay={true} {path} bind:setting={value.value[i]} on:change/>
             {/each}
@@ -106,7 +106,7 @@
     }
   }
 
-  .nested-settings {
+  .choices {
     position: absolute;
     z-index: 1000;
     border-radius: 0 0 5px 5px;

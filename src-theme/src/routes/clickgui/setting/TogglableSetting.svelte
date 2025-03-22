@@ -1,14 +1,10 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import type {
-        ModuleSetting,
-        TogglableSetting,
-        BooleanSetting as TBooleanSetting,
-    } from "../../../integration/types";
+    import {createEventDispatcher} from "svelte";
+    import type {BooleanSetting as TBooleanSetting, ModuleSetting, TogglableSetting,} from "../../../integration/types";
     import ExpandArrow from "./common/ExpandArrow.svelte";
     import GenericSetting from "./common/GenericSetting.svelte";
     import Switch from "./common/Switch.svelte";
-    import { setItem } from "../../../integration/persistent_storage";
+    import {setItem} from "../../../integration/persistent_storage";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
 
     export let setting: ModuleSetting;
@@ -61,7 +57,7 @@
     {/if}
 
     {#if expanded}
-        <div class="nested-settings">
+        <div class="choices">
             {#each nestedSettings as setting (setting.name)}
                 <GenericSetting {skipAnimationDelay} path={thisPath} bind:setting on:change={handleChange} />
             {/each}
@@ -89,7 +85,7 @@
         }
     }
 
-    .nested-settings {
+    .choices {
         border-left: solid 2px $accent-color;
         padding-left: 7px;
     }

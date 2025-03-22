@@ -1,33 +1,127 @@
 <script lang="ts">
-    import {createEventDispatcher} from "svelte";
+    import {createEventDispatcher, onMount} from "svelte";
     import type {ModuleSetting, MultiChooseSetting,} from "../../../integration/types";
+    import {slide} from "svelte/transition";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../theme/theme_config";
-    import Dropdown from "./common/dropdown/Dropdown.svelte";
+    import ExpandArrow from "./common/ExpandArrow.svelte";
+    import {setItem} from "../../../integration/persistent_storage";
 
     export let setting: ModuleSetting;
+    export let path: string;
 
     const cSetting = setting as MultiChooseSetting;
+    const thisPath = `${path}.${cSetting.name}`;
 
     const dispatch = createEventDispatcher();
 
-    function handleChange() {
+    function handleChange(v: string) {
+        cSetting.value = cSetting.value.includes(v)
+            ? cSetting.value.filter(item => item !== v)
+            : [...cSetting.value, v];
+
         setting = { ...cSetting };
         dispatch("change");
     }
+
+    let expanded = localStorage.getItem(thisPath) === "true";
+    let skipAnimationDelay = false;
+
+    $: setItem(thisPath, expanded.toString());
+
+    function toggleExpanded() {
+        expanded = !expanded;
+        skipAnimationDelay = true;
+    }
+
+    onMount(() => {
+        setTimeout(() => {
+            skipAnimationDelay = true;
+        }, 200)
+    });
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="setting">
-    <Dropdown
-        on:change={handleChange}
-        bind:value={cSetting.value}
-        options={cSetting.choices}
-        autoClose={false}
-        name={$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}
-    />
+    <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded}>
+        <div class="title">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
+        <div class="right">
+            <span>{cSetting.value.length}/{cSetting.choices.length}</span>
+            <ExpandArrow bind:expanded on:click={() => skipAnimationDelay = true} />
+        </div>
+    </div>
+
+    {#if expanded && skipAnimationDelay}
+        <div in:slide|global={{duration: 200, axis: "y"}} out:slide|global={{duration: 200, axis: "y"}} class="choices">
+            {#each cSetting.choices as choice}
+                <span
+                        class="choice"
+                        class:active={cSetting.value.includes(choice)}
+                        on:click={() => {
+                            handleChange(choice)
+                        }}
+                >
+                    {choice}
+                </span>
+            {/each}
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">
-    .setting {
-        padding: 7px 0;
+  @use "../../../colors.scss" as *;
+
+  .setting {
+    padding: 7px 0;
+    color: $clickgui-text-color;
+  }
+
+  .title {
+    color: $clickgui-text-color;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .choice {
+    background-color: rgba($clickgui-base-color, 0.3);
+    border-radius: 3px;
+    padding: 3px 6px;
+    cursor: pointer;
+
+    &.active {
+      color: $accent-color;
     }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+
+    & > span {
+      letter-spacing: 1px;
+      font-weight: 500;
+      font-size: 12px;
+      border: none;
+    }
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    transition: ease margin-bottom .2s;
+
+    &.expanded {
+      margin-bottom: 10px;
+    }
+  }
+
+  .choices {
+    border-left: solid 2px $accent-color;
+    color: $clickgui-text-color;
+    padding: 0 7px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    font-size: 12px;
+  }
 </style>
