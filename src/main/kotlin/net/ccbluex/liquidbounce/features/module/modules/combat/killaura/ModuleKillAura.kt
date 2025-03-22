@@ -99,15 +99,16 @@ object ModuleKillAura : ClientModule("KillAura", Category.COMBAT) {
 
     // Target
     val targetTracker = tree(KillAuraTargetTracker)
-    private val requirements by multiEnumChoice<KillAuraRequirements>("Requirements")
-
-    private val requirementsMet
-        get() = requirements.all { it.meets() }
 
     // Rotation
     private val rotations = tree(KillAuraRotationsConfigurable)
 
     private val pointTracker = tree(PointTracker())
+
+    private val requirements by multiEnumChoice<KillAuraRequirements>("Requirements")
+
+    private val requirementsMet
+        get() = requirements.all { it.meets() }
 
     // Bypass techniques
     internal val raycast by enumChoice("Raycast", TRACE_ALL)
