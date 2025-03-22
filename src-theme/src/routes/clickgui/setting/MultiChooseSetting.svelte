@@ -83,10 +83,16 @@
   }
 
   .choice {
+    color: $clickgui-text-dimmed-color;
     background-color: rgba($clickgui-base-color, 0.3);
     border-radius: 3px;
     padding: 3px 6px;
     cursor: pointer;
+    transition: ease color 0.2s;
+
+    &:hover {
+      color: $clickgui-text-color;
+    }
 
     &.active {
       color: $accent-color;
