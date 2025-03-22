@@ -43,7 +43,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="setting">
-    <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded}>
+    <div class="head" class:expanded on:contextmenu|preventDefault={toggleExpanded} on:click|preventDefault={toggleExpanded}>
         <div class="title">{$spaceSeperatedNames ? convertToSpacedString(cSetting.name) : cSetting.name}</div>
         <div class="right">
             <span>
