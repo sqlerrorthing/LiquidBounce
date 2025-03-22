@@ -98,7 +98,15 @@ object ModuleReplenish : ClientModule("Replenish", Category.PLAYER, aliases = ar
                 .filter { it.itemStack.item == item }
                 .sortedWith(
                     // clean up small stacks first when cleanUp is enabled otherwise prioritize larger stacks
-                    if (Features.CLEANUP in features) compareBy { it.itemStack.count } else compareByDescending { it.itemStack.count }
+                    if (Features.CLEANUP in features) {
+                        compareBy {
+                            it.itemStack.count
+                        }
+                    } else {
+                        compareByDescending {
+                            it.itemStack.count
+                        }
+                    }
                 )
 
             // no stack to refill found
