@@ -43,7 +43,7 @@ object ModuleAntiBlind : ClientModule("AntiBlind", Category.RENDER, aliases = ar
 
     val fireOpacityPercentage get() =
         if (running) {
-            (fireOpacity / 100.0).toFloat()
+            fireOpacity / 100.0f
         } else {
             1.0f
         }
