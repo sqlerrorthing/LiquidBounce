@@ -12,6 +12,11 @@
 
     const dispatch = createEventDispatcher();
 
+    function handleClearAllThrows() {
+        preset.throws = []
+        dispatch("change")
+    }
+
     function handleChange() {
         dispatch("change")
     }
@@ -53,6 +58,9 @@
             <div class="header">
                 {preset.throws.length}
                 <span class="muted">THROWS</span>
+                {#if preset.throws.length > 0}
+                    <span class="clear-throws" on:click={handleClearAllThrows}>Clear all</span>
+                {/if}
             </div>
 
             <ThrowItemsContainer
@@ -100,6 +108,12 @@
 
   .throws-items-container {
     padding: 0 20px 20px;
+  }
+  
+  .clear-throws {
+    cursor: pointer;
+    text-decoration: underline dotted;
+    font-size: 12px;
   }
 
   .header {
