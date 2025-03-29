@@ -117,8 +117,8 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="selector">
-    <div class="title">
+<div class="select-selector">
+    <div class="select-title">
         <span>{searchQuery === "" ? ($spaceSeperatedNames ? "All Items" : "AllItems") : "Search"}</span>
     </div>
 
@@ -191,65 +191,7 @@
 <style lang="scss">
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
-
-  .result-item {
-    display: flex;
-    height: 40px;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-    cursor: pointer;
-
-    &:hover {
-      .name {
-        color: $clickgui-text-color;
-      }
-
-      .icon-wrapper {
-        background-color: color.adjust($clickgui-text-color, $lightness: -80%);
-      }
-    }
-  }
-
-  .icon-wrapper {
-    transition: background-color 0.3s ease;
-    background-color: color.adjust($clickgui-text-color, $lightness: -90%);
-    border-radius: 3px;
-    min-width: 30px;
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .name {
-    transition: color 0.3s ease;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: $clickgui-text-dimmed-color;
-  }
-
-  .title {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-    font-size: 16px;
-  }
-
-  .selector {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    height: 100%;
-  }
+  @use "select" as *;
 
   .items-group-title {
     font-size: 12px;
@@ -315,42 +257,5 @@
         color: $clickgui-text-color;
       }
     }
-  }
-
-  .search {
-    position: relative;
-  }
-
-  .search-input {
-    width: 100%;
-    height: 35px;
-    border-radius: 3px;
-    border: none;
-    background: transparent;
-    padding-left: 35px;
-    outline: solid 1px color.adjust($clickgui-text-color, $lightness: -90%);
-    color: white;
-  }
-
-  .search-icon {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    & > img {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .results {
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
   }
 </style>
