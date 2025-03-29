@@ -29,7 +29,7 @@
             filteredItems = filteredItems.filter(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
-        filteredItems = filteredItems.filter(b => !throws.includes(b.identifier))
+        filteredItems = filteredItems.filter(b => !throws.includes(b.identifier) && b.identifier !== "minecraft:air")
 
         renderedItems = filteredItems;
     }
@@ -60,7 +60,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="items-container">
-    <div>
+    <div class="add-container">
         <div
                 class="item-container add"
                 on:click={() => expanded = !expanded}
@@ -102,8 +102,8 @@
                                     </div>
 
                                     <span class="name">
-                            {item.name}
-                        </span>
+                                        {item.name}
+                                    </span>
                                 </div>
                             </VirtualList>
                         </div>
@@ -130,14 +130,13 @@
   @use "select" as *;
 
   .items-container {
-    position: relative;
     width: 100%;
     background-color: rgba($clickgui-base-color, 0.85);
     outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
     border-radius: 6px;
     display: flex;
-    gap: 10px;
-    padding: 10px;
+    gap: 11px;
+    padding: 13px;
     flex-wrap: wrap;
   }
 
@@ -151,6 +150,10 @@
     justify-content: center;
     background-color: color.adjust($clickgui-text-color, $lightness: -90%);
     cursor: pointer;
+  }
+
+  .add-container {
+    position: relative;
   }
 
   .item {

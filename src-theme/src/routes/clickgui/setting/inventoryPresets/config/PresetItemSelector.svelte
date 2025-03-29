@@ -103,6 +103,8 @@
             filteredItems = filteredItems.filter(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
+        filteredItems = filteredItems.filter(b => b.identifier !== "minecraft:air")
+
         renderedItems = filteredItems;
     }
 
@@ -192,14 +194,6 @@
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
   @use "select" as *;
-
-  .items-group-title {
-    font-size: 12px;
-    color: rgba($clickgui-text-dimmed-color, 0.6);
-    font-weight: 600;
-    margin-left: 5px;
-    text-transform: uppercase;
-  }
 
   .common-wrapper {
     margin-top: 5px;
