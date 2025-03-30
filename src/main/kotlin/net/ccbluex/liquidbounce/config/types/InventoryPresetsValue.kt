@@ -16,8 +16,14 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
      *   then the item can be replaced with an item with a lower priority.
      * - [NonePresetItem] can be replaced by an item from a lower priority preset
      * - Non-[NonePresetItem] items are protected from being overwritten
+     *
+     * @param predicate Must check whether such an item is in the inventory or not.
+     *                  Based on its results,
+     *                  it will be determined which item will dominate
+     *
+     * @return `null` if presets is empty, otherwise the merged presets
      */
-    fun merged(predicate: (PresetItem) -> Boolean = { true }): InventoryPreset? {
+    fun merged(predicate: (PresetItem) -> Boolean = { it !is NonePresetItem }): InventoryPreset? {
         val presets = get()
 
         return when {
@@ -34,17 +40,15 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
         }
 
         val mergedItems = Array(10) { index ->
+            // We search for the first item that satisfies the predicate, starting with the highest priority presets
             var selectedItem: PresetItem = NonePresetItem
 
             @Suppress("LoopWithTooManyJumpStatements")
             for (preset in this) {
-                if (index >= preset.items.size) {
-                    continue
-                }
-
                 val item = preset.items[index]
 
                 if (item == NonePresetItem) {
+                    // If the currently selected item is still NonePresetItem, continue searching
                     if (selectedItem == NonePresetItem) {
                         continue
                     }
