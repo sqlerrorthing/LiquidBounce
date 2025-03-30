@@ -12,10 +12,10 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
     /**
      * Combines the [InventoryPreset] list into a single preset, applying priority rules:
      * - Items from presets with a lower index in the list have the highest priority.
-     *   If the [predicate] does not contain this item,
-     *   then the item can be replaced with an item with a lower priority.
      * - [NonePresetItem] can be replaced by an item from a lower priority preset
      * - Non-[NonePresetItem] items are protected from being overwritten
+     *   if according to the results of [predicate] this item exists,
+     *   if it does not exist, rewriting is allowed.
      *
      * @param predicate Must check whether such an item is in the inventory or not.
      *                  Based on its results,
