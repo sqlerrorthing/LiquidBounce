@@ -17,13 +17,13 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
      *   if according to the results of [predicate] this item exists,
      *   if it does not exist, rewriting is allowed.
      *
-     * @see [net.ccbluex.liquidbounce.presetItems.InventoryPresetsMerging]
-     *
      * @param predicate Must check whether such an item is in the inventory or not.
      *                  Based on its results,
      *                  it will be determined which item will dominate
      *
      * @return `null` if presets is empty, otherwise the merged presets
+     *
+     * @see [net.ccbluex.liquidbounce.presetItems.InventoryPresetsMergingTests]
      */
     fun merged(predicate: (PresetItem) -> Boolean = { it !is NonePresetItem }): InventoryPreset? {
         val presets = get()
