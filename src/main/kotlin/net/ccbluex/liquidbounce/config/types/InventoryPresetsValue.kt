@@ -17,6 +17,8 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
      *   if according to the results of [predicate] this item exists,
      *   if it does not exist, rewriting is allowed.
      *
+     * @see [net.ccbluex.liquidbounce.presetItems.InventoryPresetsMerging]
+     *
      * @param predicate Must check whether such an item is in the inventory or not.
      *                  Based on its results,
      *                  it will be determined which item will dominate
@@ -47,15 +49,13 @@ class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
             for (preset in this) {
                 val item = preset.items[index]
 
-                if (item == NonePresetItem) {
-                    // If the currently selected item is still NonePresetItem, continue searching
-                    if (selectedItem == NonePresetItem) {
-                        continue
-                    }
-                } else {
-                    if (predicate(item)) {
-                        selectedItem = item
-                        break
+                when {
+                    item == NonePresetItem && selectedItem == NonePresetItem -> continue
+                    item != NonePresetItem -> {
+                        if (predicate(item)) {
+                            selectedItem = item
+                            break
+                        }
                     }
                 }
             }
