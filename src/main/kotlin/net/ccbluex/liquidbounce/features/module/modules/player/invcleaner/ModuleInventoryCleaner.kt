@@ -20,6 +20,9 @@ package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
+import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPresets.items.NonePresetItem
+import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
@@ -28,7 +31,6 @@ import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
-import net.minecraft.screen.slot.SlotActionType
 
 /**
  * InventoryCleaner module
@@ -41,12 +43,10 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
-    private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
-    private val maxArrows by int("MaximumArrows", 128, 0..2500)
-    private val maxThrowables by int("MaximumThrowables", 64, 0..600)
-    private val maxFoods by int("MaximumFoodPoints", 200, 0..2000)
+    @Suppress("unused")
+    private val inventoryPresets = inventoryPresets()
 
-    private val isGreedy by boolean("Greedy", true)
+    private val affectedSlots = Slots.Hotbar + Slots.OffHand + Slots.Inventory
 
     private val offHandItem by enumChoice("OffHandItem", ItemSortChoice.SHIELD)
     private val slotItem1 by enumChoice("SlotItem-1", ItemSortChoice.WEAPON)
@@ -59,8 +59,12 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
     private val slotItem8 by enumChoice("SlotItem-8", ItemSortChoice.BLOCK)
     private val slotItem9 by enumChoice("SlotItem-9", ItemSortChoice.BLOCK)
 
-    @Suppress("unused")
-    private val inventoryPresets = inventoryPresets()
+    private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
+    private val maxArrows by int("MaximumArrows", 128, 0..2500)
+    private val maxThrowables by int("MaximumThrowables", 64, 0..600)
+    private val maxFoods by int("MaximumFoodPoints", 200, 0..2000)
+
+    private val isGreedy by boolean("Greedy", true)
 
     val cleanupTemplateFromSettings: CleanupPlanPlacementTemplate
         get() {
@@ -117,49 +121,71 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
 
     @Suppress("unused")
     private val handleInventorySchedule = handler<ScheduleInventoryActionEvent> { event ->
-        val cleanupPlan = CleanupPlanGenerator(cleanupTemplateFromSettings, findNonEmptySlotsInInventory())
-            .generatePlan()
+        val preset = inventoryPresets.merged() { presetItem ->
+            presetItem != NonePresetItem && affectedSlots.find { slot ->
+                presetItem.satisfies(slot.itemStack)
+            } != null
+        } ?: return@handler
 
-        // Step 1: Move items to the correct slots
-        for (hotbarSwap in cleanupPlan.swaps) {
-            check(hotbarSwap.to is HotbarItemSlot) { "Cannot swap to non-hotbar-slot" }
+        event.swapToHotbar(preset)
 
+        for (slot in findItemsToThrowOut(preset)) {
             event.schedule(
                 inventoryConstraints,
-                ClickInventoryAction.performSwap(null, hotbarSwap.from, hotbarSwap.to)
-            )
-
-            // todo: run when successful or do not care?
-            cleanupPlan.remapSlots(
-                hashMapOf(
-                    Pair(hotbarSwap.from, hotbarSwap.to),
-                    Pair(hotbarSwap.to, hotbarSwap.from),
-                )
-            )
-        }
-
-        // Step 2: Merge stacks
-        val stacksToMerge = ItemMerge.findStacksToMerge(cleanupPlan)
-        for (slot in stacksToMerge) {
-            event.schedule(
-                inventoryConstraints,
-                ClickInventoryAction.click(null, slot, 0, SlotActionType.PICKUP),
-                ClickInventoryAction.click(null, slot, 0, SlotActionType.PICKUP_ALL),
-                ClickInventoryAction.click(null, slot, 0, SlotActionType.PICKUP),
-            )
-        }
-
-        // It is important that we call findItemSlotsInInventory() here again, because the inventory has changed.
-        val itemsToThrowOut = findItemsToThrowOut(cleanupPlan, findNonEmptySlotsInInventory())
-
-        for (slot in itemsToThrowOut) {
-            event.schedule(
-                inventoryConstraints,
-                ClickInventoryAction.performThrow(screen = null, slot),
+                ClickInventoryAction.performThrow(null, slot),
                 Priority.NOT_IMPORTANT
             )
         }
     }
+
+    @Suppress("LoopWithTooManyJumpStatements")
+    private fun ScheduleInventoryActionEvent.swapToHotbar(preset: InventoryPreset) {
+        for (i in preset.items.indices) {
+            val presetItem = preset.items[i]
+            val slotItem = preset.itemAsHotbarItemSlot(i)
+
+            val candidate = presetItem.findCandidates().takeIf { it.isNotEmpty() }
+                ?.findCandidate(presetItem) ?: continue
+
+            if (candidate == slotItem) {
+                continue
+            }
+
+            if (i > 0) {
+                var found = false
+                for (prevIndex in 0..i) {
+                    if (candidate is HotbarItemSlot
+                        && preset.items[prevIndex].satisfies(candidate.itemStack)
+                    ) {
+                        found = true
+                        break
+                    }
+                }
+
+                if (found) {
+                    continue
+                }
+            }
+
+            schedule(
+                inventoryConstraints,
+                ClickInventoryAction.performSwap(null, candidate, slotItem)
+            )
+        }
+    }
+
+    private fun List<ItemSlot>.findCandidate(presetItem: PresetItem) = sortedWith { a, b ->
+        presetItem.comparatorChain.compare(a.itemStack, b.itemStack)
+    }.firstOrNull()
+
+    private fun PresetItem.findCandidates() =
+        affectedSlots.filter { slot -> satisfies(slot.itemStack) }
+
+    private fun findItemsToThrowOut(
+        preset: InventoryPreset
+    ) = affectedSlots
+        .filter { !it.itemStack.isEmpty }
+        .filter { it.itemStack.item in preset.throws }
 
     fun findItemsToThrowOut(
         cleanupPlan: InventoryCleanupPlan,
@@ -205,5 +231,4 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
             return constraints
         }
     }
-
 }
