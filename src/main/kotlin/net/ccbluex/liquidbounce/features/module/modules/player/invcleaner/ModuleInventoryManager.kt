@@ -30,17 +30,16 @@ import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 
 /**
- * InventoryCleaner module
+ * InventoryManager module
  *
  * Automatically throws away useless items and sorts them.
  */
-object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER,
-    aliases = arrayOf("InventoryManager")
+object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER,
+    aliases = arrayOf("InventoryCleaner")
 ) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
-    @Suppress("unused")
     private val inventoryPresets = inventoryPresets()
 
     private val affectedSlots = Slots.Hotbar + Slots.OffHand + Slots.Inventory

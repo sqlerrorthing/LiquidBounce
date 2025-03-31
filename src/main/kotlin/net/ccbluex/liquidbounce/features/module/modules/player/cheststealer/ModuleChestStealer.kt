@@ -191,14 +191,14 @@ object ModuleChestStealer : ClientModule("ChestStealer", Category.PLAYER) {
 
     /**
      * # Currently unimplemented
-     * Either asks [ModuleInventoryCleaner] what to do or just takes everything.
+     * Either asks [ModuleInventoryManager] what to do or just takes everything.
      */
     private fun createCleanupPlan(screen: GenericContainerScreen): InventoryCleanupPlan {
         val maybeUsefulItems = findItemsInContainer(screen)
         val usefulItems: MutableSet<ItemSlot> = maybeUsefulItems.toMutableSet()
 
-        if (ModuleInventoryCleaner.running) {
-            val ignored = ModuleInventoryCleaner.itemsToThrowOut()
+        if (ModuleInventoryManager.running) {
+            val ignored = ModuleInventoryManager.itemsToThrowOut()
             usefulItems.removeIf {
                 it.itemStack.item in ignored
             }
