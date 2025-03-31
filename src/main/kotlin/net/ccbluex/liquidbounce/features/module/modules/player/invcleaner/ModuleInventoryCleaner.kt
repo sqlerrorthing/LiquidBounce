@@ -21,6 +21,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPresets.items.AnyPresetItem
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.NonePresetItem
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
 import net.ccbluex.liquidbounce.features.module.Category
@@ -127,8 +128,6 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
             } != null
         } ?: return@handler
 
-        event.swapToHotbar(preset)
-
         for (slot in findItemsToThrowOut(preset)) {
             event.schedule(
                 inventoryConstraints,
@@ -136,40 +135,38 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
                 Priority.NOT_IMPORTANT
             )
         }
+
+        event.swapToHotbar(preset)
     }
 
     @Suppress("LoopWithTooManyJumpStatements")
     private fun ScheduleInventoryActionEvent.swapToHotbar(preset: InventoryPreset) {
+        val usedSlots = mutableSetOf<ItemSlot>()
+
         for (i in preset.items.indices) {
             val presetItem = preset.items[i]
-            val slotItem = preset.itemAsHotbarItemSlot(i)
+            val targetSlot = preset.itemAsHotbarItemSlot(i)
 
-            val candidate = presetItem.findCandidates().takeIf { it.isNotEmpty() }
-                ?.findCandidate(presetItem) ?: continue
-
-            if (candidate == slotItem) {
+            if (presetItem is AnyPresetItem || presetItem.satisfies(targetSlot.itemStack)) {
+                usedSlots.add(targetSlot)
                 continue
             }
 
-            if (i > 0) {
-                var found = false
-                for (prevIndex in 0..i) {
-                    if (candidate is HotbarItemSlot
-                        && preset.items[prevIndex].satisfies(candidate.itemStack)
-                    ) {
-                        found = true
-                        break
-                    }
-                }
+            val candidates = presetItem.findCandidates()
+                .filterNot { candidate -> candidate in usedSlots }
+                .filterNot { candidate -> presetItem is NonePresetItem && candidate is HotbarItemSlot }
+                .takeIf { it.isNotEmpty() } ?: continue
 
-                if (found) {
-                    continue
-                }
+            val candidate = candidates.findCandidate(presetItem) ?: continue
+
+            if (candidate == targetSlot) {
+                continue
             }
 
+            usedSlots.add(candidate)
             schedule(
                 inventoryConstraints,
-                ClickInventoryAction.performSwap(null, candidate, slotItem)
+                ClickInventoryAction.performSwap(null, candidate, targetSlot)
             )
         }
     }
