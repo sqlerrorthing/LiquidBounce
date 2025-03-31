@@ -44,6 +44,8 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
 
+    private val throwWorst by boolean("ThrowWorst", true)
+
     @Suppress("unused")
     private val inventoryPresets = inventoryPresets()
 
@@ -122,6 +124,12 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
 
     @Suppress("unused")
     private val handleInventorySchedule = handler<ScheduleInventoryActionEvent> { event ->
+        // If the preset allows two stacks of blocks,
+        // but we only have one stack,
+        // then only one stack will be used.
+        // there is no other, and the slot will be empty;
+        // instead of this we can put another item in it that has a lower priority.
+        // because in the future it can be guaranteed that this slot will be empty.
         val futureUsed = mutableSetOf<ItemSlot>()
 
         val preset = inventoryPresets.merged() { presetItem ->
@@ -149,7 +157,7 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
         event.swapToHotbar(preset)
     }
 
-    @Suppress("LoopWithTooManyJumpStatements")
+    @Suppress("LoopWithTooManyJumpStatements", "CyclomaticComplexMethod")
     private fun ScheduleInventoryActionEvent.swapToHotbar(preset: InventoryPreset) {
         val usedSlots = mutableSetOf<ItemSlot>()
 
@@ -157,7 +165,7 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
             val presetItem = preset.items[i]
             val targetSlot = preset.itemAsHotbarItemSlot(i)
 
-            if (presetItem is AnyPresetItem || presetItem.satisfies(targetSlot.itemStack)) {
+            if (presetItem is AnyPresetItem) {
                 usedSlots.add(targetSlot)
                 continue
             }
@@ -168,6 +176,15 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
                 .takeIf { it.isNotEmpty() } ?: continue
 
             val candidate = candidates.findCandidate(presetItem) ?: continue
+
+            if (presetItem.satisfies(targetSlot.itemStack)) {
+                if (presetItem.comparatorChain.compare(
+                    targetSlot.itemStack, candidate.itemStack
+                ) >= 0) {
+                    usedSlots.add(targetSlot)
+                    continue
+                }
+            }
 
             if (candidate == targetSlot) {
                 continue
