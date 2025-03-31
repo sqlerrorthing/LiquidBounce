@@ -22,9 +22,7 @@
         event.preventDefault();
         if (draggedIndex === null || draggedIndex === index) return;
 
-        const newItems = [...items];
-        [newItems[draggedIndex], newItems[index]] = [newItems[index], newItems[draggedIndex]];
-        items = newItems;
+        [items[draggedIndex], items[index]] = [items[index], items[draggedIndex]];
 
         draggedIndex = index;
         dispatch("change");
@@ -32,12 +30,13 @@
 
     function handleDragEnd() {
         draggedIndex = null;
+        console.log("dragend")
     }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="items" on:mouseup={handleDragEnd}>
+<div class="items" on:mouseup|capture={handleDragEnd}>
     {#each items as item, idx (idx)}
         <div
                 class="draggable"
