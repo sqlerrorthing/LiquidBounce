@@ -34,7 +34,7 @@ private val DAMAGE_ESTIMATOR = EnchantmentValueEstimator(
 )
 
 @Suppress("MagicNumber")
-val SECONDARY_VALUE_ESTIMATOR = EnchantmentValueEstimator(
+private val SECONDARY_VALUE_ESTIMATOR = EnchantmentValueEstimator(
     EnchantmentValueEstimator.WeightedEnchantment(Enchantments.LOOTING, 0.05f),
     EnchantmentValueEstimator.WeightedEnchantment(Enchantments.UNBREAKING, 0.05f),
     EnchantmentValueEstimator.WeightedEnchantment(Enchantments.VANISHING_CURSE, -0.1f),

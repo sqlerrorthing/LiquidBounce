@@ -122,10 +122,20 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
 
     @Suppress("unused")
     private val handleInventorySchedule = handler<ScheduleInventoryActionEvent> { event ->
+        val futureUsed = mutableSetOf<ItemSlot>()
+
         val preset = inventoryPresets.merged() { presetItem ->
-            presetItem != NonePresetItem && affectedSlots.find { slot ->
-                presetItem.satisfies(slot.itemStack)
-            } != null
+            return@merged if (presetItem == NonePresetItem) {
+                false
+            } else {
+                val slot = affectedSlots.find { slot ->
+                    presetItem.satisfies(slot.itemStack)
+                    && slot !in futureUsed
+                } ?: return@merged false
+
+                futureUsed.add(slot)
+                true
+            }
         } ?: return@handler
 
         for (slot in findItemsToThrowOut(preset)) {
@@ -158,6 +168,8 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
                 .takeIf { it.isNotEmpty() } ?: continue
 
             val candidate = candidates.findCandidate(presetItem) ?: continue
+            println("Candidates: ${candidates.joinToString { it.itemStack.item.name.string }}. " +
+                "Candidate: ${candidate.itemStack.item.name.string}")
 
             if (candidate == targetSlot) {
                 continue
@@ -171,9 +183,9 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
         }
     }
 
-    private fun List<ItemSlot>.findCandidate(presetItem: PresetItem) = sortedWith { a, b ->
+    private fun List<ItemSlot>.findCandidate(presetItem: PresetItem) = maxWithOrNull { a, b ->
         presetItem.comparatorChain.compare(a.itemStack, b.itemStack)
-    }.firstOrNull()
+    }
 
     private fun PresetItem.findCandidates() =
         affectedSlots.filter { slot -> satisfies(slot.itemStack) }
