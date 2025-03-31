@@ -4,6 +4,7 @@
     import PresetItemComponent from "./PresetItemComponent.svelte";
 
     export let items: PresetItem[]
+    let draggedIndex: number | null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -11,11 +12,43 @@
         items = [...items]
         dispatch("change")
     }
+
+    function handleDragStart(event: DragEvent, index: number) {
+        draggedIndex = index;
+        event.dataTransfer?.setData('text/plain', '');
+    }
+
+    function handleDragOver(event: DragEvent, index: number) {
+        event.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) return;
+
+        const newItems = [...items];
+        [newItems[draggedIndex], newItems[index]] = [newItems[index], newItems[draggedIndex]];
+        items = newItems;
+
+        draggedIndex = index;
+        dispatch("change");
+    }
+
+    function handleDragEnd() {
+        draggedIndex = null;
+    }
 </script>
 
-<div class="items">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="items" on:mouseup={handleDragEnd}>
     {#each items as item, idx (idx)}
-        <PresetItemComponent bind:item idx={idx} on:change={handleChange} />
+        <div
+                class="draggable"
+                draggable="true"
+                class:dragging={idx === draggedIndex}
+                on:dragstart={(e) => handleDragStart(e, idx)}
+                on:dragover={(e) => handleDragOver(e, idx)}
+                on:dragend={handleDragEnd}
+        >
+            <PresetItemComponent bind:item idx={idx} on:change={handleChange} />
+        </div>
 
         {#if idx === 0}
             <div class="divider"></div>
@@ -26,6 +59,16 @@
 <style lang="scss">
   @use "sass:color";
   @use "../../../../../colors.scss" as *;
+
+  .draggable {
+    cursor: grab;
+    user-select: none;
+  }
+
+  .dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
 
   .items {
     width: 100%;
