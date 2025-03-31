@@ -168,8 +168,6 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
                 .takeIf { it.isNotEmpty() } ?: continue
 
             val candidate = candidates.findCandidate(presetItem) ?: continue
-            println("Candidates: ${candidates.joinToString { it.itemStack.item.name.string }}. " +
-                "Candidate: ${candidate.itemStack.item.name.string}")
 
             if (candidate == targetSlot) {
                 continue
