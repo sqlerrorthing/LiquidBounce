@@ -136,12 +136,16 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
         .filter { !it.itemStack.isEmpty }
         .filter {
             // TODO: implement correctly
-            val group = preset.throws.find { group -> it.itemStack.item in group.items } ?: return@filter false
-            return@filter it.itemStack.count > group.maxStacks
+            val group = preset.maxStacks.find { group ->
+                group.items.any { throwItem ->
+                    throwItem.satisfies(it.itemStack)
+                }
+            } ?: return@filter false
+            return@filter it.itemStack.count > group.stacks
         }
 
     // TODO: implement correctly
     fun itemsToThrowOut() = inventoryPresets.get().flatMap { group ->
-        group.throws.flatMap { it.items }
+        group.maxStacks.flatMap { it.items }
     }.toSet()
 }
