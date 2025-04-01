@@ -2,14 +2,14 @@
 package net.ccbluex.liquidbounce.features.inventoryPresets
 
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
+import net.ccbluex.liquidbounce.features.inventoryPresets.throwing.ThrowItemGroup
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
-import net.minecraft.item.Item
 
 @Suppress("MagicNumber")
 class InventoryPreset(
     items: Array<PresetItem>,
-    val throws: Set<Item> = emptySet()
+    val throws: Array<ThrowItemGroup> = emptyArray()
 ) {
     val items: List<Pair<HotbarItemSlot, PresetItem>>
 

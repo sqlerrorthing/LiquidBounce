@@ -74,7 +74,10 @@ export type PresetItem =
     ChoosePresetItem
     | GenericPresetItem;
 
-export type ThrowItem = string;
+export interface ThrowItem {
+    maxStacks: number;
+    items: string[];
+}
 
 export interface InventoryPreset {
     items: PresetItem[]

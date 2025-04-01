@@ -4,7 +4,7 @@ import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
 import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
-import net.minecraft.item.Item
+import net.ccbluex.liquidbounce.features.inventoryPresets.throwing.ThrowItemGroup
 import java.lang.reflect.Type
 
 object InventoryPresetAdapter : JsonSerializer<InventoryPreset>, JsonDeserializer<InventoryPreset> {
@@ -23,7 +23,7 @@ object InventoryPresetAdapter : JsonSerializer<InventoryPreset>, JsonDeserialize
         context: JsonDeserializationContext
     ): InventoryPreset = with (json.asJsonObject) {
         val items = context.decode<Array<PresetItem>>(get("items"))
-        val throws = context.decode<Set<Item>>(get("throws"))
+        val throws = context.decode<Array<ThrowItemGroup>>(get("throws"))
 
         return InventoryPreset(items, throws)
     }
