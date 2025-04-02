@@ -46,7 +46,7 @@ class MiningToolItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
     }
 
     override val category: ItemCategory
-        get() = ItemCategory(ItemType.TOOL, (this.itemStack.item as MiningToolItem).type)
+        get() = ItemCategory(GenericItemType.TOOL, (this.itemStack.item as MiningToolItem).type)
 
     override fun compareTo(other: ItemFacet): Int {
         return COMPARATOR.compare(this, other as MiningToolItemFacet)

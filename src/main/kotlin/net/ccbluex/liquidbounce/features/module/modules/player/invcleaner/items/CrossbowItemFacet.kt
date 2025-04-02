@@ -44,7 +44,7 @@ class CrossbowItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
     }
 
     override val category: ItemCategory
-        get() = ItemCategory(ItemType.CROSSBOW, 0)
+        get() = ItemCategory(GenericItemType.CROSSBOW)
 
     override fun compareTo(other: ItemFacet): Int {
         return COMPARATOR.compare(this, other as CrossbowItemFacet)

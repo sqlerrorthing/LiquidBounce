@@ -22,12 +22,16 @@ import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanSlotContent
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
+import net.minecraft.item.Items
 import net.minecraft.screen.slot.SlotActionType
 
 /**
@@ -49,22 +53,20 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
     private val maxThrowables by int("MaximumThrowables", 64, 0..600)
     private val maxFoods by int("MaximumFoodPoints", 200, 0..2000)
 
-    private val isGreedy by boolean("Greedy", true)
-
-    private val offHandItem by enumChoice("OffHandItem", ItemSortChoice.SHIELD)
-    private val slotItem1 by enumChoice("SlotItem-1", ItemSortChoice.WEAPON)
-    private val slotItem2 by enumChoice("SlotItem-2", ItemSortChoice.BOW)
-    private val slotItem3 by enumChoice("SlotItem-3", ItemSortChoice.PICKAXE)
-    private val slotItem4 by enumChoice("SlotItem-4", ItemSortChoice.AXE)
-    private val slotItem5 by enumChoice("SlotItem-5", ItemSortChoice.NONE)
-    private val slotItem6 by enumChoice("SlotItem-6", ItemSortChoice.POTION)
-    private val slotItem7 by enumChoice("SlotItem-7", ItemSortChoice.FOOD)
-    private val slotItem8 by enumChoice("SlotItem-8", ItemSortChoice.BLOCK)
-    private val slotItem9 by enumChoice("SlotItem-9", ItemSortChoice.BLOCK)
+    private val offHandItem by enumChoice("OffHandItem", GenericItemSortChoices.ANY)
+    private val slotItem1 by enumChoice("SlotItem-1", GenericItemSortChoices.WEAPON)
+    private val slotItem2 by enumChoice("SlotItem-2", GenericItemSortChoices.ANY)
+    private val slotItem3 by enumChoice("SlotItem-3", GenericItemSortChoices.PICKAXE)
+    private val slotItem4 by enumChoice("SlotItem-4", GenericItemSortChoices.AXE)
+    private val slotItem5 by enumChoice("SlotItem-5", GenericItemSortChoices.ANY)
+    private val slotItem6 by enumChoice("SlotItem-6", GenericItemSortChoices.POTION)
+    private val slotItem7 by enumChoice("SlotItem-7", GenericItemSortChoices.FOOD)
+    private val slotItem8 by enumChoice("SlotItem-8", GenericItemSortChoices.BLOCK)
+    private val slotItem9 by enumChoice("SlotItem-9", GenericItemSortChoices.BLOCK)
 
     val cleanupTemplateFromSettings: CleanupPlanPlacementTemplate
         get() {
-            val slotTargets = hashMapOf<ItemSlot, ItemSortChoice>(
+            val specifiedSlotTargets = listOf(
                 Pair(OffHandSlot, offHandItem),
                 Pair(Slots.Hotbar[0], slotItem1),
                 Pair(Slots.Hotbar[1], slotItem2),
@@ -76,42 +78,42 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
                 Pair(Slots.Hotbar[7], slotItem8),
                 Pair(Slots.Hotbar[8], slotItem9),
             )
+            val mapped = specifiedSlotTargets
+                .filter { (_, choice) -> choice.category != null }
+                .map { (slot, choice) -> slot to CleanupPlanSlotContent(listOf(CleanupPlanPlacementTemplate.ContentWish(choice.category!!.type, setOf(choice.category.subtype))), 0) }
+                .toTypedArray()
 
-            val forbiddenSlots = slotTargets
-                .filterValues { it == ItemSortChoice.IGNORE }
-                .keys.toHashSet()
+            val slotTargets = hashMapOf<ItemSlot, CleanupPlanSlotContent>(pairs = mapped)
+
+            val currentRestrictionMap = hashMapOf<ItemSlot, RestrictionType>()
 
             // Disallow tampering with armor slots since auto armor already handles them
-            forbiddenSlots += Slots.Armor
+            Slots.Armor.forEach { currentRestrictionMap.put(it, RestrictionType.FORBID_TAMPERING) }
 
             if (ModuleOffhand.isOperating()) {
                 // Disallow tampering with off-hand slot when AutoTotem is active
-                forbiddenSlots.add(OffHandSlot)
+                currentRestrictionMap[OffHandSlot] = RestrictionType.FORBID_REPLACING
             }
 
-            val forbiddenSlotsToFill = setOfNotNull(
-                // Disallow tampering with off-hand slot when AutoTotem is active
-                if (ModuleOffhand.isOperating()) OffHandSlot else null
-            )
-
-            val constraintProvider = AmountConstraintProvider(
-                desiredItemsPerCategory = hashMapOf(
-                    Pair(ItemSortChoice.BLOCK.category!!, maxBlocks),
-                    Pair(ItemSortChoice.THROWABLES.category!!, maxThrowables),
-                    Pair(ItemCategory(ItemType.ARROW, 0), maxArrows),
-                ),
+            val constraintProvider = AmountItemAmountConstraintProvider(
                 desiredValuePerFunction = hashMapOf(
-                    Pair(ItemFunction.FOOD, maxFoods),
-                    Pair(ItemFunction.WEAPON_LIKE, 1),
+                    ItemFunction.FOOD to maxFoods,
+                    ItemFunction.WEAPON_LIKE to 1,
+                ),
+                desiredItemsInSpecificCategories = hashMapOf(
+                    listOf(ItemCategory(GenericItemType.ANY_ITEM, Items.EGG)) to 64,
+                    listOf(ItemCategory(GenericItemType.ANY_ITEM, Items.EGG), ItemCategory(GenericItemType.ANY_ITEM, Items.SNOWBALL)) to 32,
+                    Pair(listOf(GenericItemSortChoices.BLOCK.category!!), maxBlocks),
+                    Pair(listOf(GenericItemSortChoices.THROWABLES.category!!), maxThrowables),
+                    Pair(listOf(ItemCategory(GenericItemType.ARROW, 0)), maxArrows),
                 )
             )
 
+
             return CleanupPlanPlacementTemplate(
                 slotTargets,
-                itemAmountConstraintProvider = constraintProvider::getConstraints,
-                forbiddenSlots = forbiddenSlots,
-                forbiddenSlotsToFill = forbiddenSlotsToFill,
-                isGreedy = isGreedy,
+                itemAmountConstraintProvider = constraintProvider,
+                restrictions = CleanupPlanRestrictions(currentRestrictionMap)
             )
         }
 
@@ -166,43 +168,96 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
         itemsInInv: List<ItemSlot>,
     ) = itemsInInv.filter { it !in cleanupPlan.usefulItems }
 
-    private class AmountConstraintProvider(
-        val desiredItemsPerCategory: Map<ItemCategory, Int>,
+    private class AmountItemAmountConstraintProvider(
         val desiredValuePerFunction: Map<ItemFunction, Int>,
-    ) {
-        fun getConstraints(facet: ItemFacet): ArrayList<ItemConstraintInfo> {
+        /**
+         * Contains information about specific item groups constraints like `[snowball, egg] -> 32`.
+         * In that example, the inventory cleaner would not start throwing out items until at least 32 items of
+         * snowballs or eggs are in the inventory.
+         */
+        desiredItemsInSpecificCategories: Map<List<ItemCategory>, Int>
+    ) : ItemAmountConstraintProvider {
+        /**
+         * Contains all specific item groups in which an item is.
+         *
+         * For these rules: `[egg, snowball] -> 32, [egg, carrot] -> 64`, this list would look like this:
+         * - `egg` -> `[0, 1]`
+         * - `snowball` -> `[0]`
+         * - `carrot` -> `[1]`
+         */
+        private val itemSpecificGroupMap: Map<ItemCategory, List<SpecificItemGroup>> = run {
+            desiredItemsInSpecificCategories.entries
+                .flatMapIndexed { idx, (items, desiredAmount) ->
+                    val group = SpecificItemGroup(id = idx, desiredAmount = desiredAmount, priority = idx)
+
+                    items.map { it to group }
+                }
+                .groupBy { it.first }
+                .mapValues { list -> list.value.map { it.second } }
+        }
+
+        override fun getConstraints(facet: ItemFacet): ArrayList<ItemConstraintInfo> {
             val constraints = ArrayList<ItemConstraintInfo>()
 
-            if (facet.providedItemFunctions.isEmpty()) {
-                val defaultDesiredAmount = if (facet.category.type.oneIsSufficient) 1 else Integer.MAX_VALUE
-                val desiredAmount = this.desiredItemsPerCategory[facet.category] ?: defaultDesiredAmount
-
+            for (group in this.itemSpecificGroupMap.getOrDefault(facet.category, emptyList())) {
                 val info = ItemConstraintInfo(
-                    group = ItemCategoryConstraintGroup(
-                        desiredAmount..Integer.MAX_VALUE,
-                        10,
-                        facet.category
+                    group = SpecificItemGroupConstraintGroup(
+                        acceptableRange = group.desiredAmount..Integer.MAX_VALUE,
+                        priority = group.priority,
+                        groupId = group.id
                     ),
-                    amountAddedByItem = facet.itemStack.count
+                    amountAddedByItem = facet.itemStack.count,
+                    default = false
                 )
 
                 constraints.add(info)
-            } else {
-                for ((function, amountAdded) in facet.providedItemFunctions) {
-                    val info = ItemConstraintInfo(
-                        group = ItemFunctionCategoryConstraintGroup(
-                            desiredValuePerFunction.getOrDefault(function, 1)..Integer.MAX_VALUE,
-                            10,
-                            function
-                        ),
-                        amountAddedByItem = amountAdded
-                    )
+            }
 
-                    constraints.add(info)
+            for ((function, amountAdded) in facet.providedItemFunctions) {
+                val configuredDesiredAmount = desiredValuePerFunction[function]
+
+                val (default, desiredAmount) = if (configuredDesiredAmount != null) {
+                    false to configuredDesiredAmount
+                } else {
+                    true to 1
                 }
+
+                val info = ItemConstraintInfo(
+                    group = ItemFunctionCategoryConstraintGroup(
+                        desiredAmount..Integer.MAX_VALUE,
+                        1000,
+                        function
+                    ),
+                    amountAddedByItem = amountAdded,
+                    default = default
+                )
+
+                constraints.add(info)
+            }
+
+            if (facet.providedItemFunctions.isEmpty() && facet.category.type != GenericItemType.ANY_ITEM) {
+                val defaultDesiredAmount = if (facet.category.type.oneIsSufficient) 1 else Integer.MAX_VALUE
+
+                val info = ItemConstraintInfo(
+                    group = ItemCategoryConstraintGroup(
+                        defaultDesiredAmount..Integer.MAX_VALUE,
+                        1000,
+                        facet.category
+                    ),
+                    amountAddedByItem = facet.itemStack.count,
+                    default = true
+                )
+
+                constraints.add(info)
             }
 
             return constraints
         }
+
+        override fun getAllocationPriority(itemGroup: ItemCategory): Int {
+            return -(this.itemSpecificGroupMap[itemGroup]?.maxBy { it.priority }?.priority ?: 0)
+        }
+
+        private class SpecificItemGroup(val id: Int, val desiredAmount: Int, val priority: Int)
     }
 }

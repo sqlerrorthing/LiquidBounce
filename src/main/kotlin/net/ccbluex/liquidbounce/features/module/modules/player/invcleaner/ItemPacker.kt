@@ -1,7 +1,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintProvider.SatisfactionStatus.OVERSATURATED
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintProvider.SatisfactionStatus.SATISFIED
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintEnforcer.SatisfactionStatus.OVERSATURATED
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintEnforcer.SatisfactionStatus.SATISFIED
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.minecraft.item.ItemStack
@@ -14,7 +15,7 @@ import net.minecraft.item.ItemStack
  */
 class ItemPacker {
     /**
-     * Items that have already been used. For example if already we used Inventory slot 12 as a sword, we cannot reuse
+     * Items that have already been used. For example if already we used Inventory slot 12 as a sword, we can’t reuse
      * it as an axe in slot 2.
      */
     private val alreadyAllocatedItems: HashSet<ItemSlot> = HashSet()
@@ -28,14 +29,13 @@ class ItemPacker {
      * Takes items from the [itemsToFillIn] list until it collected [maxItemCount] items is and [requiredStackCount]
      * stacks. The items are marked as useful and fills in hotbar slots if there are still slots to fill.
      *
-     * @return returns the item moves ("swaps") that should to be executed.
+     * @return returns the item moves ("swaps") that should be executed.
      */
     fun packItems(
         itemsToFillIn: List<ItemFacet>,
         hotbarSlotsToFill: List<ItemSlot>?,
-        forbiddenSlots: Set<ItemSlot>,
-        forbiddenSlotsToFill: Set<ItemSlot>,
-        contraintProvider: ItemAmountContraintProvider
+        restrictions: CleanupPlanPlacementTemplate.CleanupPlanRestrictions,
+        contraintProvider: ItemAmountContraintEnforcer
     ): List<InventorySwap> {
         val moves = ArrayList<InventorySwap>()
 
@@ -55,30 +55,32 @@ class ItemPacker {
                 continue
             }
 
-            val filledInItemSlot = filledInItem.itemSlot
+            val filledSlot = filledInItem.itemSlot
+            val filledInSlotRestrictions = restrictions.getRestrictionFor(filledSlot)
 
-            // The item is already allocated and marked as useful, so we cannot use it again.
-            if (filledInItemSlot in alreadyAllocatedItems) {
+                // The item is already allocated and marked as useful, so we cannot use it again.
+            if (filledSlot in alreadyAllocatedItems) {
                 continue
             }
 
-            usefulItems.add(filledInItemSlot)
+            usefulItems.add(filledSlot)
 
             contraintProvider.addItem(filledInItem)
 
             currentItemCount += filledInItem.itemStack.count
             currentStackCount++
 
+
             // Don't fill in the item if (a) there is no place for it to go or (b) we aren't allowed to touch it.
-            if (leftHotbarSlotIterator == null || filledInItemSlot in forbiddenSlots) {
+            if (leftHotbarSlotIterator == null || filledInSlotRestrictions == RestrictionType.FORBID_TAMPERING) {
                 continue
             }
 
             // Now find a fitting slot for the item.
-            val targetSlot = fillItemIntoSlot(filledInItemSlot, leftHotbarSlotIterator)
+            val targetSlot = fillItemIntoSlot(filledSlot, leftHotbarSlotIterator)
 
-            if (targetSlot != null && targetSlot !in forbiddenSlotsToFill) {
-                moves.add(InventorySwap(filledInItemSlot, targetSlot, filledInItem.category.type.allocationPriority))
+            if (targetSlot != null && restrictions.getRestrictionFor(targetSlot) >= RestrictionType.FORBID_REPLACING) {
+                moves.add(InventorySwap(filledSlot, targetSlot, filledInItem.category.type.allocationPriority))
             }
         }
 
@@ -140,7 +142,7 @@ class ItemPacker {
         return null
     }
 
-    interface ItemAmountContraintProvider {
+    interface ItemAmountContraintEnforcer {
         fun getSatisfactionStatus(item: ItemFacet): SatisfactionStatus
         fun addItem(item: ItemFacet)
 
