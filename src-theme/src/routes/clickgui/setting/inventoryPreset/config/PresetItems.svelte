@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {PresetItemGroup} from "../../../../../integration/types";
     import {createEventDispatcher} from "svelte";
-    import PresetItemGroupComponent from "./PresetItemComponent.svelte";
+    import PresetItemGroupComponent from "./PresetItemGroupComponent.svelte";
 
     export let items: PresetItemGroup[]
     let draggedIndex: number | null = null;

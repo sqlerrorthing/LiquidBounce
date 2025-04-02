@@ -4,6 +4,7 @@
     import {scale} from "svelte/transition";
     import {createEventDispatcher} from "svelte";
     import PresetItemGroupPreview from "./PresetItemGroupPreview.svelte";
+    import PresetItemGroupCandidateSelector from "./PresetItemGroupCandidateSelector.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -17,6 +18,17 @@
         expanded = false;
 
         dispatch("change");
+    }
+
+    function handleChange() {
+        dispatch("change")
+    }
+
+    function handleClickOutside(event: MouseEvent) {
+        const target = event.target as HTMLElement
+        if (!target.closest(".group-candidate-selector")) {
+            expanded = false
+        }
     }
 </script>
 
@@ -44,8 +56,14 @@
                 class="selector-container-wrapper selector-container"
                 transition:scale={{duration: 200, start: 0.9}}
                 on:click|preventDefault
-                use:clickOutside={() => expanded = false}
+                use:clickOutside={handleClickOutside}
         >
+            <PresetItemGroupCandidateSelector
+                    bind:parentExpanded={expanded}
+                    bind:items={group.items}
+                    on:change={handleChange}
+            />
+
             <div class="slot">
                 <span>{idx === 0 ? "Offhand" : idx}</span>
             </div>
@@ -59,6 +77,10 @@
   @use "../../../../../colors.scss" as *;
   @use "select" as *;
   @use "item" as *;
+
+  .wrapper {
+    position: relative;
+  }
 
   .item-container {
     position: relative;
@@ -101,10 +123,17 @@
 
   .active {
     outline: 1px solid $accent-color !important;
+
+    & > .image-wrapper {
+      filter: opacity(0.5);
+    }
   }
 
   .selector-container {
-    transform: translate(calc(-50% + 48px/2), 15px);
+    left: 50%;
+    top: 50%;
+    cursor: auto;
+    transform-origin: left top;
   }
 
   .slot {
