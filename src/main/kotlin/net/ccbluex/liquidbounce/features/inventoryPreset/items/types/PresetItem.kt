@@ -1,11 +1,9 @@
 package net.ccbluex.liquidbounce.features.inventoryPreset.items.types
 
-import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 import net.minecraft.item.ItemStack
 
 sealed class PresetItem(
-    val type: ItemType,
-    val comparatorChain: ComparatorChain<ItemStack>
+    val type: ItemType
 ) {
     /**
      * Determines if the given [ItemStack] matches this preset item's criteria.
