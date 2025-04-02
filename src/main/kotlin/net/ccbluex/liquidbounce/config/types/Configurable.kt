@@ -254,7 +254,7 @@ open class Configurable(
     fun items(name: String, default: MutableList<Item>) =
         value(name, default, ValueType.ITEMS, ListValueType.Item)
 
-    fun inventoryPresets() = InventoryPresetValue().apply {
+    fun inventoryPreset() = InventoryPresetValue().apply {
         require(this@Configurable is ClientModule) {
             "Requires that it only be in a module, " +
             "it can't be a child of anything else because the design might go " +
