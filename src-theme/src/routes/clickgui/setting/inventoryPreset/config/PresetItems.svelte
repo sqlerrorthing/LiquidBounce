@@ -30,7 +30,6 @@
 
     function handleDragEnd() {
         draggedIndex = null;
-        console.log("dragend")
     }
 </script>
 
