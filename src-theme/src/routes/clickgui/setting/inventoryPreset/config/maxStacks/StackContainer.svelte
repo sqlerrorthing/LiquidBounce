@@ -123,10 +123,7 @@
                         >
                             <PresetItemSelector
                                     setItem={setItem}
-                                    filter={it => {
-                                        console.log(choiceItems)
-                                        return !choiceItems.includes(it)
-                                    }}
+                                    filter={it => !choiceItems.includes(it)}
                             />
                         </div>
                     {/if}

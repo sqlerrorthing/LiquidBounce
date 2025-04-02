@@ -84,7 +84,7 @@ export interface PresetItemGroup {
 }
 
 export interface InventoryPreset {
-    items: PresetItemGroup;
+    items: PresetItemGroup[];
     maxStacks: MaxStacksGroup[];
 }
 

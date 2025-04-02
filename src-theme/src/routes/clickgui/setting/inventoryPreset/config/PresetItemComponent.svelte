@@ -1,20 +1,18 @@
 <script lang="ts">
-    import type {PresetItem} from "../../../../../integration/types";
-    import ItemImage from "../ItemImage.svelte";
+    import type {PresetItemGroup} from "../../../../../integration/types";
     import {clickOutside} from "../../../../../util/utils";
-    import PresetItemSelector from "./PresetItemSelector.svelte";
     import {scale} from "svelte/transition";
     import {createEventDispatcher} from "svelte";
 
     const dispatch = createEventDispatcher();
 
-    export let item: PresetItem;
+    export let group: PresetItemGroup;
     export let idx: number;
 
     let expanded = false;
 
-    function setItem(newItem: PresetItem) {
-        item = newItem;
+    function clearItems() {
+        group.items = [];
         expanded = false;
 
         dispatch("change");
@@ -30,11 +28,11 @@
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
-            <ItemImage bind:item />
+
         </div>
 
-        {#if item.type !== "NONE"}
-            <button class="delete" on:click|stopPropagation={() => setItem({type: "NONE"})}>
+        {#if group.items.length > 0}
+            <button class="delete" on:click|stopPropagation={clearItems}>
                 <img src="img/menu/icon-exit-danger.svg" alt="exit">
             </button>
         {/if}
@@ -47,8 +45,6 @@
                 on:click|preventDefault
                 use:clickOutside={() => expanded = false}
         >
-            <PresetItemSelector setItem={setItem} />
-
             <div class="slot">
                 <span>{idx === 0 ? "Offhand" : idx}</span>
             </div>

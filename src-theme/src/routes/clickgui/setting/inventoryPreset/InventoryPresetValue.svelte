@@ -2,7 +2,6 @@
     import type {InventoryPresetValue, ModuleSetting} from "../../../../integration/types";
     import {spaceSeperatedNames} from "../../../../theme/theme_config";
     import InventoryPreset from "./InventoryPreset.svelte";
-    import NewPreset from "./NewPreset.svelte";
     import {createEventDispatcher} from "svelte";
 
     export let setting: ModuleSetting;
@@ -15,39 +14,19 @@
         setting = {...cSetting};
         dispatch("change");
     }
-
-    function handleDelete(id: number) {
-        cSetting.value = cSetting.value.filter((_, i) => i !== id)
-        handleChange()
-    }
-
-    function handleCopy(id: number) {
-        cSetting.value = [...cSetting.value, cSetting.value[id]]
-        handleChange()
-    }
 </script>
 
 <div class="setting">
     <div class="head">
-        <span class="title">{$spaceSeperatedNames ? "Inventory Presets" : "InventoryPresets"}</span>
+        <span class="title">{$spaceSeperatedNames ? "Inventory Preset" : "InventoryPreset"}</span>
     </div>
 
-    <div class="presets" class:margin={cSetting.value.length > 0}>
-        {#each cSetting.value as preset, idx (idx)}
-            <InventoryPreset
-                    bind:preset
-                    idx={idx}
-                    on:change={handleChange}
-                    on:delete={() => {handleDelete(idx)}}
-                    on:copy={() => {handleCopy(idx)}}
-            />
-        {/each}
+    <div class="presets">
+        <InventoryPreset
+                bind:preset={cSetting.value}
+                on:change={handleChange}
+        />
     </div>
-
-    <NewPreset
-            on:change={handleChange}
-            bind:value={cSetting.value}
-    />
 </div>
 
 <style lang="scss">
@@ -63,14 +42,11 @@
   }
 
   .presets {
+    margin-bottom: 5px;
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 5px;
-  }
-
-  .margin {
-    margin-bottom: 5px;
   }
 
   .title {
