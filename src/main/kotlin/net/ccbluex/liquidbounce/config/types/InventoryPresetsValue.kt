@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.config.types
 
-import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.NonePresetItem
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.NonePresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.PresetItem
 
 class InventoryPresetsValue : Value<List<InventoryPreset>>("InventoryPresets",
     defaultValue = emptyList(),

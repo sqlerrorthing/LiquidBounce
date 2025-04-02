@@ -20,10 +20,10 @@ package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
 import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.AnyPresetItem
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.NonePresetItem
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.PresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.AnyPresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.NonePresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.PresetItem
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.inventory.*

@@ -1,9 +1,9 @@
 package net.ccbluex.liquidbounce.presetItems
 
 import net.ccbluex.liquidbounce.config.types.InventoryPresetsValue
-import net.ccbluex.liquidbounce.features.inventoryPresets.InventoryPreset
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.NonePresetItem
-import net.ccbluex.liquidbounce.features.inventoryPresets.items.WeaponsPresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.NonePresetItem
+import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.WeaponsPresetItem
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertNotNull
 class InventoryPresetsMergingTests {
     @Test
     fun `normal merger`() {
-        val first = InventoryPreset(Array(10) { NonePresetItem})
+        val first = InventoryPreset(Array(10) { NonePresetItem })
         val second = InventoryPreset(Array(10) { WeaponsPresetItem })
 
         val value = InventoryPresetsValue().apply {
