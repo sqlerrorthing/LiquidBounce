@@ -3,6 +3,7 @@
     import {clickOutside} from "../../../../../util/utils";
     import {scale} from "svelte/transition";
     import {createEventDispatcher} from "svelte";
+    import PresetItemGroupPreview from "./PresetItemGroupPreview.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -22,13 +23,13 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="wrapper">
-    <div class="item item-background"
+    <div class="item-container item-background"
          class:active={expanded}
          class:hided={!expanded}
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
-
+            <PresetItemGroupPreview bind:group />
         </div>
 
         {#if group.items.length > 0}
@@ -59,7 +60,7 @@
   @use "select" as *;
   @use "item" as *;
 
-  .item {
+  .item-container {
     position: relative;
     width: 48px;
     height: 48px;
