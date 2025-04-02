@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {InventoryPresets, ModuleSetting} from "../../../../integration/types";
+    import type {InventoryPresetValue, ModuleSetting} from "../../../../integration/types";
     import {spaceSeperatedNames} from "../../../../theme/theme_config";
     import InventoryPreset from "./InventoryPreset.svelte";
     import NewPreset from "./NewPreset.svelte";
@@ -7,7 +7,7 @@
 
     export let setting: ModuleSetting;
 
-    const cSetting = setting as InventoryPresets;
+    const cSetting = setting as InventoryPresetValue;
 
     const dispatch = createEventDispatcher();
 

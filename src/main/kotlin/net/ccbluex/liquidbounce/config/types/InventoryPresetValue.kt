@@ -4,5 +4,5 @@ import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
 
 class InventoryPresetValue : Value<InventoryPreset>("InventoryPreset",
     defaultValue = InventoryPreset(),
-    valueType = ValueType.INVENTORY_PRESETS,
+    valueType = ValueType.INVENTORY_PRESET,
 )

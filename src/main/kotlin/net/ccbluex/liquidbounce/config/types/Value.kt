@@ -430,7 +430,7 @@ enum class ValueType(
     ITEM(HumanInputDeserializer.itemDeserializer), ITEMS(HumanInputDeserializer.itemListDeserializer),
     KEY(HumanInputDeserializer.keyDeserializer),
     BIND,
-    INVENTORY_PRESETS,
+    INVENTORY_PRESET,
     VECTOR_I,
     VECTOR_D,
     CHOICE(completer = AutoCompletionProvider.choiceCompleter),
