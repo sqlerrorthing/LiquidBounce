@@ -8,7 +8,7 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 
 @Suppress("MagicNumber")
 class InventoryPreset(
-    items: Array<PresetItemGroup>,
+    items: Array<PresetItemGroup> = Array(10) { PresetItemGroup() },
     val maxStacks: Array<MaxStackGroup> = emptyArray()
 ) {
     val items: List<Pair<HotbarItemSlot, PresetItemGroup>>

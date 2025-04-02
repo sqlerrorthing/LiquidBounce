@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.PresetItem
  * @throws IllegalArgumentException if the [items] array is non-empty and contains a [NonePresetItem].
  */
 class PresetItemGroup(
-    val items: Array<PresetItem>
+    val items: Array<PresetItem> = emptyArray()
 ) {
     init {
         if (items.isNotEmpty()) {
