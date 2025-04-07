@@ -23,10 +23,10 @@ object InventoryPresetAdapter : JsonSerializer<InventoryPreset>, JsonDeserialize
         typeOfT: Type,
         context: JsonDeserializationContext
     ): InventoryPreset = with (json.asJsonObject) {
-        val items = context.decode<Array<FrontendSlotPreference>>(get("items"))
-        val throws = context.decode<Array<FrontendItemLimitRules>>(get("maxStacks"))
+        val items = getAsJsonArray("items").map { context.decode<List<FrontendSlotPreference>>(it) }
+        val throws = getAsJsonArray("maxStacks").map { context.decode<FrontendItemLimitRules>(it) }
 
-        return InventoryPreset(items.mapArray { listOf(it) }, throws)
+        return InventoryPreset(items.toTypedArray(), throws)
     }
 
     private inline fun <reified T> JsonDeserializationContext.decode(element: JsonElement): T {

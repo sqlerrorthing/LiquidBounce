@@ -1,6 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.CleanupPlanRestrictions.RestrictionType
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintEnforcer.SatisfactionStatus.OVERSATURATED
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintEnforcer.SatisfactionStatus.SATISFIED
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
@@ -34,7 +34,7 @@ class ItemPacker {
     fun packItems(
         itemsToFillIn: List<ItemFacet>,
         hotbarSlotsToFill: List<ItemSlot>?,
-        restrictions: CleanupPlanPlacementTemplate.CleanupPlanRestrictions,
+        restrictions: CleanupPlanTemplate.CleanupPlanRestrictions,
         contraintProvider: ItemAmountContraintEnforcer
     ): List<InventorySwap> {
         val moves = ArrayList<InventorySwap>()

@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 
-class CleanupPlanPlacementTemplate(
+class CleanupPlanTemplate(
     /**
      * Contains requests for each slot (e.g. Slot 1 -> SWORD, Slot 8 -> BLOCK, etc.)
      */

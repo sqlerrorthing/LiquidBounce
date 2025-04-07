@@ -18,8 +18,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.SlotContentPreference
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.CleanupPlanRestrictions.RestrictionType
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.SlotContentPreference
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintEnforcer.SatisfactionStatus
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
@@ -27,7 +27,7 @@ import net.ccbluex.liquidbounce.utils.item.isNothing
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
 
 class CleanupPlanGenerator(
-    private val template: CleanupPlanPlacementTemplate,
+    private val template: CleanupPlanTemplate,
     private val availableItems: List<ItemSlot>,
 ) : ItemPacker.ItemAmountContraintEnforcer {
     private val swaps: ArrayList<InventorySwap> = ArrayList()
@@ -92,7 +92,8 @@ class CleanupPlanGenerator(
 
                     SatisfactionStatus.SATISFIED -> {}
                     SatisfactionStatus.OVERSATURATED -> {
-                        // TODO: Implement oversaturated behaviour. Currently this is a feature that is not used in the UI.
+                        // TODO: Implement oversaturated behaviour.
+                        //  Currently this is a feature that is not used in the UI.
                     }
                 }
             }
@@ -209,7 +210,7 @@ class ItemDispenserRack(wishOrganizer: WishOrganizer, itemFacets: List<ItemFacet
     }
 }
 
-class WishOrganizer(template: CleanupPlanPlacementTemplate) {
+class WishOrganizer(template: CleanupPlanTemplate) {
     val organizedWishes = ArrayList<OrganizedWish>()
     val itemCategoryWishGroupMap = HashMap<ItemCategory, ArrayList<WishItemGroupId>>()
 

@@ -142,7 +142,7 @@ internal fun GsonBuilder.registerCommonTypeAdapters() =
         .registerTypeHierarchyAdapter(IntRange::class.javaObjectType, IntRangeAdapter)
         .registerTypeHierarchyAdapter(Item::class.javaObjectType, ItemAdapter)
         .registerTypeHierarchyAdapter(InventoryPreset::class.javaObjectType, InventoryPresetAdapter)
-        .registerTypeHierarchyAdapter(FrontendSlotPreference::class.javaObjectType, PresetItemAdapter)
+        .registerTypeHierarchyAdapter(FrontendSlotPreference::class.javaObjectType, FrontendSlotPreferenceAdapter)
         .registerTypeHierarchyAdapter(Color4b::class.javaObjectType, ColorAdapter)
         .registerTypeHierarchyAdapter(Vec3d::class.javaObjectType, Vec3dAdapter)
         .registerTypeHierarchyAdapter(Vec3i::class.javaObjectType, Vec3iAdapter)

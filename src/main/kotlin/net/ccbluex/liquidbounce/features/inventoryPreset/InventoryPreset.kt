@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 @Suppress("MagicNumber")
 class InventoryPreset(
     items: Array<List<FrontendSlotPreference>> = Array(10) { listOf<FrontendSlotPreference>() },
-    val itemLimitRules: Array<FrontendItemLimitRules> = emptyArray()
+    val itemLimitRules: List<FrontendItemLimitRules> = emptyList()
 ) {
     val items: Map<HotbarItemSlot, List<FrontendSlotPreference>>
 
@@ -51,7 +51,7 @@ class InventoryPreset(
             val preferences = items[getSlotForIndex(it)]
 
             if (preferences.isNullOrEmpty()) {
-                return@Array listOf(FrontendSlotPreference.AnySlotPreference)
+                return@Array listOf()
             }
 
             preferences

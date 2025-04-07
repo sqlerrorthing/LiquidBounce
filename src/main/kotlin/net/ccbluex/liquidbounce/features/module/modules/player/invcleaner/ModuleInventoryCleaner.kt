@@ -22,9 +22,9 @@ import net.ccbluex.liquidbounce.event.events.ScheduleInventoryActionEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanSlotContent
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.CleanupPlanRestrictions
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.CleanupPlanRestrictions.RestrictionType
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.CleanupPlanSlotContent
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.utils.inventory.*
@@ -47,7 +47,7 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
     @Suppress("unused")
     private val inventoryPresets by inventoryPreset()
 
-    val cleanupTemplateFromSettings: CleanupPlanPlacementTemplate
+    val cleanupTemplateFromSettings: CleanupPlanTemplate
         get() {
             val specifiedSlotTargets = this.inventoryPresets.items
             val currentRestrictionMap = hashMapOf<ItemSlot, RestrictionType>()
@@ -95,7 +95,7 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
             )
 
 
-            return CleanupPlanPlacementTemplate(
+            return CleanupPlanTemplate(
                 slotTargets,
                 itemAmountConstraintProvider = constraintProvider,
                 restrictions = CleanupPlanRestrictions(currentRestrictionMap)

@@ -8,7 +8,8 @@ import net.ccbluex.liquidbounce.features.inventoryPreset.FrontendSlotPreference.
 import net.minecraft.item.Item
 import java.lang.reflect.Type
 
-object PresetItemAdapter : JsonSerializer<FrontendSlotPreference>, JsonDeserializer<FrontendSlotPreference> {
+object FrontendSlotPreferenceAdapter :
+    JsonSerializer<FrontendSlotPreference>, JsonDeserializer<FrontendSlotPreference> {
     override fun serialize(
         src: FrontendSlotPreference,
         typeOfSrc: Type?,
@@ -25,19 +26,20 @@ object PresetItemAdapter : JsonSerializer<FrontendSlotPreference>, JsonDeseriali
         val obj = json.asJsonObject
 
         return when (obj["type"].asString) {
-            "single" -> FrontendSlotPreference.SingleSlotPreference(
+            "SINGLE" -> FrontendSlotPreference.SingleSlotPreference(
                 context.deserialize(
                     obj["item"],
                     Item::class.java
                 )
             )
-            "group" -> FrontendSlotPreference.GroupSlotPreference(
+            "GROUP" -> FrontendSlotPreference.GroupSlotPreference(
                 context.deserialize(
                     obj["group"],
                     ItemGroupType::class.java
                 )
             )
-            "ignore" -> FrontendSlotPreference.IgnoreSlotPreference
+            "IGNORE" -> FrontendSlotPreference.IgnoreSlotPreference
+            "ANY" -> FrontendSlotPreference.AnySlotPreference
             else -> error("Unknown slot preference ${obj["type"]}")
         }
     }

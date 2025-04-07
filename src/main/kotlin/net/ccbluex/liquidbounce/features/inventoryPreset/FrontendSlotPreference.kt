@@ -3,7 +3,8 @@ package net.ccbluex.liquidbounce.features.inventoryPreset
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.annotations.SerializedName
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanTemplate.CleanupPlanRestrictions.RestrictionType
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.GenericItemType
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.MiningToolItemFacet
 import net.minecraft.item.Item
@@ -22,7 +23,7 @@ sealed class FrontendSlotPreference {
 
     class SingleSlotPreference(private val item: Item) : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
-            val contentPreference = CleanupPlanPlacementTemplate.SlotContentPreference(
+            val contentPreference = CleanupPlanTemplate.SlotContentPreference(
                 itemType = GenericItemType.ANY_ITEM,
                 subtypes = setOf(item)
             )
@@ -45,49 +46,49 @@ sealed class FrontendSlotPreference {
         /**
          * Enum representing item categories used for preset item classification.
          */
-        enum class ItemGroupType(val preference: CleanupPlanPlacementTemplate.SlotContentPreference) {
+        enum class ItemGroupType(val preference: CleanupPlanTemplate.SlotContentPreference) {
             @SerializedName("ARROWS")
-            ARROWS(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.ARROW)),
+            ARROWS(CleanupPlanTemplate.SlotContentPreference(GenericItemType.ARROW)),
             @SerializedName("SWORD")
-            SWORD(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.SWORD)),
+            SWORD(CleanupPlanTemplate.SlotContentPreference(GenericItemType.SWORD)),
             @SerializedName("WEAPON")
-            WEAPON(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.WEAPON)),
+            WEAPON(CleanupPlanTemplate.SlotContentPreference(GenericItemType.WEAPON)),
             @SerializedName("AXE")
             AXE_TOOL(
-                CleanupPlanPlacementTemplate.SlotContentPreference(
+                CleanupPlanTemplate.SlotContentPreference(
                     GenericItemType.TOOL,
                     setOf(MiningToolItemFacet.ItemToolType.AXE)
                 )
             ),
             @SerializedName("HOE")
             HOE_TOOL(
-                CleanupPlanPlacementTemplate.SlotContentPreference(
+                CleanupPlanTemplate.SlotContentPreference(
                     GenericItemType.TOOL,
                     setOf(MiningToolItemFacet.ItemToolType.HOE)
                 )
             ),
             @SerializedName("SHOVEL")
             SHOVEL_TOOL(
-                CleanupPlanPlacementTemplate.SlotContentPreference(
+                CleanupPlanTemplate.SlotContentPreference(
                     GenericItemType.TOOL,
                     setOf(MiningToolItemFacet.ItemToolType.SHOVEL)
                 )
             ),
             @SerializedName("PICKAXE")
             PICKAXE_TOOL(
-                CleanupPlanPlacementTemplate.SlotContentPreference(
+                CleanupPlanTemplate.SlotContentPreference(
                     GenericItemType.TOOL,
                     setOf(MiningToolItemFacet.ItemToolType.PICKAXE)
                 )
             ),
             @SerializedName("FOOD")
-            FOOD(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.FOOD)),
+            FOOD(CleanupPlanTemplate.SlotContentPreference(GenericItemType.FOOD)),
             @SerializedName("POTION")
-            POTION(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.POTION)),
+            POTION(CleanupPlanTemplate.SlotContentPreference(GenericItemType.POTION)),
             @SerializedName("BLOCK")
-            BLOCK(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.BLOCK)),
+            BLOCK(CleanupPlanTemplate.SlotContentPreference(GenericItemType.BLOCK)),
             @SerializedName("THROWABLE")
-            THROWABLE(CleanupPlanPlacementTemplate.SlotContentPreference(GenericItemType.THROWABLE))
+            THROWABLE(CleanupPlanTemplate.SlotContentPreference(GenericItemType.THROWABLE))
         }
 
         override fun serialize(context: JsonSerializationContext) = JsonObject().apply {
@@ -99,7 +100,7 @@ sealed class FrontendSlotPreference {
 
     object IgnoreSlotPreference : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
-            return ConvertedSlotPreference(null, CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType.FORBID_TAMPERING)
+            return ConvertedSlotPreference(null, RestrictionType.FORBID_TAMPERING)
         }
 
         override fun serialize(context: JsonSerializationContext) = JsonObject().apply {
@@ -108,7 +109,7 @@ sealed class FrontendSlotPreference {
     }
     object AnySlotPreference : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
-            return ConvertedSlotPreference(null, CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType.NONE)
+            return ConvertedSlotPreference(null, RestrictionType.NONE)
         }
 
         override fun serialize(context: JsonSerializationContext) = JsonObject().apply {
@@ -117,7 +118,7 @@ sealed class FrontendSlotPreference {
     }
 
     data class ConvertedSlotPreference(
-        val contentPreference: CleanupPlanPlacementTemplate.SlotContentPreference?,
-        val slotRestriction: CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType = CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType.NONE
+        val contentPreference: CleanupPlanTemplate.SlotContentPreference?,
+        val slotRestriction: RestrictionType = RestrictionType.NONE
     )
 }

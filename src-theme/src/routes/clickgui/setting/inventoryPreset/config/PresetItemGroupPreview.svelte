@@ -5,20 +5,20 @@
     export let group: PresetItemGroup
 </script>
 
-<div class="preview" class:more={Math.max(1, group.items.length) !== 1}>
-    {#if group.items.length === 0}
+<div class="preview" class:more={Math.max(1, group.length) !== 1}>
+    {#if group.length === 0}
         <div class="item-container">
-            <ItemImage item={{type: "NONE"}}/>
+            <ItemImage item={{type: "ANY"}}/>
         </div>
     {:else}
-        {#each group.items.slice(0, 3) as item}
+        {#each group.slice(0, 3) as item}
             <div class="item-container">
                 <ItemImage bind:item />
             </div>
         {/each}
 
-        {#if group.items.length > 3}
-            <div class="item-container counter">+{Math.min(9, group.items.length - 3)}</div>
+        {#if group.length > 3}
+            <div class="item-container counter">+{Math.min(9, group.length - 3)}</div>
         {/if}
     {/if}
 </div>
