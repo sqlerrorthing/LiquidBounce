@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {InventoryPreset} from "../../../../integration/types";
+    import type {InventoryPreset, PresetItemGroup} from "../../../../integration/types";
     import ItemImage from "./ItemImage.svelte";
     import PresetModal from "./config/PresetModal.svelte";
     import {createEventDispatcher} from "svelte";
@@ -12,6 +12,8 @@
         dispatch("change")
     }
 
+    console.log(preset);
+
     let configuring = false
 </script>
 
@@ -20,9 +22,9 @@
 <div class="preset" on:click={() => configuring = true}>
     {#each preset.items as group, idx (idx)}
         <div class="preset-item">
-            {#if group.items[0]}
-                {@const firstItem = group.items[0]}
-                {#if firstItem.type !== "NONE"}
+            {#if group[0]}
+                {@const firstItem = group[0]}
+                {#if firstItem.type !== "ANY"}
                     <div class="img-wrapper">
                         <ItemImage item={firstItem} />
                     </div>

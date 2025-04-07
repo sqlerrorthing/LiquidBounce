@@ -33,55 +33,35 @@ export type ModuleSetting =
     | VectorSetting
     | KeySetting;
 
-export interface ChoosePresetItem {
-    type: "CHOOSE";
+export interface SingleItemPreference {
+    type: "SINGLE";
     item: string;
 }
+export interface GroupItemPreference {
+    type: "GROUP";
+    group: "ARROWS" | "SWORD" | "WEAPON" | "AXE" | "HOE" | "SHOVEL" | "PICKAXE" | "FOOD" | "POTION" | "BLOCK" | "THROWABLE";
+}
 
-export interface BlocksPresetItem {
-    type: "BLOCKS";
+export interface IgnoreItemPreference {
+    type: "IGNORE";
 }
 
 export interface AnyPresetItem {
     type: "ANY";
 }
 
-export interface NonePresetItem {
-    type: "NONE";
-}
-
-export interface WeaponsPresetItem {
-    type: "WEAPONS";
-}
-
-export interface ToolsPresetItem {
-    type: "TOOLS";
-}
-
-export interface FoodPresetItem {
-    type: "FOOD";
-}
-
-export type GenericPresetItem =
-    BlocksPresetItem
-    | AnyPresetItem
-    | NonePresetItem
-    | WeaponsPresetItem
-    | ToolsPresetItem
-    | FoodPresetItem;
-
 export type PresetItem =
-    ChoosePresetItem
-    | GenericPresetItem;
+    SingleItemPreference
+    | GroupItemPreference
+    | IgnoreItemPreference
+    | AnyPresetItem;
 
 export interface MaxStacksGroup {
     stacks: number;
     items: PresetItem[];
 }
 
-export interface PresetItemGroup {
-    items: PresetItem[];
-}
+export type PresetItemGroup = PresetItem[];
 
 export interface InventoryPreset {
     items: PresetItemGroup[];

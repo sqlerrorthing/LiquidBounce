@@ -14,7 +14,7 @@
     let expanded = false;
 
     function clearItems() {
-        group.items = [];
+        group = [];
         expanded = false;
 
         dispatch("change");
@@ -44,7 +44,7 @@
             <PresetItemGroupPreview bind:group />
         </div>
 
-        {#if group.items.length > 0}
+        {#if group.length > 0}
             <button class="delete" on:click|stopPropagation={clearItems}>
                 <img src="img/menu/icon-exit-danger.svg" alt="exit">
             </button>
@@ -60,7 +60,7 @@
         >
             <PresetItemGroupCandidateSelector
                     bind:parentExpanded={expanded}
-                    bind:items={group.items}
+                    bind:items={group}
                     on:change={handleChange}
             />
 

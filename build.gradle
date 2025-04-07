@@ -32,6 +32,10 @@ def getContributors(repoOwner, repoName) {
 
     connection.setRequestProperty("User-Agent", "LiquidBounce-App")
 
+    if (true) {
+        return []
+    }
+
     if (200 <= connection.responseCode && connection.responseCode <= 299) {
         def response = connection.inputStream.text
         def json = new JsonSlurper().parseText(response)

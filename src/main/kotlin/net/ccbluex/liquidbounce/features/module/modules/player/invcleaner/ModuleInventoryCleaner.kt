@@ -31,7 +31,6 @@ import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.ccbluex.liquidbounce.utils.kotlin.component1
 import net.ccbluex.liquidbounce.utils.kotlin.component2
-import net.minecraft.item.Items
 import net.minecraft.screen.slot.SlotActionType
 
 /**
@@ -39,8 +38,8 @@ import net.minecraft.screen.slot.SlotActionType
  *
  * Automatically throws away useless items and sorts them.
  */
-object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER,
-    aliases = arrayOf("InventoryCleaner")
+object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER,
+    aliases = arrayOf("InventoryManager")
 ) {
 
     private val inventoryConstraints = tree(PlayerInventoryConstraints())
@@ -48,44 +47,29 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
     @Suppress("unused")
     private val inventoryPresets by inventoryPreset()
 
-    private val maxBlocks by int("MaximumBlocks", 512, 0..2500)
-    private val maxArrows by int("MaximumArrows", 128, 0..2500)
-    private val maxThrowables by int("MaximumThrowables", 64, 0..600)
-    private val maxFoods by int("MaximumFoodPoints", 200, 0..2000)
-
-    private val offHandItem by enumChoice("OffHandItem", GenericItemSortChoices.ANY)
-    private val slotItem1 by enumChoice("SlotItem-1", GenericItemSortChoices.WEAPON)
-    private val slotItem2 by enumChoice("SlotItem-2", GenericItemSortChoices.ANY)
-    private val slotItem3 by enumChoice("SlotItem-3", GenericItemSortChoices.PICKAXE)
-    private val slotItem4 by enumChoice("SlotItem-4", GenericItemSortChoices.AXE)
-    private val slotItem5 by enumChoice("SlotItem-5", GenericItemSortChoices.ANY)
-    private val slotItem6 by enumChoice("SlotItem-6", GenericItemSortChoices.POTION)
-    private val slotItem7 by enumChoice("SlotItem-7", GenericItemSortChoices.FOOD)
-    private val slotItem8 by enumChoice("SlotItem-8", GenericItemSortChoices.BLOCK)
-    private val slotItem9 by enumChoice("SlotItem-9", GenericItemSortChoices.BLOCK)
-
     val cleanupTemplateFromSettings: CleanupPlanPlacementTemplate
         get() {
-            val specifiedSlotTargets = listOf(
-                Pair(OffHandSlot, offHandItem),
-                Pair(Slots.Hotbar[0], slotItem1),
-                Pair(Slots.Hotbar[1], slotItem2),
-                Pair(Slots.Hotbar[2], slotItem3),
-                Pair(Slots.Hotbar[3], slotItem4),
-                Pair(Slots.Hotbar[4], slotItem5),
-                Pair(Slots.Hotbar[5], slotItem6),
-                Pair(Slots.Hotbar[6], slotItem7),
-                Pair(Slots.Hotbar[7], slotItem8),
-                Pair(Slots.Hotbar[8], slotItem9),
-            )
+            val specifiedSlotTargets = this.inventoryPresets.items
+            val currentRestrictionMap = hashMapOf<ItemSlot, RestrictionType>()
+
             val mapped = specifiedSlotTargets
-                .filter { (_, choice) -> choice.category != null }
-                .map { (slot, choice) -> slot to CleanupPlanSlotContent(listOf(CleanupPlanPlacementTemplate.ContentWish(choice.category!!.type, setOf(choice.category.subtype))), 0) }
+                .map { (slot, choice) ->
+                    val wishes = choice.mapNotNull {
+                        val repr = it.toBackendRepresentation()
+
+                        currentRestrictionMap.compute(slot) { a, b ->
+                            maxOf(b ?: RestrictionType.NONE, repr.slotRestriction)
+                        }
+
+                        repr.contentPreference
+                    }
+
+                    slot to CleanupPlanSlotContent(wishes, 0)
+                }
                 .toTypedArray()
 
             val slotTargets = hashMapOf<ItemSlot, CleanupPlanSlotContent>(pairs = mapped)
 
-            val currentRestrictionMap = hashMapOf<ItemSlot, RestrictionType>()
 
             // Disallow tampering with armor slots since auto armor already handles them
             Slots.Armor.forEach { currentRestrictionMap.put(it, RestrictionType.FORBID_TAMPERING) }
@@ -95,18 +79,19 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
                 currentRestrictionMap[OffHandSlot] = RestrictionType.FORBID_REPLACING
             }
 
+            val desiredItemCounts = this.inventoryPresets.itemLimitRules.map { rule ->
+                val converted = rule.items
+                    .mapNotNull { item -> item.toBackendRepresentation().contentPreference }
+                    .flatMap { preference ->
+                        preference.subtypes.map { ItemCategory(preference.itemType, it) }
+                    }
+
+                converted to rule.itemCount
+            }
+
             val constraintProvider = AmountItemAmountConstraintProvider(
-                desiredValuePerFunction = hashMapOf(
-                    ItemFunction.FOOD to maxFoods,
-                    ItemFunction.WEAPON_LIKE to 1,
-                ),
-                desiredItemsInSpecificCategories = hashMapOf(
-                    listOf(ItemCategory(GenericItemType.ANY_ITEM, Items.EGG)) to 64,
-                    listOf(ItemCategory(GenericItemType.ANY_ITEM, Items.EGG), ItemCategory(GenericItemType.ANY_ITEM, Items.SNOWBALL)) to 32,
-                    Pair(listOf(GenericItemSortChoices.BLOCK.category!!), maxBlocks),
-                    Pair(listOf(GenericItemSortChoices.THROWABLES.category!!), maxThrowables),
-                    Pair(listOf(ItemCategory(GenericItemType.ARROW, 0)), maxArrows),
-                )
+                desiredValuePerFunction = hashMapOf(),
+                desiredItemsInSpecificCategories = desiredItemCounts
             )
 
 
@@ -175,7 +160,7 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
          * In that example, the inventory cleaner would not start throwing out items until at least 32 items of
          * snowballs or eggs are in the inventory.
          */
-        desiredItemsInSpecificCategories: Map<List<ItemCategory>, Int>
+        desiredItemsInSpecificCategories: List<Pair<List<ItemCategory>, Int>>
     ) : ItemAmountConstraintProvider {
         /**
          * Contains all specific item groups in which an item is.
@@ -186,7 +171,7 @@ object ModuleInventoryManager : ClientModule("InventoryManager", Category.PLAYER
          * - `carrot` -> `[1]`
          */
         private val itemSpecificGroupMap: Map<ItemCategory, List<SpecificItemGroup>> = run {
-            desiredItemsInSpecificCategories.entries
+            desiredItemsInSpecificCategories
                 .flatMapIndexed { idx, (items, desiredAmount) ->
                     val group = SpecificItemGroup(id = idx, desiredAmount = desiredAmount, priority = idx)
 

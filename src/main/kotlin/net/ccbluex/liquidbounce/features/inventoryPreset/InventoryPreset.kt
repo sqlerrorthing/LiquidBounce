@@ -1,8 +1,7 @@
 @file:Suppress("WildcardImport")
+
 package net.ccbluex.liquidbounce.features.inventoryPreset
 
-import net.ccbluex.liquidbounce.features.inventoryPreset.items.PresetItemGroup
-import net.ccbluex.liquidbounce.features.inventoryPreset.throwing.MaxStackGroup
 import net.ccbluex.liquidbounce.utils.inventory.HotbarItemSlot
 import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
 
@@ -14,7 +13,7 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
  * - Index 0 always represents the [OffHandSlot]
  * - Indices 1-9 correspond to hotbar slots 0-8 respectively (index -1 adjustment)
  *
- * @property maxStacks Array of stack limitation groups applying to the entire inventory
+ * @property itemLimitRules Array of stack limitation groups applying to the entire inventory
  * @param items Initial item group configuration (must contain exactly 10 elements).
  *             Each array position maps to:
  *             - [OffHandSlot] for index 0
@@ -24,20 +23,38 @@ import net.ccbluex.liquidbounce.utils.inventory.OffHandSlot
  */
 @Suppress("MagicNumber")
 class InventoryPreset(
-    items: Array<PresetItemGroup> = Array(10) { PresetItemGroup() },
-    val maxStacks: Array<MaxStackGroup> = emptyArray()
+    items: Array<List<FrontendSlotPreference>> = Array(10) { listOf<FrontendSlotPreference>() },
+    val itemLimitRules: Array<FrontendItemLimitRules> = emptyArray()
 ) {
-    val items: List<Pair<HotbarItemSlot, PresetItemGroup>>
+    val items: Map<HotbarItemSlot, List<FrontendSlotPreference>>
 
     init {
+        // Required because the frontend would break if there weren't exactly 10 entries...
         require(items.size == 10)
 
-        this.items = items.mapIndexed { index, item ->
-            when (index) {
-                0 -> OffHandSlot to item
-                else -> HotbarItemSlot(index - 1) to item
+        val itemMap = items
+            .mapIndexed { index, item -> getSlotForIndex(index) to item }
+            .associate { it }
+
+        this.items = itemMap
+    }
+
+    private fun getSlotForIndex(idx: Int): HotbarItemSlot {
+        return when (idx) {
+            0 -> OffHandSlot
+            else -> HotbarItemSlot(idx - 1)
+        }
+    }
+
+    fun itemRulesToArray(): Array<List<FrontendSlotPreference>> {
+        return Array(10) {
+            val preferences = items[getSlotForIndex(it)]
+
+            if (preferences.isNullOrEmpty()) {
+                return@Array listOf(FrontendSlotPreference.AnySlotPreference)
             }
+
+            preferences
         }
     }
 }
-

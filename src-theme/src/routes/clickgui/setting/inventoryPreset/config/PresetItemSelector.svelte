@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {GenericPresetItem, PresetItem} from "../../../../../integration/types";
+    import type {PresetItem} from "../../../../../integration/types";
     import {convertToSpacedString, spaceSeperatedNames} from "../../../../../theme/theme_config";
     import ItemImage from "../ItemImage.svelte";
     import {onMount} from "svelte";
@@ -12,80 +12,97 @@
 
     const commonItems: PresetItem[] = [
         {
-            type: "CHOOSE",
-            item: "minecraft:diamond_sword"
-        },
-        {
-            type: "CHOOSE",
-            item: "minecraft:diamond_pickaxe"
-        },
-        {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:shield"
         },
         {
-            type: "CHOOSE",
-            item: "minecraft:cooked_beef"
-        },
-        {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:ender_pearl"
         },
         {
-            type: "CHOOSE",
+            type: "SINGLE",
+            item: "minecraft:arrow"
+        },
+        {
+            type: "SINGLE",
             item: "minecraft:snowball"
         },
         {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:egg"
         },
         {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:fishing_rod"
         },
         {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:golden_apple"
         },
         {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:enchanted_golden_apple"
         },
         {
-            type: "CHOOSE",
+            type: "SINGLE",
             item: "minecraft:water_bucket"
         },
         {
-            type: "BLOCKS"
+            type: "SINGLE",
+            item: "minecraft:lava_bucket"
         },
     ];
 
     interface GenericPresetItemList {
-        item: GenericPresetItem
+        item: PresetItem
         name: string
     }
 
     const genericItems: GenericPresetItemList[] = [
         {
-            item: { type: "WEAPONS" },
-            name: "Weapons"
+            item: { type: "GROUP", group: "WEAPON" },
+            name: "Weapon"
         },
         {
-            item: { type: "TOOLS" },
-            name: "Tools"
-        },
-        {
-            item: { type: "FOOD" },
+            item: { type: "GROUP", group: "FOOD" },
             name: "Food"
         },
         {
-            item: { type: "BLOCKS" },
+            item: { type: "GROUP", group: "BLOCK" },
             name: "Blocks"
         },
         {
+            item: { type: "GROUP", group: "AXE" },
+            name: "Axe"
+        },
+        {
+            item: { type: "GROUP", group: "PICKAXE" },
+            name: "Pickaxe"
+        },
+        {
+            item: { type: "GROUP", group: "HOE" },
+            name: "Hoe"
+        },
+        {
+            item: { type: "GROUP", group: "POTION" },
+            name: "Potions"
+        },
+        {
+            item: { type: "GROUP", group: "THROWABLE" },
+            name: "Throwables"
+        },
+        {
+            item: { type: "GROUP", group: "ARROWS" },
+            name: "Arrows"
+        },
+        {
             item: { type: "ANY" },
-            name: "AnyItem"
-        }
+            name: "Any"
+        },
+        {
+            item: { type: "IGNORE" },
+            name: "Ignore"
+        },
     ]
 
     interface TItem {
@@ -118,7 +135,7 @@
     function setItemProxy(item: PresetItem) {
         setItem(item)
 
-        if (filter && item.type == "CHOOSE") {
+        if (filter && item.type == "SINGLE") {
             renderedItems = renderedItems.filter(it => it.identifier != item.item)
         }
     }
@@ -190,7 +207,7 @@
         {#if renderedItems.length > 0}
             <div class="results">
                 <VirtualList items={renderedItems} let:item>
-                    <div class="result-item" on:click={() => setItemProxy({type: "CHOOSE", item: item.identifier})}>
+                    <div class="result-item" on:click={() => setItemProxy({type: "SINGLE", item: item.identifier})}>
                         <div class="icon-wrapper">
                             <img class="icon" src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.identifier}" alt={item.identifier}/>
                         </div>

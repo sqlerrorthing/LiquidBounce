@@ -1,31 +1,44 @@
 @file:Suppress("WildcardImport")
+
 package net.ccbluex.liquidbounce.config.gson.adapter
 
 import com.google.gson.*
-import net.ccbluex.liquidbounce.features.inventoryPreset.items.types.*
+import net.ccbluex.liquidbounce.features.inventoryPreset.FrontendSlotPreference
+import net.ccbluex.liquidbounce.features.inventoryPreset.FrontendSlotPreference.GroupSlotPreference.ItemGroupType
 import net.minecraft.item.Item
 import java.lang.reflect.Type
 
-object PresetItemAdapter : JsonSerializer<PresetItem>, JsonDeserializer<PresetItem> {
-    override fun serialize(src: PresetItem, typeOfSrc: Type?, context: JsonSerializationContext) = JsonObject().apply {
-        add("type", context.serialize(src.type))
-
-        if (src is ChoosePresetItem) {
-            add("item", context.serialize(src.item))
-        }
+object PresetItemAdapter : JsonSerializer<FrontendSlotPreference>, JsonDeserializer<FrontendSlotPreference> {
+    override fun serialize(
+        src: FrontendSlotPreference,
+        typeOfSrc: Type?,
+        context: JsonSerializationContext
+    ): JsonObject {
+        return src.serialize(context)
     }
 
-    override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext): PresetItem {
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type?,
+        context: JsonDeserializationContext
+    ): FrontendSlotPreference {
         val obj = json.asJsonObject
 
-        return when (ItemType.findOrThrow(obj["type"].asString)) {
-            ItemType.ANY -> AnyPresetItem
-            ItemType.NONE -> NonePresetItem
-            ItemType.TOOLS -> ToolsPresetItem
-            ItemType.FOOD -> FoodPresetItem
-            ItemType.BLOCKS -> BlocksPresetItem
-            ItemType.WEAPONS -> WeaponsPresetItem
-            ItemType.CHOOSE -> ChoosePresetItem(context.deserialize(obj["item"], Item::class.java))
+        return when (obj["type"].asString) {
+            "single" -> FrontendSlotPreference.SingleSlotPreference(
+                context.deserialize(
+                    obj["item"],
+                    Item::class.java
+                )
+            )
+            "group" -> FrontendSlotPreference.GroupSlotPreference(
+                context.deserialize(
+                    obj["group"],
+                    ItemGroupType::class.java
+                )
+            )
+            "ignore" -> FrontendSlotPreference.IgnoreSlotPreference
+            else -> error("Unknown slot preference ${obj["type"]}")
         }
     }
 }

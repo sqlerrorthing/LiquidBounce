@@ -34,13 +34,13 @@ class CleanupPlanPlacementTemplate(
          * 3. If the eggs weren't available or the snowballs were more, it would fill the slot with the snowball stack.
          * 4. If no eggs and snowballs are available either, the apples would be filled in.
          */
-        val contentWishes: List<ContentWish>,
+        val slotContentPreferences: List<SlotContentPreference>,
         val priority: Int,
     )
 
-    data class ContentWish(
+    data class SlotContentPreference(
         val itemType: GenericItemType,
-        val subtypes: Set<Any>,
+        val subtypes: Set<Any> = setOf(Unit),
     )
 
     /**

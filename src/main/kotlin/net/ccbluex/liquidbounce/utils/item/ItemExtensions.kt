@@ -105,17 +105,6 @@ val ItemStack.isFood: Boolean
 val ItemStack.foodComponent: FoodComponent?
     get() = this.get(DataComponentTypes.FOOD)
 
-fun isHotbarSlot(slot: Int) = slot == 45 || slot in 36..44
-
-val MiningToolItem.type: Int
-    get() = when (this) {
-        is AxeItem -> 0
-        is PickaxeItem -> 1
-        is ShovelItem -> 2
-        is HoeItem -> 3
-        else -> error("Unknown tool item $this (WTF?)")
-    }
-
 fun ItemStack.getAttributeValue(attribute: RegistryEntry<EntityAttribute>) = item.components
     .getOrDefault(
         DataComponentTypes.ATTRIBUTE_MODIFIERS,

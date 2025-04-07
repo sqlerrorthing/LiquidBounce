@@ -19,7 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.CleanupPlanRestrictions.RestrictionType
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.ContentWish
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.CleanupPlanPlacementTemplate.SlotContentPreference
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemPacker.ItemAmountContraintEnforcer.SatisfactionStatus
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.ItemFacet
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
@@ -31,18 +31,7 @@ class CleanupPlanGenerator(
     private val availableItems: List<ItemSlot>,
 ) : ItemPacker.ItemAmountContraintEnforcer {
     private val swaps: ArrayList<InventorySwap> = ArrayList()
-
-    private val packer = ItemPacker()
-
     private val currentLimit = HashMap<ItemNumberContraintGroup, Int>()
-
-    /**
-     * Keeps track of where a specific type of item should be placed. e.g. BLOCK -> [Hotbar 7, Hotbar 8]
-     */
-//    private val categoryToSlotsMap: Map<ItemCategory, List<ItemSlot>> =
-//        template.slotContentMap.entries
-//            .groupBy { (_, itemType) -> itemType }
-//            .mapValues { (_, entries) -> entries.map { (slot, _) -> slot } }
 
     fun generatePlan(): InventoryCleanupPlan {
         val allItemFacets = getAvailableItemFacetsToFillIn()
@@ -127,58 +116,6 @@ class CleanupPlanGenerator(
 
         return availableItemFacets
     }
-
-//    fun generatePlan(): InventoryCleanupPlan {
-//        val categorizer = ItemCategorization(availableItems)
-//
-//        // Contains all facets that the available items represent. i.e. if we have an axe in slot 5, this would be
-//        // (Axe(Slot 5), Weapon(Slot 5)) since the axe can also function as a weapon.
-//        val itemFacets = availableItems.flatMap { categorizer.getItemFacets(it).asIterable() }
-//
-//        // i.e. BLOCK -> [Block(Slot 5), Block(Slot 6)]
-//        // Keep priority in mind (Tool slots are processed before weapon slots)
-//        val facetsGroupedByType =
-//            itemFacets
-//                .groupBy { it.category }
-//                .entries
-//                .sortedByDescending { it.key.type.allocationPriority }
-//
-//        for ((category, availableItems) in facetsGroupedByType) {
-//            processItemCategory(category, availableItems)
-//        }
-//
-//        // We aren't allowed to touch those, so we just consider them as useful.
-//        packer.usefulItems.addAll(this.template.restrictions.getSlotsWithAtLeast())
-//
-//        return InventoryCleanupPlan(
-//            usefulItems = packer.usefulItems,
-//            swaps = swaps,
-//            mergeableItems = groupItemsByType(),
-//        )
-//    }
-
-//    private fun processItemCategory(
-//        category: ItemCategory,
-//        availableItems: List<ItemFacet>,
-//    ) {
-//        val hotbarSlotsToFill = this.categoryToSlotsMap[category]
-//
-//        // We need to fill all hotbar slots with this item type.
-//
-//        // Use a descending sort order so that we can fill the slots with the best items first.
-//        val prioritizedItemList = availableItems.sortedDescending()
-//
-//        // Decide where the items should go.
-//        val requiredMoves =
-//            this.packer.packItems(
-//                itemsToFillIn = prioritizedItemList,
-//                hotbarSlotsToFill = hotbarSlotsToFill,
-//                contraintProvider = this,
-//                restrictions = this.template.restrictions
-//            )
-//
-//        this.swaps.addAll(requiredMoves)
-//    }
 
     private fun groupItemsByType(): HashMap<ItemId, MutableList<ItemSlot>> {
         val itemsByType = HashMap<ItemId, MutableList<ItemSlot>>()
@@ -278,10 +215,10 @@ class WishOrganizer(template: CleanupPlanPlacementTemplate) {
 
     init {
         // Deduplicate wishes for performance reasons.
-        val wishIdMap = HashMap<ContentWish, WishItemGroupId>()
+        val wishIdMap = HashMap<SlotContentPreference, WishItemGroupId>()
 
         for ((slot, content) in template.slotContentMap.entries) {
-            content.contentWishes.forEachIndexed { wishIndexInSlot, wish ->
+            content.slotContentPreferences.forEachIndexed { wishIndexInSlot, wish ->
                 val id = wishIdMap.computeIfAbsent(wish) { WishItemGroupId() }
 
                 organizedWishes.add(
@@ -329,7 +266,7 @@ class WishOrganizer(template: CleanupPlanPlacementTemplate) {
         val targetSlot: ItemSlot,
         val slotPriority: Int,
         val indexInSlot: Int,
-        val wish: ContentWish
+        val wish: SlotContentPreference
     )
 
     class WishItemGroupId
