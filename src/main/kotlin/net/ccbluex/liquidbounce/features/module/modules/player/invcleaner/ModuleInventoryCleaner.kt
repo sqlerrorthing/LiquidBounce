@@ -38,7 +38,9 @@ import net.minecraft.screen.slot.SlotActionType
  *
  * Automatically throws away useless items and sorts them.
  */
-object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER,
+object ModuleInventoryCleaner : ClientModule(
+    name = "InventoryCleaner",
+    category = Category.PLAYER,
     aliases = arrayOf("InventoryManager")
 ) {
 
@@ -104,8 +106,10 @@ object ModuleInventoryCleaner : ClientModule("InventoryCleaner", Category.PLAYER
 
     @Suppress("unused")
     private val handleInventorySchedule = handler<ScheduleInventoryActionEvent> { event ->
-        val cleanupPlan = CleanupPlanGenerator(cleanupTemplateFromSettings, findNonEmptySlotsInInventory())
-            .generatePlan()
+        val cleanupPlan = CleanupPlanGenerator(
+            cleanupTemplateFromSettings,
+            findNonEmptySlotsInInventory()
+        ).plan
 
         // Step 1: Move items to the correct slots
         for (hotbarSwap in cleanupPlan.swaps) {

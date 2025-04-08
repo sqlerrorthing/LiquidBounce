@@ -34,8 +34,8 @@ class FoodItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
     companion object {
         private val COMPARATOR =
             ComparatorChain<FoodItemFacet>(
-                compareByCondition { it.itemStack.item == Items.ENCHANTED_GOLDEN_APPLE },
-                compareByCondition { it.itemStack.item == Items.GOLDEN_APPLE },
+                compareBy { it.itemStack.item == Items.ENCHANTED_GOLDEN_APPLE },
+                compareBy { it.itemStack.item == Items.GOLDEN_APPLE },
                 // Nutriment
                 compareBy {
                     val foodComponent = it.itemStack.foodComponent!!

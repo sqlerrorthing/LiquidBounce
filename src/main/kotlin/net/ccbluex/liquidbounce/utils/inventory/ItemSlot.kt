@@ -18,7 +18,6 @@
  */
 package net.ccbluex.liquidbounce.utils.inventory
 
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlotType
 import net.ccbluex.liquidbounce.utils.client.mc
 import net.ccbluex.liquidbounce.utils.client.player
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
@@ -27,22 +26,32 @@ import net.minecraft.util.Hand
 import java.util.*
 
 /**
- * Represents an inventory slot (e.g. Hotbar Slot 0, OffHand, Chestslot 5, etc.)
+ * Represents an inventory slot (e.g., Hotbar Slot 0, OffHand, Chestslot 5, etc.)
  */
 abstract class ItemSlot {
     abstract val itemStack: ItemStack
     abstract val slotType: ItemSlotType
 
     /**
-     * Used for example for slot click packets
+     * Used, for example, for slot click packets
      */
     abstract fun getIdForServer(screen: GenericContainerScreen?): Int?
-
-    fun getIdForServerWithCurrentScreen() = getIdForServer(mc.currentScreen as? GenericContainerScreen)
 
     abstract override fun hashCode(): Int
 
     abstract override fun equals(other: Any?): Boolean
+
+    enum class ItemSlotType {
+        HOTBAR,
+        OFFHAND,
+        ARMOR,
+        INVENTORY,
+
+        /**
+         * e.g. chests
+         */
+        CONTAINER,
+    }
 }
 
 /**

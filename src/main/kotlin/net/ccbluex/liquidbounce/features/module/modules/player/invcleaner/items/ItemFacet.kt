@@ -22,8 +22,8 @@ import it.unimi.dsi.fastutil.objects.ObjectIntPair
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategory
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemFunction
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemSlotType
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.GenericItemType
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot.ItemSlotType
 import net.ccbluex.liquidbounce.utils.sorting.compareValueByCondition
 import net.minecraft.item.ItemStack
 

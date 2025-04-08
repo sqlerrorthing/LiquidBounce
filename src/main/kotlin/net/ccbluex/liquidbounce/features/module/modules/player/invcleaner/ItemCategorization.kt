@@ -18,11 +18,11 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner
 
-import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.module.modules.combat.autoarmor.ArmorEvaluation
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.*
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.ScaffoldBlockItemSelection
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
+import net.ccbluex.liquidbounce.utils.inventory.ItemSlot.ItemSlotType
 import net.ccbluex.liquidbounce.utils.inventory.VirtualItemSlot
 import net.ccbluex.liquidbounce.utils.item.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
@@ -74,24 +74,6 @@ enum class GenericItemType(
 enum class ItemFunction {
     WEAPON_LIKE,
     FOOD,
-}
-
-enum class GenericItemSortChoices(
-    override val choiceName: String,
-    val icon: String,
-    val category: ItemCategory?,
-) : NamedChoice {
-    SWORD("Sword", "sword.svg", ItemCategory(GenericItemType.SWORD)),
-    WEAPON("Weapon", "weapon.svg", ItemCategory(GenericItemType.WEAPON)),
-    AXE("Axe", "axe.svg", ItemCategory(GenericItemType.TOOL)),
-    PICKAXE("Pickaxe", "pickaxe.svg", ItemCategory(GenericItemType.TOOL)),
-    FOOD("Food", "food.svg", ItemCategory(GenericItemType.FOOD)),
-    POTION("Potion", "potion.svg", ItemCategory(GenericItemType.POTION)),
-    BLOCK("Block", "block.svg", ItemCategory(GenericItemType.BLOCK)),
-    ARROW("Arrow", "arrow.svg", ItemCategory(GenericItemType.ARROW)),
-    THROWABLES("Throwables", "throwables.svg", ItemCategory(GenericItemType.THROWABLE)),
-    IGNORE("Ignore", "ignore.svg", null),
-    ANY("Any", "any.svg", null),
 }
 
 class ItemCategorization(
