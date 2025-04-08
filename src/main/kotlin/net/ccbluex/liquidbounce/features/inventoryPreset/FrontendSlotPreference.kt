@@ -107,6 +107,7 @@ sealed class FrontendSlotPreference {
             addProperty("type", "IGNORE")
         }
     }
+    
     object AnySlotPreference : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
             return ConvertedSlotPreference(null, RestrictionType.NONE)
