@@ -26,7 +26,7 @@
         }
 
         preset.maxStacks = [...preset.maxStacks, {
-            stacks: 0,
+            itemCount: 0,
             items: []
         }]
 

@@ -57,7 +57,7 @@ export type PresetItem =
     | AnyPresetItem;
 
 export interface MaxStacksGroup {
-    stacks: number;
+    itemCount: number;
     items: PresetItem[];
 }
 

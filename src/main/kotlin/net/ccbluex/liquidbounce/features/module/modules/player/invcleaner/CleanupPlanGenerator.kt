@@ -59,9 +59,15 @@ class CleanupPlanGenerator(
 
             val availableItem = itemDispenserRack.nextItemForGroup(wish.id)
 
-            if (availableItem != null && availableItem.itemSlot != wish.targetSlot) {
-                alreadyFilledSlots.add(wish.targetSlot)
+            if (availableItem == null) {
+                continue
+            }
 
+            alreadyFilledSlots.add(wish.targetSlot)
+            usefulItems.add(availableItem.itemSlot)
+
+            // Move the item if that has not been done yet.
+            if (availableItem.itemSlot != wish.targetSlot) {
                 this.swaps.add(
                     InventorySwap(
                         from = availableItem.itemSlot,
@@ -69,8 +75,6 @@ class CleanupPlanGenerator(
                         priority = availableItem.category.type.allocationPriority
                     )
                 )
-
-                usefulItems.add(availableItem.itemSlot)
             }
         }
 

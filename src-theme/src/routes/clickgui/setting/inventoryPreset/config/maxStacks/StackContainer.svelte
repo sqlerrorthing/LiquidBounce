@@ -14,7 +14,7 @@
 
     onMount(() => {
         apiSlider = noUiSlider.create(slider, {
-            start: group.stacks,
+            start: group.itemCount,
             connect: "lower",
             range: {
                 min: 0,
@@ -24,7 +24,7 @@
         });
 
         apiSlider.on("update", (values) => {
-            group.stacks = parseInt(values[0].toString());
+            group.itemCount = parseInt(values[0].toString());
         });
 
         apiSlider.on("set", () => {
@@ -53,10 +53,10 @@
                 <div class="slider-top">
                     <span class="slider-left">Max</span>
                     <div class="slider-right">
-                        <ValueInput valueType="int" value={group.stacks}
+                        <ValueInput valueType="int" value={group.itemCount}
                                     on:change={(e) => apiSlider.set(e.detail.value)}/>
                         <span>
-                            {#if group.stacks === 1}
+                            {#if group.itemCount === 1}
                                 item
                             {:else}
                                 items
