@@ -24,24 +24,6 @@
                 '75%': [5 * 64, 64],
                 'max': [64 * 9 * 4],
             },
-            // pips: {
-            //     mode: 'range',
-            //     density: 4,
-            //     format: {
-            //         to: (value) => {
-            //             if (value >= 64 * 9 * 4) {
-            //                 return "∞";
-            //             }
-            //             if (value < 64) {
-            //                 return value.toString();
-            //             }
-            //
-            //             let x = (value / 64) | 0;
-            //
-            //             return `64 x ${x}`;
-            //         }
-            //     }
-            // },
             step: 1,
         });
 
@@ -93,7 +75,7 @@
                         <span style="color: {group.itemCount < 64 ? 'gray' : 'white'}">64 x </span>
                         <ValueInput valueType="int" bind:value={nStacks}
                                     on:change={() => updateItemCount()}/>
-                        <span> + </span>
+                        <span style="color: {(group.itemCount % 64) === 0 ? 'gray' : 'white'}"> + </span>
                         <ValueInput valueType="int" bind:value={nItems}
                                     on:change={() => updateItemCount()}/>
                     {:else}

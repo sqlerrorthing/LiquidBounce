@@ -73,6 +73,11 @@ enum class GenericItemType(
 
 enum class ItemFunction {
     WEAPON_LIKE,
+
+    /**
+     * Crossbows and bows.
+     */
+    BOW_LIKE,
     FOOD,
 }
 

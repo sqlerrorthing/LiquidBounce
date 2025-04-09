@@ -8,6 +8,7 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.Cleanu
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.GenericItemType
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.MiningToolItemFacet
 import net.minecraft.item.Item
+import net.minecraft.item.Items
 
 /**
  * Contains the frontend representation of the user defined preference of what should a slot contain.
@@ -22,7 +23,24 @@ sealed class FrontendSlotPreference {
     abstract fun serialize(context: JsonSerializationContext): JsonObject
 
     class SingleSlotPreference(private val item: Item) : FrontendSlotPreference() {
+        companion object {
+            /**
+             * Some items like bow or crossbow represent an item type with additional sorting logic.
+             * Those items must be remapped.
+             */
+            val itemSpecialTypeMap = mapOf(
+                Items.BOW to CleanupPlanTemplate.SlotContentPreference(GenericItemType.BOW),
+                Items.CROSSBOW to CleanupPlanTemplate.SlotContentPreference(GenericItemType.CROSSBOW),
+            )
+        }
+
         override fun toBackendRepresentation(): ConvertedSlotPreference {
+            val specialType = itemSpecialTypeMap[item]
+
+            if (specialType != null) {
+                return ConvertedSlotPreference(specialType)
+            }
+
             val contentPreference = CleanupPlanTemplate.SlotContentPreference(
                 itemType = GenericItemType.ANY_ITEM,
                 subtypes = setOf(item)
@@ -107,7 +125,7 @@ sealed class FrontendSlotPreference {
             addProperty("type", "IGNORE")
         }
     }
-    
+
     object AnySlotPreference : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
             return ConvertedSlotPreference(null, RestrictionType.NONE)

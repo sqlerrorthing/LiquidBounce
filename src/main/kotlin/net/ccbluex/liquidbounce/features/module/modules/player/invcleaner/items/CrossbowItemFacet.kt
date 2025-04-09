@@ -18,6 +18,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
+import it.unimi.dsi.fastutil.objects.ObjectIntPair
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.*
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
 import net.ccbluex.liquidbounce.utils.item.EnchantmentValueEstimator
@@ -42,6 +43,9 @@ class CrossbowItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
                 STABILIZE_COMPARISON,
             )
     }
+
+    override val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
+        get() = listOf(ObjectIntPair.of(ItemFunction.BOW_LIKE, 1))
 
     override val category: ItemCategory
         get() = ItemCategory(GenericItemType.CROSSBOW)

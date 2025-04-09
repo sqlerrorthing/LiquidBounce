@@ -154,9 +154,23 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="select-selector">
     <div class="select-title">
-        <span>{searchQuery === "" ? ($spaceSeperatedNames ? "All Items" : "AllItems") : "Search"}</span>
+        <span>{searchQuery === "" ? "Select Items" : "Search"}</span>
     </div>
 
+    {#if searchQuery === ""}
+        <div>
+            <span class="items-group-title">Quick Select</span>
+            <div class="common-wrapper">
+                {#each commonItems as commonItem}
+                    <div class="item-background common-item-wrapper" on:click={() => setItemProxy(commonItem)}>
+                        <div class="common-item">
+                            <ItemImage bind:item={commonItem} />
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+    {/if}
     <div class="search-wrapper">
         <span class="items-group-title">Specific Items</span>
         <div class="search margin">
@@ -173,24 +187,11 @@
             </div>
         </div>
 
-        {#if searchQuery === ""}
-            <div>
-                <div class="common-wrapper">
-                    {#each commonItems as commonItem}
-                        <div class="item-background common-item-wrapper" on:click={() => setItemProxy(commonItem)}>
-                            <div class="common-item">
-                                <ItemImage bind:item={commonItem} />
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-            </div>
-        {/if}
     </div>
 
     {#if searchQuery === ""}
         <div>
-            <span class="items-group-title">Generic Items</span>
+            <span class="items-group-title">Item Groups</span>
             <div class="generic-wrapper">
                 <VirtualList items={genericItems} let:item>
                     <div class="generic-item" on:click={() => setItemProxy(item.item)}>
@@ -259,7 +260,7 @@
   }
 
   .generic-wrapper {
-    height: 200px;
+    height: 170px;
     overflow-y: auto;
     overflow-x: hidden;
   }
