@@ -86,24 +86,22 @@
         <ItemGroupSelector bind:items={group.items} on:change={handleChange} style="width: 309px; max-height: 70px;"/>
 
         <div class="slider-wrapper">
-            <div class="slider-container">
-                <div class="slider-top">
-                    <span class="slider-left">Limit</span>
-                    <div class="slider-right">
-                        {#if group.itemCount < 9 * 4 * 64}
-                            <span style="color: {group.itemCount < 64 ? 'gray' : 'white'}">64 x </span>
-                            <ValueInput valueType="int" bind:value={nStacks}
-                                        on:change={() => updateItemCount()}/>
-                            <span> + </span>
-                            <ValueInput valueType="int" bind:value={nItems}
-                                        on:change={() => updateItemCount()}/>
-                        {:else}
-                            &infin;
-                        {/if}
-                    </div>
+            <div class="slider-top">
+                <span class="slider-left">Limit</span>
+                <div class="slider-right">
+                    {#if group.itemCount < 9 * 4 * 64}
+                        <span style="color: {group.itemCount < 64 ? 'gray' : 'white'}">64 x </span>
+                        <ValueInput valueType="int" bind:value={nStacks}
+                                    on:change={() => updateItemCount()}/>
+                        <span> + </span>
+                        <ValueInput valueType="int" bind:value={nItems}
+                                    on:change={() => updateItemCount()}/>
+                    {:else}
+                        &infin;
+                    {/if}
                 </div>
-                <div bind:this={slider} class="slider"></div>
             </div>
+            <div bind:this={slider} class="slider"></div>
         </div>
     </div>
     <div class="delete">
