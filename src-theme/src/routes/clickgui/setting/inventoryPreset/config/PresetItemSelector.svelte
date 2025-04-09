@@ -26,11 +26,11 @@
         },
         {
             type: "SINGLE",
-            item: "minecraft:snowball"
+            item: "minecraft:bow"
         },
         {
             type: "SINGLE",
-            item: "minecraft:egg"
+            item: "minecraft:crossbow"
         },
         {
             type: "SINGLE",
@@ -51,6 +51,14 @@
         {
             type: "SINGLE",
             item: "minecraft:lava_bucket"
+        },
+        {
+            type: "SINGLE",
+            item: "minecraft:flint_and_steel"
+        },
+        {
+            type: "SINGLE",
+            item: "minecraft:shears"
         },
     ];
 
