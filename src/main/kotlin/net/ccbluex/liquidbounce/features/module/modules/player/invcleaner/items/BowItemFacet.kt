@@ -45,8 +45,8 @@ class BowItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
             )
     }
 
-    override val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
-        get() = listOf(ObjectIntPair.of(ItemFunction.BOW_LIKE, 1))
+    override val providedItemFunctions: List<ProvidedFunction>
+        get() = listOf(ProvidedFunction(ItemFunction.BOW_LIKE, 1))
 
     override val category: ItemCategory
         get() = ItemCategory(GenericItemType.BOW)

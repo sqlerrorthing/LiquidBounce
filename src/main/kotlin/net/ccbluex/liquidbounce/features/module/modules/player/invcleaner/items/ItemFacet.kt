@@ -31,7 +31,7 @@ open class ItemFacet(val itemSlot: ItemSlot) : Comparable<ItemFacet> {
     open val category: ItemCategory
         get() = ItemCategory(GenericItemType.ANY_ITEM, itemSlot.itemStack.item)
 
-    open val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
+    open val providedItemFunctions: List<ProvidedFunction>
         get() = emptyList()
 
     val itemStack: ItemStack
@@ -46,4 +46,13 @@ open class ItemFacet(val itemSlot: ItemSlot) : Comparable<ItemFacet> {
     open fun shouldKeep(): Boolean = false
 
     override fun compareTo(other: ItemFacet): Int = compareValueByCondition(this, other, ItemFacet::isInHotbar)
+
+    /**
+     * Example:
+     * - Bow -> (BOW_LIKE, 1)
+     * - Porkchop -> (FOOD, <amount of hunger points it regenerates>)
+     *
+     * @param amount The amount of the function this item gives.
+     */
+    data class ProvidedFunction(val type: ItemFunction, val amount: Int)
 }

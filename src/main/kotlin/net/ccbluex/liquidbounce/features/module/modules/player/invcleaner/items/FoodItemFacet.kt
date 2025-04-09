@@ -50,8 +50,8 @@ class FoodItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
             )
     }
 
-    override val providedItemFunctions: List<ObjectIntPair<ItemFunction>>
-        get() = listOf(ObjectIntPair.of(ItemFunction.FOOD, itemStack.count * itemStack.foodComponent!!.nutrition))
+    override val providedItemFunctions: List<ProvidedFunction>
+        get() = listOf(ProvidedFunction(ItemFunction.FOOD, itemStack.count * itemStack.foodComponent!!.nutrition))
 
     override val category: ItemCategory
         get() = ItemCategory(GenericItemType.FOOD)

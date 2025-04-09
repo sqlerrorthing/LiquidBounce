@@ -6,7 +6,6 @@
     import {getRegistries, setTyping} from "../../../../../integration/rest";
     import VirtualList from "../../blocks/VirtualList.svelte";
     import {REST_BASE} from "../../../../../integration/host";
-    import ToolTip from "../../../../menu/common/ToolTip.svelte";
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
