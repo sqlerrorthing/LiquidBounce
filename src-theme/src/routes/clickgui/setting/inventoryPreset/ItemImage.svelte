@@ -1,27 +1,31 @@
 <script lang="ts">
     import type {GroupItemPreference, PresetItem} from "../../../../integration/types";
     import {REST_BASE} from "../../../../integration/host";
+    import ToolTip from "../../../menu/common/ToolTip.svelte";
 
     function getIconNameFor(item: GroupItemPreference): string {
         switch (item.group) {
             case "ARROWS":
-                return "arrows";
+                return "arrow.png";
             case "SWORD":
             case "WEAPON":
-                return "weapon";
+                return "sword.png";
             case "AXE":
+                return "axe.png";
             case "HOE":
+                return "hoe.png";
             case "SHOVEL":
+                return "shovel.png";
             case "PICKAXE":
-                return "tool";
+                return "pickaxe.png";
             case "FOOD":
-                return "food";
+                return "food.png";
             case "POTION":
-                return "potion";
+                return "potion.png";
             case "BLOCK":
-                return "block";
+                return "blocks.png";
             case "THROWABLE":
-                return "throwable";
+                return "egg.png";
             default:
                 throw new Error("Illegal value.");
         }
@@ -33,7 +37,7 @@
 {#if item.type === "SINGLE"}
     <img src="{REST_BASE}/api/v1/client/resource/itemTexture?id={item.item}" alt={item.item}/>
 {:else if item.type === "GROUP"}
-    <img src="img/clickgui/icon-{getIconNameFor(item)}.svg" alt="Weapons"/>
+    <img src="img/clickgui/icon-{getIconNameFor(item)}" alt="{item.group}"/>
 {:else if item.type === "IGNORE"}
     <img src="img/clickgui/icon-ignore.svg" alt="Tools"/>
 {:else if item.type === "ANY"}

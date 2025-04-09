@@ -5,7 +5,7 @@
     import {createEventDispatcher, onMount} from "svelte";
     import ItemGroupSelector from "../ItemGroupSelector.svelte";
 
-    export let group: MaxStacksGroup
+    export let group: MaxStacksGroup;
 
     const dispatch = createEventDispatcher();
 
@@ -17,14 +17,36 @@
             start: group.itemCount,
             connect: "lower",
             range: {
-                min: 0,
-                max: 2000,
+                'min': [0, 1],
+                '15%': [5, 1],
+                '30%': [16, 16],
+                '50%': [2 * 64, 64],
+                '75%': [5 * 64, 64],
+                'max': [64 * 9 * 4],
             },
+            // pips: {
+            //     mode: 'range',
+            //     density: 4,
+            //     format: {
+            //         to: (value) => {
+            //             if (value >= 64 * 9 * 4) {
+            //                 return "∞";
+            //             }
+            //             if (value < 64) {
+            //                 return value.toString();
+            //             }
+            //
+            //             let x = (value / 64) | 0;
+            //
+            //             return `64 x ${x}`;
+            //         }
+            //     }
+            // },
             step: 1,
         });
 
         apiSlider.on("update", (values) => {
-            group.itemCount = parseInt(values[0].toString());
+            updateItemCount(0, parseInt(values[0].toString()));
         });
 
         apiSlider.on("set", () => {
@@ -39,6 +61,21 @@
     function handleDelete() {
         dispatch("delete")
     }
+
+    let nStacks: number = 0;
+    let nItems: number = group.itemCount;
+
+    function updateItemCount(s: number = nStacks, i: number = nItems) {
+        let totalItemCount = s * 64 + i;
+
+        group.itemCount = totalItemCount;
+
+        let totalStacks = (totalItemCount / 64) | 0;
+        let leftItems = (totalItemCount % 64) | 0;
+
+        nStacks = totalStacks;
+        nItems = leftItems;
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -51,17 +88,18 @@
         <div class="slider-wrapper">
             <div class="slider-container">
                 <div class="slider-top">
-                    <span class="slider-left">Max</span>
+                    <span class="slider-left">Limit</span>
                     <div class="slider-right">
-                        <ValueInput valueType="int" value={group.itemCount}
-                                    on:change={(e) => apiSlider.set(e.detail.value)}/>
-                        <span>
-                            {#if group.itemCount === 1}
-                                item
-                            {:else}
-                                items
-                            {/if}
-                        </span>
+                        {#if group.itemCount < 9 * 4 * 64}
+                            <span style="color: {group.itemCount < 64 ? 'gray' : 'white'}">64 x </span>
+                            <ValueInput valueType="int" bind:value={nStacks}
+                                        on:change={() => updateItemCount()}/>
+                            <span> + </span>
+                            <ValueInput valueType="int" bind:value={nItems}
+                                        on:change={() => updateItemCount()}/>
+                        {:else}
+                            &infin;
+                        {/if}
                     </div>
                 </div>
                 <div bind:this={slider} class="slider"></div>
@@ -74,66 +112,66 @@
 </div>
 
 <style lang="scss">
-    @use "sass:color";
-    @use "../../../../../../colors.scss" as *;
-    @use "../select" as *;
-    @use "../item" as *;
+  @use "sass:color";
+  @use "../../../../../../colors.scss" as *;
+  @use "../select" as *;
+  @use "../item" as *;
 
-    .container-wrapper {
-      display: flex;
-    }
+  .container-wrapper {
+    display: flex;
+  }
 
-    .slider-top {
-      display: flex;
-      font-size: 12px;
-    }
+  .slider-top {
+    display: flex;
+    font-size: 12px;
+  }
 
-    .slider-right {
-      margin-left: auto;
-    }
+  .slider-right {
+    margin-left: auto;
+  }
 
-    .slider-wrapper {
-      flex-grow: 1;
-      max-height: 35px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+  .slider-wrapper {
+    flex-grow: 1;
+    max-height: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-    .delete {
-      flex-shrink: 0;
-      height: 35px;
-      width: 35px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  .delete {
+    flex-shrink: 0;
+    height: 35px;
+    width: 35px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-      & > img {
-        width: 16px;
-        height: 16px;
-        opacity: 0.5;
-        transition: opacity 0.3s ease;
+    & > img {
+      width: 16px;
+      height: 16px;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
 
-        &:hover {
-          opacity: 1;
-        }
+      &:hover {
+        opacity: 1;
       }
     }
+  }
 
-    .item-group-selector {
-      width: 307px;
-      max-height: 70px;
-    }
+  .item-group-selector {
+    width: 307px;
+    max-height: 70px;
+  }
 
-    .container {
-      gap: 10px;
-      display: flex;
-      width: 100%;
-    }
+  .container {
+    gap: 10px;
+    display: flex;
+    width: 100%;
+  }
 
-    .slider {
-      margin-top: 3px;
-      padding-right: 10px;
-    }
+  .slider {
+    margin-top: 3px;
+    padding-right: 10px;
+  }
 </style>

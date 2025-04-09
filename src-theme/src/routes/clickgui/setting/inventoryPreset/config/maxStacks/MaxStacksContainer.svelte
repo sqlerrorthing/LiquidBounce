@@ -47,7 +47,7 @@
     border-radius: 6px;
     outline: 1px solid rgba(color.adjust($clickgui-text-color, $lightness: -85%), 0.3);
     padding: 5px;
-    max-height: 100px;
+    max-height: 300px;
     overflow-y: scroll;
   }
 

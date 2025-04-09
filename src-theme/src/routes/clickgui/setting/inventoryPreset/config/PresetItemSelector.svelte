@@ -6,6 +6,7 @@
     import {getRegistries, setTyping} from "../../../../../integration/rest";
     import VirtualList from "../../blocks/VirtualList.svelte";
     import {REST_BASE} from "../../../../../integration/host";
+    import ToolTip from "../../../../menu/common/ToolTip.svelte";
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
@@ -191,16 +192,16 @@
         <div>
             <span class="items-group-title">Generic Items</span>
             <div class="generic-wrapper">
-                {#each genericItems as genericItem}
-                    <div class="generic-item" on:click={() => setItemProxy(genericItem.item)}>
+                <VirtualList items={genericItems} let:item>
+                    <div class="generic-item" on:click={() => setItemProxy(item.item)}>
                         <div class="img-wrapper">
                             <div class="img">
-                                <ItemImage bind:item={genericItem.item} />
+                                <ItemImage bind:item={item.item} />
                             </div>
                         </div>
-                        <span>{$spaceSeperatedNames ? convertToSpacedString(genericItem.name) : genericItem.name}</span>
+                        <span>{$spaceSeperatedNames ? convertToSpacedString(item.name) : item.name}</span>
                     </div>
-                {/each}
+                </VirtualList>
             </div>
         </div>
     {:else}
@@ -258,9 +259,9 @@
   }
 
   .generic-wrapper {
-    margin-top: 5px;
-    display: flex;
-    flex-direction: column;
+    height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .generic-item {
