@@ -9,7 +9,7 @@
 
     setInterval(() => {
         currentIndex++
-    }, 500)
+    }, 1000)
 </script>
 
 <div class="preset-item">
