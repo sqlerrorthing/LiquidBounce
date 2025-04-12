@@ -44,7 +44,7 @@
         </div>
 
         <div class="items-container">
-            <div class="header muted">HOTBAR <PresetTooltip align="bottom" text="Items that will be in the hotbar, each item has its own slot selected"/></div>
+            <div class="header muted">HOTBAR <PresetTooltip align="bottom_center" text="Items that will be in the hotbar, each item has its own slot selected"/></div>
 
             <PresetItemsGroup
                     bind:items={preset.items}
@@ -54,7 +54,7 @@
 
         <div class="throws-items-container">
             <div class="header">
-                <span class="muted">LIMITS <PresetTooltip align="bottom" text="Limits on items, items that exceed this limit will be thrown away"/></span>
+                <span class="muted">LIMITS <PresetTooltip align="bottom_center" text="Limits on items, items that exceed this limit will be thrown away"/></span>
                 <span class="createMaxStacksRule"
                       class:disabled={preset.maxStacks.length >= 50}
                       on:click={createNewMaxStacksGroup}

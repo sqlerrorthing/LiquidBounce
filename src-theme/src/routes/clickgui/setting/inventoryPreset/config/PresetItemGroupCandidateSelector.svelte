@@ -16,7 +16,7 @@
 
 <div class="wrapper">
     <div class="select-title">
-        <span>Candidates <PresetTooltip align="bottom" text="All possible items that will be in this slot, the first item, the higher its importance, if there is no item in the slot, the lower one will be selected in importance"/></span>
+        <span>Candidates <PresetTooltip align="bottom_center" text="All possible items that will be in this slot, the first item, the higher its importance, if there is no item in the slot, the lower one will be selected in importance"/></span>
     </div>
     <div class="candidates">
         <ItemGroupSelector

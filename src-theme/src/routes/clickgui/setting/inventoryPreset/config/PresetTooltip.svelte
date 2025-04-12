@@ -6,7 +6,7 @@
     import {scale} from "svelte/transition"
 
     export let text;
-    export let align: "top" | "bottom" = "top"
+    export let align: "top_left" | "top_center" | "top_right" | "bottom_left" | "bottom_center" | "bottom_right" = "top_center"
 
     let hovered = false
 
@@ -74,18 +74,46 @@
     height: auto;
   }
 
-  .top {
-    transform: translate(-50%, -100%) scale(var(--factor));
-    top: calc(var(--top) - 15px);
-    left: calc(var(--left) + var(--width) / 2);
+  .top_left {
+    transform: translateY(-100%) scale(var(--factor));
     transform-origin: bottom;
+    top: calc(var(--top) - 15px);
+    left: var(--left);
   }
 
-  .bottom {
+  .top_center {
+    transform: translate(-50%, -100%) scale(var(--factor));
+    transform-origin: bottom;
+    top: calc(var(--top) - 15px);
+    left: calc(var(--left) + var(--width) / 2);
+  }
+
+  .top_right {
+    transform: translate(-100%, -100%) scale(var(--factor));
+    transform-origin: bottom;
+    top: calc(var(--top) - 15px);
+    left: calc(var(--left) + var(--width));
+  }
+
+  .bottom_left {
+    transform: scale(var(--factor));
     transform-origin: top;
+    top: calc(var(--top) + var(--height) + 15px);
+    left: var(--left);
+  }
+
+  .bottom_center {
     transform: translateX(-50%) scale(var(--factor));
+    transform-origin: top;
     top: calc(var(--top) + var(--height) + 15px);
     left: calc(var(--left) + var(--width) / 2);
+  }
+
+  .bottom_right {
+    transform: translateX(-100%) scale(var(--factor));
+    transform-origin: top;
+    top: calc(var(--top) + var(--height) + 15px);
+    left: calc(var(--left) + var(--width));
   }
 
   .tooltip {
