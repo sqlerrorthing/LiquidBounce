@@ -9,7 +9,8 @@
 
     export let items: PresetItem[]
     export let parentExpanded: boolean = true
-    export let canSelectAny = false
+    export let canSelectAny: boolean
+    export let canSelectIgnore: boolean
 
     const dispatch = createEventDispatcher();
     let expanded: boolean = false
@@ -98,6 +99,7 @@
                 >
                     <PresetItemSelector
                             bind:canSelectAny
+                            bind:canSelectIgnore
                             setItem={setItem}
                             filter={it => !choiceItems.includes(it)}
                     />

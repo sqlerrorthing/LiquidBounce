@@ -20,6 +20,8 @@
     </div>
     <div class="candidates">
         <ItemGroupSelector
+                canSelectAny={false}
+                canSelectIgnore={true}
                 bind:parentExpanded
                 bind:items={items}
                 on:change={handleChange}

@@ -10,7 +10,9 @@
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
-    export let canSelectAny = false
+
+    export let canSelectAny: boolean
+    export let canSelectIgnore: boolean
 
     const commonItems: PresetItem[] = [
         {
@@ -111,11 +113,11 @@
             name: "Any",
             tooltip: "This slot is simply skipped during filtering..."
         }] : []),
-        {
-            item: { type: "IGNORE" },
+        ...(canSelectIgnore ? [{
+            item: { type: "IGNORE" } as const,
             name: "Ignore",
             tooltip: "There can be nothing in this slot"
-        },
+        }] : []),
     ]
 
     interface TItem {

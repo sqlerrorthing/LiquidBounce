@@ -65,7 +65,7 @@
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div class="container-wrapper">
     <div class="container">
-        <ItemGroupSelector canSelectAny={true} bind:items={group.items} on:change={handleChange} style="width: 309px; max-height: 70px;"/>
+        <ItemGroupSelector canSelectIgnore={false} canSelectAny={true} bind:items={group.items} on:change={handleChange} style="width: 309px; max-height: 70px;"/>
 
         <div class="slider-wrapper">
             <div class="slider-top">
