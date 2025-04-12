@@ -78,9 +78,11 @@
     transform: translate(-50%, -100%) scale(var(--factor));
     top: calc(var(--top) - 15px);
     left: calc(var(--left) + var(--width) / 2);
+    transform-origin: bottom;
   }
 
   .bottom {
+    transform-origin: top;
     transform: translateX(-50%) scale(var(--factor));
     top: calc(var(--top) + var(--height) + 15px);
     left: calc(var(--left) + var(--width) / 2);
