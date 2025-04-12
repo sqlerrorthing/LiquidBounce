@@ -1,7 +1,6 @@
 <script lang="ts">
     import type {GroupItemPreference, PresetItem} from "../../../../integration/types";
     import {REST_BASE} from "../../../../integration/host";
-    import ToolTip from "../../../menu/common/ToolTip.svelte";
 
     function getIconNameFor(item: GroupItemPreference): string {
         switch (item.group) {

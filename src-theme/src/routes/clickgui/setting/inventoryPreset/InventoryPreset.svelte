@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {InventoryPreset, PresetItemGroup} from "../../../../integration/types";
-    import ItemImage from "./ItemImage.svelte";
+    import type {InventoryPreset} from "../../../../integration/types";
     import PresetModal from "./config/PresetModal.svelte";
     import {createEventDispatcher} from "svelte";
+    import InventoryPresetItemPreview from "./InventoryPresetItemPreview.svelte";
 
     export let preset: InventoryPreset
 
@@ -12,8 +12,6 @@
         dispatch("change")
     }
 
-    console.log(preset);
-
     let configuring = false
 </script>
 
@@ -21,16 +19,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="preset" on:click={() => configuring = true}>
     {#each preset.items as group, idx (idx)}
-        <div class="preset-item">
-            {#if group[0]}
-                {@const firstItem = group[0]}
-                {#if firstItem.type !== "ANY"}
-                    <div class="img-wrapper">
-                        <ItemImage item={firstItem} />
-                    </div>
-                {/if}
-            {/if}
-        </div>
+        <InventoryPresetItemPreview bind:group />
     {/each}
 </div>
 
@@ -43,28 +32,9 @@
 {/if}
 
 <style lang="scss">
-  @use "sass:color";
-  @use "../../../../colors.scss" as *;
-
   .preset {
     display: flex;
     justify-content: space-between;
     cursor: pointer;
-  }
-
-  .preset-item {
-    width: 20px;
-    height: 20px;
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -90%);
-    border-radius: 3px;
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    align-items: center;
-  }
-
-  .img-wrapper {
-    width: 16px;
-    height: 16px;
   }
 </style>
