@@ -28,7 +28,7 @@
         });
 
         apiSlider.on("update", (values) => {
-            group.itemCount = parseInt(values[0].toString())
+            group.itemCount = parseInt(values[0].toString());
         });
 
         apiSlider.on("set", () => {
@@ -37,18 +37,18 @@
     });
 
     function handleChange() {
-        dispatch("change")
+        dispatch("change");
     }
 
     function handleDelete() {
-        dispatch("delete")
+        dispatch("delete");
     }
 
     $: nStacks = (group.itemCount / 64) | 0;
     $: nItems = (group.itemCount % 64) | 0;
 
     function updateItemCount(s: number = nStacks, i: number = nItems) {
-        apiSlider.set(s * 64 + i)
+        apiSlider.set(s * 64 + i);
     }
 </script>
 
