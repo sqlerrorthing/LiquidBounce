@@ -72,14 +72,14 @@
                 <span class="slider-left">Limit</span>
                 <div class="slider-right">
                     {#if group.itemCount < 9 * 4 * 64}
-                        <span style="color: {group.itemCount < 64 ? 'gray' : 'white'}">64 x </span>
+                        <span class:muted={group.itemCount < 64}>64 x </span>
                         <ValueInput valueType="int" bind:value={nStacks}
                                     on:change={() => updateItemCount()}/>
-                        <span style="color: {(group.itemCount % 64) === 0 ? 'gray' : 'white'}"> + </span>
+                        <span class:muted={group.itemCount < 64}> + </span>
                         <ValueInput valueType="int" bind:value={nItems}
                                     on:change={() => updateItemCount()}/>
                     {:else}
-                        &infin;
+                        <span>&infin;</span>
                     {/if}
                 </div>
             </div>
@@ -97,6 +97,10 @@
   @use "../select" as *;
   @use "../item" as *;
 
+  .muted {
+    color: grey;
+  }
+
   .container-wrapper {
     display: flex;
   }
@@ -108,6 +112,11 @@
 
   .slider-right {
     margin-left: auto;
+    color: white;
+
+    & > span {
+      line-height: 18px;
+    }
   }
 
   .slider-wrapper {
