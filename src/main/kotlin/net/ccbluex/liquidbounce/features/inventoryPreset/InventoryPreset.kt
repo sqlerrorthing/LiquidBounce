@@ -43,18 +43,22 @@ class InventoryPreset(
         this.items = itemMap
     }
 
-    private fun getSlotForIndex(idx: Int) = when (idx) {
-        0 -> OffHandSlot
-        else -> HotbarItemSlot(idx - 1)
+    private fun getSlotForIndex(idx: Int): HotbarItemSlot {
+        return when (idx) {
+            0 -> OffHandSlot
+            else -> HotbarItemSlot(idx - 1)
+        }
     }
 
-    fun itemRulesToArray() = Array(10) {
-        val preferences = items[getSlotForIndex(it)]
+    fun itemRulesToArray(): Array<List<FrontendSlotPreference>> {
+        return Array(10) {
+            val preferences = items[getSlotForIndex(it)]
 
-        if (preferences.isNullOrEmpty()) {
-            return@Array listOf()
+            if (preferences.isNullOrEmpty()) {
+                return@Array listOf()
+            }
+
+            preferences
         }
-
-        preferences
     }
 }
