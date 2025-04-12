@@ -29,8 +29,6 @@ import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items.
 import net.ccbluex.liquidbounce.features.module.modules.player.offhand.ModuleOffhand
 import net.ccbluex.liquidbounce.utils.inventory.*
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
-import net.ccbluex.liquidbounce.utils.kotlin.component1
-import net.ccbluex.liquidbounce.utils.kotlin.component2
 import net.minecraft.screen.slot.SlotActionType
 
 /**
@@ -57,13 +55,13 @@ object ModuleInventoryCleaner : ClientModule(
             val mapped = specifiedSlotTargets
                 .map { (slot, choice) ->
                     val wishes = choice.mapNotNull {
-                        val repr = it.toBackendRepresentation()
+                        val representation = it.toBackendRepresentation()
 
-                        currentRestrictionMap.compute(slot) { a, b ->
-                            maxOf(b ?: RestrictionType.NONE, repr.slotRestriction)
+                        currentRestrictionMap.compute(slot) { _, b ->
+                            maxOf(b ?: RestrictionType.NONE, representation.slotRestriction)
                         }
 
-                        repr.contentPreference
+                        representation.contentPreference
                     }
 
                     slot to CleanupPlanSlotContent(wishes, 0)
@@ -74,7 +72,7 @@ object ModuleInventoryCleaner : ClientModule(
 
 
             // Disallow tampering with armor slots since auto armor already handles them
-            Slots.Armor.forEach { currentRestrictionMap.put(it, RestrictionType.FORBID_TAMPERING) }
+            Slots.Armor.forEach { currentRestrictionMap[it] = RestrictionType.FORBID_TAMPERING }
 
             if (ModuleOffhand.isOperating()) {
                 // Disallow tampering with off-hand slot when AutoTotem is active
