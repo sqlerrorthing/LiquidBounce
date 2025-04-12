@@ -9,6 +9,7 @@
 
     export let items: PresetItem[]
     export let parentExpanded: boolean = true
+    export let canSelectAny = false
 
     const dispatch = createEventDispatcher();
     let expanded: boolean = false
@@ -96,6 +97,7 @@
                         use:portal
                 >
                     <PresetItemSelector
+                            bind:canSelectAny
                             setItem={setItem}
                             filter={it => !choiceItems.includes(it)}
                     />

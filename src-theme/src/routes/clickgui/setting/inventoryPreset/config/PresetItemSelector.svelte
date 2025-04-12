@@ -10,6 +10,7 @@
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
+    export let canSelectAny = false
 
     const commonItems: PresetItem[] = [
         {
@@ -105,11 +106,11 @@
             item: { type: "GROUP", group: "ARROWS" },
             name: "Arrows"
         },
-        {
-            item: { type: "ANY" },
+        ...(canSelectAny ? [{
+            item: { type: "ANY" } as const,
             name: "Any",
-            tooltip: "This slot is simply skipped during filtering, that is, it is not take into account and it not checked for the presence of the item in any way"
-        },
+            tooltip: "This slot is simply skipped during filtering..."
+        }] : []),
         {
             item: { type: "IGNORE" },
             name: "Ignore",
