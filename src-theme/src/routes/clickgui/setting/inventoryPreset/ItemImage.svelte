@@ -1,31 +1,30 @@
 <script lang="ts">
     import type {GroupItemPreference, PresetItem} from "../../../../integration/types";
     import {REST_BASE} from "../../../../integration/host";
-    import ToolTip from "../../../menu/common/ToolTip.svelte";
 
     function getIconNameFor(item: GroupItemPreference): string {
         switch (item.group) {
             case "ARROWS":
-                return "arrow.png";
+                return "arrow.svg";
             case "SWORD":
             case "WEAPON":
-                return "sword.png";
+                return "sword.svg";
             case "AXE":
-                return "axe.png";
+                return "axe.svg";
             case "HOE":
-                return "hoe.png";
+                return "hoe.svg";
             case "SHOVEL":
-                return "shovel.png";
+                return "shovel.svg";
             case "PICKAXE":
-                return "pickaxe.png";
+                return "pickaxe.svg";
             case "FOOD":
-                return "food.png";
+                return "food.svg";
             case "POTION":
-                return "potion.png";
+                return "potion.svg";
             case "BLOCK":
-                return "blocks.png";
+                return "blocks.svg";
             case "THROWABLE":
-                return "egg.png";
+                return "egg.svg";
             default:
                 throw new Error("Illegal value.");
         }
