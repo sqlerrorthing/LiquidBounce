@@ -7,6 +7,7 @@
     import PresetItemsGroup from "./PresetItems.svelte";
     import {scaleFactor} from "../../../clickgui_store";
     import MaxStacksContainer from "./maxStacks/MaxStacksContainer.svelte";
+    import PresetTooltip from "./PresetTooltip.svelte";
 
     export let preset: InventoryPreset
 
@@ -43,7 +44,7 @@
         </div>
 
         <div class="items-container">
-            <div class="header muted">HOTBAR</div>
+            <div class="header muted">HOTBAR <PresetTooltip align="bottom" text="Items that will be in the hotbar, each item has its own slot selected"/></div>
 
             <PresetItemsGroup
                     bind:items={preset.items}
@@ -53,7 +54,7 @@
 
         <div class="throws-items-container">
             <div class="header">
-                <span class="muted">LIMITS</span>
+                <span class="muted">LIMITS <PresetTooltip align="bottom" text="Limits on items, items that exceed this limit will be thrown away"/></span>
                 <span class="createMaxStacksRule"
                       class:disabled={preset.maxStacks.length >= 50}
                       on:click={createNewMaxStacksGroup}

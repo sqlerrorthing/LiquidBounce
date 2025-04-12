@@ -6,6 +6,7 @@
     import {scale} from "svelte/transition"
 
     export let text;
+    export let align: "top" | "bottom" = "top"
 
     let hovered = false
 
@@ -50,12 +51,14 @@
 >
     <img bind:this={iconRef} src="/img/clickgui/icon-question-mark.svg" alt="">
     {#if hovered}
-        <span class="text"
+        <span class="text {align}"
               use:portal
               transition:scale={{duration: 200, easing: backOut, start: 0.9}}
-              style="transform: translate(-50%, -100%) scale({$scaleFactor * 50}%);
-                    top: {iconPosition.top - 15}px;
-                    left: {iconPosition.left + iconPosition.width / 2}px"
+              style:--width={`${iconPosition.width}px`}
+              style:--height={`${iconPosition.height}px`}
+              style:--top={`${iconPosition.top}px`}
+              style:--left={`${iconPosition.left}px`}
+              style:--factor={`${$scaleFactor * 50}%`}
         >
             {text}
         </span>
@@ -69,11 +72,25 @@
   img {
     width: 10px;
     height: auto;
-    margin-left: 2px;
+  }
+
+  .top {
+    transform: translate(-50%, -100%) scale(var(--factor));
+    top: calc(var(--top) - 15px);
+    left: calc(var(--left) + var(--width) / 2);
+  }
+
+  .bottom {
+    transform: translateX(-50%) scale(var(--factor));
+    top: calc(var(--top) + var(--height) + 15px);
+    left: calc(var(--left) + var(--width) / 2);
   }
 
   .tooltip {
     position: relative;
+    margin-left: 5px;
+    align-content: center;
+    align-items: center;
   }
 
   .text {
