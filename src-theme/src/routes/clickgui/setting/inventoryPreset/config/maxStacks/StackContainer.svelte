@@ -28,7 +28,7 @@
         });
 
         apiSlider.on("update", (values) => {
-            updateItemCount(0, parseInt(values[0].toString()));
+            group.itemCount = parseInt(values[0].toString())
         });
 
         apiSlider.on("set", () => {
@@ -44,19 +44,11 @@
         dispatch("delete")
     }
 
-    let nStacks: number = 0;
-    let nItems: number = group.itemCount;
+    $: nStacks = (group.itemCount / 64) | 0;
+    $: nItems = (group.itemCount % 64) | 0;
 
     function updateItemCount(s: number = nStacks, i: number = nItems) {
-        let totalItemCount = s * 64 + i;
-
-        group.itemCount = totalItemCount;
-
-        let totalStacks = (totalItemCount / 64) | 0;
-        let leftItems = (totalItemCount % 64) | 0;
-
-        nStacks = totalStacks;
-        nItems = leftItems;
+        apiSlider.set(s * 64 + i)
     }
 </script>
 
@@ -74,10 +66,10 @@
                     {#if group.itemCount < 9 * 4 * 64}
                         <span class:muted={group.itemCount < 64}>64 x </span>
                         <ValueInput valueType="int" bind:value={nStacks}
-                                    on:change={() => updateItemCount()}/>
+                                    on:change={(e) => updateItemCount(e.detail.value, nItems)}/>
                         <span class:muted={group.itemCount < 64}> + </span>
                         <ValueInput valueType="int" bind:value={nItems}
-                                    on:change={() => updateItemCount()}/>
+                                    on:change={(e) => updateItemCount(nStacks, e.detail.value)}/>
                     {:else}
                         <span>&infin;</span>
                     {/if}
