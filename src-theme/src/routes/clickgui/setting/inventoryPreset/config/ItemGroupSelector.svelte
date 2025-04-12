@@ -59,7 +59,7 @@
         handleChange()
     }
 
-    $: choiceItems = items.filter(it => it.type == "CHOOSE")
+    $: choiceItems = items.filter(it => it.type == "SINGLE")
         .flatMap(it => it.item);
 
     $: {

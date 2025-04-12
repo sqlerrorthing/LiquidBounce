@@ -6,6 +6,7 @@
     import {getRegistries, setTyping} from "../../../../../integration/rest";
     import VirtualList from "../../blocks/VirtualList.svelte";
     import {REST_BASE} from "../../../../../integration/host";
+    import PresetTooltip from "./PresetTooltip.svelte";
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
@@ -63,7 +64,8 @@
 
     interface GenericPresetItemList {
         item: PresetItem
-        name: string
+        name: string,
+        tooltip?: string | null
     }
 
     const genericItems: GenericPresetItemList[] = [
@@ -105,11 +107,13 @@
         },
         {
             item: { type: "ANY" },
-            name: "Any"
+            name: "Any",
+            tooltip: "This slot is simply skipped during filtering, that is, it is not take into account and it not checked for the presence of the item in any way"
         },
         {
             item: { type: "IGNORE" },
-            name: "Ignore"
+            name: "Ignore",
+            tooltip: "There can be nothing in this slot"
         },
     ]
 
@@ -198,7 +202,7 @@
 
     {#if searchQuery === ""}
         <div>
-            <span class="items-group-title">Item Groups</span>
+            <span class="items-group-title">Item Groups <PresetTooltip text="These are common items that may be of different types but perform the same function. The sorting goes from best to worst."></PresetTooltip></span>
             <div class="generic-wrapper">
                 <VirtualList items={genericItems} let:item>
                     <div class="generic-item" on:click={() => setItemProxy(item.item)}>
@@ -208,6 +212,9 @@
                             </div>
                         </div>
                         <span>{$spaceSeperatedNames ? convertToSpacedString(item.name) : item.name}</span>
+                        {#if item.tooltip != null}
+                            <PresetTooltip text={item.tooltip} />
+                        {/if}
                     </div>
                 </VirtualList>
             </div>
