@@ -47,8 +47,8 @@
     $: nStacks = (group.itemCount / 64) | 0;
     $: nItems = (group.itemCount % 64) | 0;
 
-    function updateItemCount(s: number = nStacks, i: number = nItems) {
-        apiSlider.set(s * 64 + i);
+    function updateItemCount(stacks: number, left: number) {
+        apiSlider.set(stacks * 64 + left);
     }
 </script>
 
