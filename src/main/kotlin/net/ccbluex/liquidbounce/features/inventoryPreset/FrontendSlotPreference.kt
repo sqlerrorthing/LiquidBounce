@@ -64,6 +64,7 @@ sealed class FrontendSlotPreference {
         /**
          * Enum representing item categories used for preset item classification.
          */
+        @Suppress("UNUSED")
         enum class ItemGroupType(val preference: CleanupPlanTemplate.SlotContentPreference) {
             @SerializedName("ARROWS")
             ARROWS(CleanupPlanTemplate.SlotContentPreference(GenericItemType.ARROW)),
@@ -116,7 +117,7 @@ sealed class FrontendSlotPreference {
         }
     }
 
-    object IgnoreSlotPreference : FrontendSlotPreference() {
+    data object IgnoreSlotPreference : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
             return ConvertedSlotPreference(null, RestrictionType.FORBID_TAMPERING)
         }
@@ -126,7 +127,7 @@ sealed class FrontendSlotPreference {
         }
     }
 
-    object AnySlotPreference : FrontendSlotPreference() {
+    data object AnySlotPreference : FrontendSlotPreference() {
         override fun toBackendRepresentation(): ConvertedSlotPreference {
             return ConvertedSlotPreference(null, RestrictionType.NONE)
         }
