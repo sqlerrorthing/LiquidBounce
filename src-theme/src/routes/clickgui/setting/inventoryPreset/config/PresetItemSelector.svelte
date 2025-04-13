@@ -111,12 +111,12 @@
         ...(canSelectAny ? [{
             item: { type: "ANY" } as const,
             name: "Any",
-            tooltip: "This slot is simply skipped during filtering..."
+            tooltip: "You have no content preferences for this slot"
         }] : []),
         ...(canSelectIgnore ? [{
             item: { type: "IGNORE" } as const,
             name: "Ignore",
-            tooltip: "There can be nothing in this slot"
+            tooltip: "InventoryCleaner cannot touch anything that is in this slot."
         }] : []),
     ]
 
