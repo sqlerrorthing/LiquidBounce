@@ -177,7 +177,7 @@ class ItemCategorization(
             }
         }
 
-        val commonFacets = listOf(
+        val commonFacets = arrayOf(
             PrimitiveItemFacet(slot, ItemCategory(GenericItemType.ANY_ITEM, item)),
             // Everything could be a weapon (i.e. a stick with Knockback II should be preferred over a stick)
             WeaponItemFacet(slot)
