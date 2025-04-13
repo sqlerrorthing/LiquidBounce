@@ -28,16 +28,18 @@ object ItemMerge {
     internal fun findStacksToMerge(cleanupPlan: InventoryCleanupPlan): List<ItemSlot> {
         val itemsToMerge = mutableListOf<ItemSlot>()
 
-        for (mergeableItem in cleanupPlan.mergeableItems) {
-            val maxStackSize = mergeableItem.key.item.maxCount
+        for ((itemId, slots) in cleanupPlan.mergeableItems) {
+            val maxStackSize = itemId.item.maxCount
 
-            if (!canMerge(mergeableItem.value, maxStackSize)) {
+            if (!canMerge(slots, maxStackSize)) {
                 continue
             }
 
-            val stacks = mergeableItem.value.map { MergeableStack(it, it.itemStack.count) }
+            val stacks = slots.mapTo(ArrayDeque(slots.size)) { MergeableStack(it, it.itemStack.count) }
 
-            mergeStacks(itemsToMerge, stacks.toMutableList(), maxStackSize)
+            stacks.sortBy { it.count }
+
+            mergeStacks(itemsToMerge, stacks, maxStackSize)
         }
 
         return itemsToMerge
@@ -47,17 +49,15 @@ object ItemMerge {
 
     private fun mergeStacks(
         itemsToDoubleclick: MutableList<ItemSlot>,
-        stacks: MutableList<MergeableStack>,
+        stacks: ArrayDeque<MergeableStack>,
         maxStackSize: Int,
     ) {
         if (stacks.size <= 1) {
             return
         }
 
-        stacks.sortBy { it.count }
-
         // Remove
-        while (stacks.isNotEmpty() && stacks.last().count + stacks[0].count > maxStackSize) {
+        while (stacks.isNotEmpty() && stacks.last().count + stacks.first().count > maxStackSize) {
             stacks.removeLast()
         }
 
