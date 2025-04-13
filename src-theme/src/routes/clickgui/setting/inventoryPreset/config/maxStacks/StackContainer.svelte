@@ -28,7 +28,7 @@
         });
 
         apiSlider.on("update", (values) => {
-            updateItemCount(0, parseInt(values[0].toString()));
+            group.itemCount = parseInt(values[0].toString());
         });
 
         apiSlider.on("set", () => {
@@ -37,26 +37,18 @@
     });
 
     function handleChange() {
-        dispatch("change")
+        dispatch("change");
     }
 
     function handleDelete() {
-        dispatch("delete")
+        dispatch("delete");
     }
 
-    let nStacks: number = 0;
-    let nItems: number = group.itemCount;
+    $: nStacks = (group.itemCount / 64) | 0;
+    $: nItems = (group.itemCount % 64) | 0;
 
-    function updateItemCount(s: number = nStacks, i: number = nItems) {
-        let totalItemCount = s * 64 + i;
-
-        group.itemCount = totalItemCount;
-
-        let totalStacks = (totalItemCount / 64) | 0;
-        let leftItems = (totalItemCount % 64) | 0;
-
-        nStacks = totalStacks;
-        nItems = leftItems;
+    function updateItemCount(stacks: number, left: number) {
+        apiSlider.set(stacks * 64 + left);
     }
 </script>
 
@@ -65,7 +57,7 @@
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div class="container-wrapper">
     <div class="container">
-        <ItemGroupSelector canSelectAny={true} bind:items={group.items} on:change={handleChange} style="width: 309px; max-height: 70px;"/>
+        <ItemGroupSelector canSelectIgnore={false} canSelectAny={true} bind:items={group.items} on:change={handleChange} style="width: 309px; max-height: 70px;"/>
 
         <div class="slider-wrapper">
             <div class="slider-top">
@@ -74,10 +66,10 @@
                     {#if group.itemCount < 9 * 4 * 64}
                         <span class:muted={group.itemCount < 64}>64 x </span>
                         <ValueInput valueType="int" bind:value={nStacks}
-                                    on:change={() => updateItemCount()}/>
+                                    on:change={(e) => updateItemCount(e.detail.value, nItems)}/>
                         <span class:muted={group.itemCount < 64}> + </span>
                         <ValueInput valueType="int" bind:value={nItems}
-                                    on:change={() => updateItemCount()}/>
+                                    on:change={(e) => updateItemCount(nStacks, e.detail.value)}/>
                     {:else}
                         <span>&infin;</span>
                     {/if}

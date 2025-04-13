@@ -10,7 +10,9 @@
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
-    export let canSelectAny = false
+
+    export let canSelectAny: boolean
+    export let canSelectIgnore: boolean
 
     const commonItems: PresetItem[] = [
         {
@@ -109,13 +111,13 @@
         ...(canSelectAny ? [{
             item: { type: "ANY" } as const,
             name: "Any",
-            tooltip: "This slot is simply skipped during filtering..."
+            tooltip: "You have no content preferences for this slot"
         }] : []),
-        {
-            item: { type: "IGNORE" },
+        ...(canSelectIgnore ? [{
+            item: { type: "IGNORE" } as const,
             name: "Ignore",
-            tooltip: "There can be nothing in this slot"
-        },
+            tooltip: "InventoryCleaner cannot touch anything that is in this slot."
+        }] : []),
     ]
 
     interface TItem {
@@ -289,8 +291,10 @@
     cursor: pointer;
 
     & > .img-wrapper {
+      transition: opacity 0.3s ease;
       width: 25px;
       height: 25px;
+      opacity: 0.6;
     }
 
     & > span {
@@ -301,10 +305,14 @@
     }
 
     &:hover {
+      & > .img-wrapper {
+        opacity: 1;
+      }
 
       & > span {
         color: $clickgui-text-color;
       }
     }
   }
+
 </style>

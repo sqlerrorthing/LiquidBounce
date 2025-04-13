@@ -32,6 +32,10 @@ class InventoryPreset(
         // Required because the frontend would break if there weren't exactly 10 entries...
         require(items.size == 10)
 
+        require(items.flatMap { it }.find { it == FrontendSlotPreference.AnySlotPreference } == null) {
+            "For an item to be Any, the list must be empty."
+        }
+
         val itemMap = items
             .mapIndexed { index, item -> getSlotForIndex(index) to item }
             .associate { it }
@@ -39,18 +43,22 @@ class InventoryPreset(
         this.items = itemMap
     }
 
-    private fun getSlotForIndex(idx: Int) = when (idx) {
-        0 -> OffHandSlot
-        else -> HotbarItemSlot(idx - 1)
+    private fun getSlotForIndex(idx: Int): HotbarItemSlot {
+        return when (idx) {
+            0 -> OffHandSlot
+            else -> HotbarItemSlot(idx - 1)
+        }
     }
 
-    fun itemRulesToArray() = Array(10) {
-        val preferences = items[getSlotForIndex(it)]
+    fun itemRulesToArray(): Array<List<FrontendSlotPreference>> {
+        return Array(10) {
+            val preferences = items[getSlotForIndex(it)]
 
-        if (preferences.isNullOrEmpty()) {
-            return@Array listOf()
+            if (preferences.isNullOrEmpty()) {
+                return@Array listOf()
+            }
+
+            preferences
         }
-
-        preferences
     }
 }
