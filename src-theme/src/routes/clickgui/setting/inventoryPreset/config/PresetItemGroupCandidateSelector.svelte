@@ -49,7 +49,7 @@
 
     <div class="choices">
         <button class:active={any}
-                onclick={() => handleChoiceChange("any")}>
+                onclick={() => !any && handleChoiceChange("any")}>
             Any
             <span>
                 <PresetTooltip align="bottom_center" text="You have no content preferences for this slot"/>
@@ -57,7 +57,7 @@
         </button>
 
         <button class:active={ignore}
-                onclick={() => handleChoiceChange("ignore")}>
+                onclick={() => !ignore && handleChoiceChange("ignore")}>
             Ignore
             <span>
                 <PresetTooltip align="bottom_center" text="InventoryCleaner cannot touch anything that is in this slot."/>
@@ -65,7 +65,7 @@
         </button>
 
         <button class:active={showingItems}
-                onclick={() => handleChoiceChange("items")}>
+                onclick={() => !showingItems && handleChoiceChange("items")}>
             Items
             <span>
                 <PresetTooltip align="bottom_center" text="All possible items that will be in this slot, the first item, the higher its importance, if there is no item in the slot, the lower one will be selected in importance"/>
