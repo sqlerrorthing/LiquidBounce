@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {PresetItem} from "../../../../../integration/types";
     import ItemGroupSelector from "./ItemGroupSelector.svelte";
-    import {createEventDispatcher} from "svelte";
+    import {createEventDispatcher, onMount} from "svelte";
     import PresetTooltip from "./PresetTooltip.svelte";
 
     export let items: PresetItem[];
@@ -30,6 +30,12 @@
 
         handleChange()
     }
+
+    onMount(() => {
+        if (showingItems) {
+            forceShowItemSelect = true
+        }
+    })
 
     $: any = items.length === 0 && !forceShowItemSelect
     $: ignore = items.length === 1 && items[0].type === "IGNORE" && !forceShowItemSelect
