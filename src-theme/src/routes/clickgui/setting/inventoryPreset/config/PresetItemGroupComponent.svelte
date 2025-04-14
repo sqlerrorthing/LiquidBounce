@@ -13,13 +13,6 @@
 
     let expanded = false;
 
-    function clearItems() {
-        group = [];
-        expanded = false;
-
-        dispatch("change");
-    }
-
     function handleChange() {
         dispatch("change")
     }
@@ -43,12 +36,6 @@
         <div class="image-wrapper">
             <PresetItemGroupPreview bind:group />
         </div>
-
-        {#if group.length > 0}
-            <button class="delete" on:click|stopPropagation={clearItems}>
-                <img src="img/menu/icon-exit-danger.svg" alt="exit">
-            </button>
-        {/if}
     </div>
 
     {#if expanded}
@@ -98,26 +85,6 @@
         opacity: 1;
         pointer-events: all;
       }
-    }
-  }
-
-  .delete {
-    background: none;
-    border: none;
-    position: absolute;
-    left: 100%;
-    top: 0;
-    transform: translate(-50%, -50%);
-    transition: opacity 0.3s ease;
-    opacity: 0;
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-    pointer-events: none;
-
-    & > img {
-      width: 100%;
-      height: 100%;
     }
   }
 
