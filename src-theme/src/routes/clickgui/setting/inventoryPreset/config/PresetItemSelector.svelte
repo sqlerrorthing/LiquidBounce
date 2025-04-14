@@ -11,9 +11,6 @@
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
 
-    export let canSelectAny: boolean
-    export let canSelectIgnore: boolean
-
     const commonItems: PresetItem[] = [
         {
             type: "SINGLE",
@@ -107,17 +104,7 @@
         {
             item: { type: "GROUP", group: "ARROWS" },
             name: "Arrows"
-        },
-        ...(canSelectAny ? [{
-            item: { type: "ANY" } as const,
-            name: "Any",
-            tooltip: "You have no content preferences for this slot"
-        }] : []),
-        ...(canSelectIgnore ? [{
-            item: { type: "IGNORE" } as const,
-            name: "Ignore",
-            tooltip: "InventoryCleaner cannot touch anything that is in this slot."
-        }] : []),
+        }
     ]
 
     interface TItem {
