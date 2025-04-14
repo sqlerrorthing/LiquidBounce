@@ -9,6 +9,7 @@
 
     export let items: PresetItem[]
     export let parentExpanded: boolean = true
+    export let useAccentColorOutline: boolean = false
 
     const dispatch = createEventDispatcher();
     let expanded: boolean = false
@@ -76,7 +77,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<div class="items-container" {...$$restProps}>
+<div class="items-container" class:accentColorOutline={useAccentColorOutline} {...$$restProps}>
     <div class="items">
         <div bind:this={addRef}>
             <div class="item-container add" on:click={() => expanded = !expanded}>
@@ -126,9 +127,14 @@
   .items-container {
     border-radius: 6px;
     overflow-y: scroll;
-    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
     flex-shrink: 0;
     background-color: rgba($clickgui-base-color, 0.85);
+    outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
+
+
+    &.accentColorOutline {
+      outline-color: rgba($accent-color, 0.3);
+    }
   }
 
   .items {
