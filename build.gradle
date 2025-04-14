@@ -26,6 +26,8 @@ def getContributors(repoOwner, repoName) {
     HttpURLConnection connection = null
 
     try {
+        String githubToken = System.getenv("GITHUB_TOKEN")
+
         connection = "https://api.github.com/repos/${repoOwner}/${repoName}/contributors?per_page=100".toURL().openConnection().with {
             it as HttpURLConnection
         }.tap {
@@ -35,6 +37,10 @@ def getContributors(repoOwner, repoName) {
             setRequestProperty("User-Agent", "LiquidBounce-App")
             setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
             setRequestProperty("Accept", "application/vnd.github+json")
+
+            if (githubToken?.trim()) {
+                setRequestProperty("Authorization", "Bearer ${githubToken}")
+            }
         }
 
         def responseCode = connection.responseCode
