@@ -36,6 +36,13 @@ class InventoryPreset(
             "For an item to be Any, the list must be empty."
         }
 
+        items.forEach { preferences ->
+            val ignoreCount = preferences.count { it == FrontendSlotPreference.IgnoreSlotPreference }
+            require(ignoreCount == 0 || (ignoreCount == 1 && preferences.size == 1)) {
+                "If you use IgnoreSlotPreference, it must be the ONLY element in the list"
+            }
+        }
+
         val itemMap = items
             .mapIndexed { index, item -> getSlotForIndex(index) to item }
             .associate { it }
