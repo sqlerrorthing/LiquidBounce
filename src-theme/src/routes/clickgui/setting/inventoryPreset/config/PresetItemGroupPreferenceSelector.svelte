@@ -44,7 +44,7 @@
 
 <div class="wrapper">
     <div class="select-title">
-        <span>Candidates</span>
+        <span>Preference</span>
     </div>
 
     <div class="choices">

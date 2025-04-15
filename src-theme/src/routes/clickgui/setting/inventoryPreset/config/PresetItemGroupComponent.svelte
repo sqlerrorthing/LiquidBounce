@@ -4,7 +4,7 @@
     import {scale} from "svelte/transition";
     import {createEventDispatcher} from "svelte";
     import PresetItemGroupPreview from "./PresetItemGroupPreview.svelte";
-    import PresetItemGroupCandidateSelector from "./PresetItemGroupCandidateSelector.svelte";
+    import PresetItemGroupPreferenceSelector from "./PresetItemGroupPreferenceSelector.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -45,7 +45,7 @@
                 on:click|preventDefault
                 use:clickOutside={handleClickOutside}
         >
-            <PresetItemGroupCandidateSelector
+            <PresetItemGroupPreferenceSelector
                     bind:parentExpanded={expanded}
                     bind:items={group}
                     on:change={handleChange}
