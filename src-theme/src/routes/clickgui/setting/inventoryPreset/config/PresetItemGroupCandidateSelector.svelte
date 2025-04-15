@@ -92,7 +92,7 @@
   @use "item" as *;
 
   .choices {
-    margin-top: 10px;
+    margin-top: 20px;
     display: flex;
     gap: 2px;
     outline: 1px solid rgba($accent-color, 0.3);
