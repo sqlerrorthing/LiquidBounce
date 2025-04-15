@@ -121,6 +121,7 @@
   @use "item" as *;
 
   .selector-container {
+    height: 450px;
     transform-origin: top;
   }
 
@@ -130,7 +131,6 @@
     flex-shrink: 0;
     background-color: rgba($clickgui-base-color, 0.85);
     outline: 1px solid color.adjust($clickgui-text-color, $lightness: -85%);
-
 
     &.accentColorOutline {
       outline-color: rgba($accent-color, 0.3);
@@ -173,9 +173,11 @@
     background: $accent-color;
     position: relative;
     outline: none;
+
     &:hover {
       background-color: color.adjust(color.adjust($accent-color, $saturation: -30%), $lightness: -10%);
     }
+
     & > img {
       width: 16px;
       height: 16px;

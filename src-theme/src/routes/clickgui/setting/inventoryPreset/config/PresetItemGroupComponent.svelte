@@ -40,7 +40,7 @@
 
     {#if expanded}
         <div
-                class="selector-container-wrapper selector-container"
+                class="selector-container-wrapper max-height: calc(450px - 30px - 45px - 20px - 20px)selector-container"
                 transition:scale={{duration: 200, start: 0.9}}
                 on:click|preventDefault
                 use:clickOutside={handleClickOutside}

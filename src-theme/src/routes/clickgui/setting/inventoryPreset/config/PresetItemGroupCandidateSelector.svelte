@@ -74,12 +74,13 @@
     </div>
 
     {#if showingItems}
+        <!-- todo: fix the css max-height -->
         <ItemGroupSelector
                 bind:parentExpanded
                 bind:items={items}
                 on:change={handleChange}
                 useAccentColorOutline={true}
-                style="margin-top: 15px; width: 100%px; max-height: calc(100% - 30px - 45px)"
+                style="margin-top: 15px; width: 100%; max-height: calc(450px - 30px - 45px - 20px - 20px)"
         />
     {/if}
 </div>
