@@ -19,6 +19,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
 import it.unimi.dsi.fastutil.objects.ObjectIntPair
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.DEFAULT_TIE_BREAK
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategory
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemFunction
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
@@ -45,8 +46,7 @@ class FoodItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
                 compareBy { it.itemStack.foodComponent!!.nutrition },
                 compareBy { it.itemStack.foodComponent!!.saturation },
                 compareBy { it.itemStack.count },
-                PREFER_ITEMS_IN_HOTBAR,
-                STABILIZE_COMPARISON,
+                *DEFAULT_TIE_BREAK
             )
     }
 

@@ -39,8 +39,7 @@ class CrossbowItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
         private val COMPARATOR =
             ComparatorChain<CrossbowItemFacet>(
                 compareBy { VALUE_ESTIMATOR.estimateValue(it.itemStack) },
-                PREFER_ITEMS_IN_HOTBAR,
-                STABILIZE_COMPARISON,
+                *DEFAULT_TIE_BREAK
             )
     }
 

@@ -37,6 +37,10 @@ val STABILIZE_COMPARISON: Comparator<ItemFacet> = Comparator.comparingInt {
 val PREFER_BETTER_DURABILITY: Comparator<ItemFacet> = Comparator.comparingInt {
     it.itemStack.maxDamage - it.itemStack.damage
 }
+val DEFAULT_TIE_BREAK: Array<Comparator<ItemFacet>> = arrayOf(
+    PREFER_ITEMS_IN_HOTBAR,
+    STABILIZE_COMPARISON,
+)
 
 data class ItemCategory(val type: GenericItemType, val subtype: Any = Unit)
 
@@ -177,10 +181,10 @@ class ItemCategorization(
             }
         }
 
-        val commonFacets = listOf(
+        val commonFacets = listOfNotNull(
             PrimitiveItemFacet(slot, ItemCategory(GenericItemType.ANY_ITEM, item)),
             // Everything could be a weapon (i.e. a stick with Knockback II should be preferred over a stick)
-            WeaponItemFacet(slot)
+            WeaponItemFacet.createIfUsefulAsWeapon(slot)
         )
 
         return specificItemFacets + commonFacets
