@@ -34,9 +34,11 @@ val PREFER_ITEMS_IN_HOTBAR: Comparator<ItemFacet> = compareByCondition(ItemFacet
 val STABILIZE_COMPARISON: Comparator<ItemFacet> = Comparator.comparingInt {
     it.itemStack.hashCode()
 }
+
 val PREFER_BETTER_DURABILITY: Comparator<ItemFacet> = Comparator.comparingInt {
     it.itemStack.maxDamage - it.itemStack.damage
 }
+
 val DEFAULT_TIE_BREAK: Array<Comparator<ItemFacet>> = arrayOf(
     PREFER_ITEMS_IN_HOTBAR,
     STABILIZE_COMPARISON,

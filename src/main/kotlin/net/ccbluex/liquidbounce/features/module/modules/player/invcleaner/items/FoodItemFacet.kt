@@ -18,22 +18,19 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.items
 
-import it.unimi.dsi.fastutil.objects.ObjectIntPair
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.DEFAULT_TIE_BREAK
+import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.GenericItemType
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemCategory
 import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.ItemFunction
 import net.ccbluex.liquidbounce.utils.inventory.ItemSlot
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.GenericItemType
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.PREFER_ITEMS_IN_HOTBAR
-import net.ccbluex.liquidbounce.features.module.modules.player.invcleaner.STABILIZE_COMPARISON
 import net.ccbluex.liquidbounce.utils.item.foodComponent
 import net.ccbluex.liquidbounce.utils.sorting.ComparatorChain
-import net.ccbluex.liquidbounce.utils.sorting.compareByCondition
 import net.minecraft.item.Items
 
 class FoodItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
     companion object {
         private val COMPARATOR =
+            @Suppress("SpreadOperator")
             ComparatorChain<FoodItemFacet>(
                 compareBy { it.itemStack.item == Items.ENCHANTED_GOLDEN_APPLE },
                 compareBy { it.itemStack.item == Items.GOLDEN_APPLE },

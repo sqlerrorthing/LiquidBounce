@@ -54,6 +54,8 @@ open class WeaponItemFacet(itemSlot: ItemSlot) : ItemFacet(itemSlot) {
                 EnchantmentValueEstimator.WeightedEnchantment(Enchantments.SWEEPING_EDGE, 0.2f),
                 EnchantmentValueEstimator.WeightedEnchantment(Enchantments.KNOCKBACK, 0.25f),
             )
+
+        @Suppress("SpreadOperator")
         private val COMPARATOR =
             ComparatorChain<WeaponItemFacet>(
                 compareBy { estimateDamage(it.itemStack) },
