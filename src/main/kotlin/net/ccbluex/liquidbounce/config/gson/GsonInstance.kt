@@ -35,7 +35,7 @@ import net.ccbluex.liquidbounce.config.types.NamedChoice
 import net.ccbluex.liquidbounce.features.inventoryPreset.InventoryPreset
 import net.ccbluex.liquidbounce.features.inventoryPreset.FrontendSlotPreference
 import net.ccbluex.liquidbounce.integration.theme.component.Component
-import net.ccbluex.liquidbounce.render.engine.Color4b
+import net.ccbluex.liquidbounce.render.engine.type.Color4b
 import net.ccbluex.liquidbounce.utils.input.InputBind
 import net.minecraft.block.Block
 import net.minecraft.client.gui.screen.Screen
