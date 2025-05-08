@@ -40,6 +40,8 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.ItemGroups
 import net.minecraft.network.packet.c2s.play.*
+import net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket
+import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket
 import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
 /**
@@ -153,6 +155,25 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         // If we are in a handled screen, we should handle the inputs only if the undetectable option is not enabled
         return behavior == NORMAL || screen !is HandledScreen<*>
             || behavior == SAFE && screen is InventoryScreen
+    }
+
+    @Suppress("unused")
+    private val packetHandler = handler<PacketEvent> { event ->
+        val packet = event.packet
+
+        if (!(
+            packet is CloseHandledScreenC2SPacket
+            || packet is CloseScreenS2CPacket
+            || packet is OpenScreenS2CPacket
+        )) {
+            return@handler
+        }
+
+        if (Additions.NO_INVENTORY_OPEN_PACKET !in additions) {
+            return@handler
+        }
+
+        event.cancelEvent()
     }
 
     @Suppress("unused", "ComplexCondition")
