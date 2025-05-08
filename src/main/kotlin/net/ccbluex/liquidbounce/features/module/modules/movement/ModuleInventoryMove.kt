@@ -32,6 +32,7 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
 import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
@@ -155,6 +156,13 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         // If we are in a handled screen, we should handle the inputs only if the undetectable option is not enabled
         return behavior == NORMAL || screen !is HandledScreen<*>
             || behavior == SAFE && screen is InventoryScreen
+    }
+
+    @Suppress("unused")
+    private val sprintHandler = handler<SprintEvent>(priority = FIRST_PRIORITY) { event ->
+        if (Additions.NO_SPRINT in additions && event.sprint) {
+           event.sprint = false
+        }
     }
 
     @Suppress("unused")
