@@ -58,6 +58,13 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         UNDETECTABLE("Undetectable"), // stop in inventory
     }
 
+    private val additions by multiEnumChoice<Additions>("Additions")
+
+    enum class Additions(override val choiceName: String) : NamedChoice {
+        NO_INVENTORY_OPEN_PACKET("NoInventoryOpenPacket"),
+        NO_SPRINT("NoSprint")
+    }
+
     private val passthroughSneak by boolean("PassthroughSneak", false)
 
     // states of movement keys, using mc.options.<key>.isPressed doesn't work for some reason
@@ -131,6 +138,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
         tree(BlinkFeature)
     }
 
+    @Suppress("ComplexCondition", "ReturnCount")
     fun shouldHandleInputs(keyBinding: KeyBinding): Boolean {
         val screen = mc.currentScreen ?: return true
 
@@ -147,7 +155,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
             || behavior == SAFE && screen is InventoryScreen
     }
 
-    @Suppress("unused")
+    @Suppress("unused", "ComplexCondition")
     val keyHandler = handler<KeyboardKeyEvent> { event ->
         val key = movementKeys.keys.find { it.matchesKey(event.keyCode, event.scanCode) } ?: return@handler
         val pressed = shouldHandleInputs(key) && event.action != GLFW_RELEASE
