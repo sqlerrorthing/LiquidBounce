@@ -48,7 +48,6 @@ import org.lwjgl.glfw.GLFW.GLFW_RELEASE
  *
  * Allows you to walk while an inventory is opened.
  */
-
 object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
 
     private val behavior by enumChoice("Behavior", NORMAL)
@@ -62,7 +61,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     private val additions by multiEnumChoice<Additions>("Additions")
 
     enum class Additions(override val choiceName: String) : NamedChoice {
-        NO_INVENTORY_OPEN_PACKET("NoInventoryOpenPacket"),
+        NO_INVENTORY_CLOSE_PACKET("NoInventoryClosePacket"),
         NO_SPRINT("NoSprint")
     }
 
@@ -167,7 +166,7 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     private val noInventoryOpenPacketHandler = handler<PacketEvent> { event ->
         val packet = event.packet
 
-        if (Additions.NO_INVENTORY_OPEN_PACKET !in additions) {
+        if (Additions.NO_INVENTORY_CLOSE_PACKET !in additions) {
             return@handler
         }
 
