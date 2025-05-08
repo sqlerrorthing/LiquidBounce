@@ -159,14 +159,14 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     }
 
     @Suppress("unused")
-    private val sprintHandler = handler<SprintEvent>(priority = FIRST_PRIORITY) { event ->
+    private val noSprintHandler = handler<SprintEvent>(priority = FIRST_PRIORITY) { event ->
         if (Additions.NO_SPRINT in additions && event.sprint) {
            event.sprint = false
         }
     }
 
     @Suppress("unused")
-    private val packetHandler = handler<PacketEvent> { event ->
+    private val noInventoryOpenPacketHandler = handler<PacketEvent> { event ->
         val packet = event.packet
 
         if (!(
