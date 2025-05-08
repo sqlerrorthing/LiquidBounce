@@ -89,7 +89,7 @@ private class PacketBound(
 
     private fun buildLog(packet: Packet<*>, packetName: String, cancelled: Boolean): MutableText {
         return Text.empty().formatted(Formatting.WHITE).apply {
-            append(ModulePacketLogger.message(if (origin == TransferOrigin.INCOMING) { "receive" } else { "send" }))
+            append(ModulePacketLogger.message(if (origin == TransferOrigin.INCOMING) "receive" else "send"))
             append(" $packetName")
 
             if (cancelled) {
