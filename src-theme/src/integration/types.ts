@@ -374,6 +374,7 @@ export interface Proxy {
     id: number;
     host: string;
     port: number;
+    type: 'HTTP' | 'SOCKS5';
     forwardAuthentication: boolean;
     favorite: boolean;
     credentials: {
