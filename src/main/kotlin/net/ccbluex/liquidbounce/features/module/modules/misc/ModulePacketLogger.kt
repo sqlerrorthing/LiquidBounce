@@ -18,18 +18,17 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.misc
 
-import net.ccbluex.liquidbounce.config.types.NamedChoice
+import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 import net.ccbluex.liquidbounce.event.events.PacketEvent
 import net.ccbluex.liquidbounce.event.events.TransferOrigin
 import net.ccbluex.liquidbounce.event.handler
-import net.ccbluex.liquidbounce.features.misc.HideAppearance.isDestructed
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
 import net.ccbluex.liquidbounce.utils.client.MessageMetadata
 import net.ccbluex.liquidbounce.utils.client.asText
 import net.ccbluex.liquidbounce.utils.client.chat
 import net.ccbluex.liquidbounce.utils.collection.Filter
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.READ_FINAL_STATE
 import net.ccbluex.liquidbounce.utils.mappings.EnvironmentRemapper
 import net.minecraft.network.packet.Packet
 import net.minecraft.text.MutableText
@@ -42,93 +41,68 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.math.max
 
+private typealias PacketClass = Class<out Packet<*>>
+
 /**
  * Module PacketLogger
  *
  * Prints all packets and their fields.
  *
- * @author ccetl
+ * @author ccetl, sqlerrorthing
  */
 object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
+    init {
+        doNotIncludeAlways()
 
-    private val bound by multiEnumChoice("Bound", PacketBound.SERVER)
-    private val filter by enumChoice("Filter", Filter.BLACKLIST)
-    private val packets by textArray("Packets", mutableListOf())
+        tree(PacketBound("Client", TransferOrigin.INCOMING, setOf(), false))
+        tree(PacketBound("Server", TransferOrigin.OUTGOING, setOf(), true))
+    }
+}
 
-    private val classNames = ConcurrentHashMap<Class<out Packet<*>>, String>()
+private class PacketBound(
+    name: String,
+    private val origin: TransferOrigin,
+    packets: Set<PacketClass>,
+    enabled: Boolean
+) : ToggleableConfigurable(ModulePacketLogger, name, enabled) {
+    private val classNames = packets.associateWith { it.getPacketName() }
     private val fieldNames = ConcurrentHashMap<Field, String>()
 
-    init {
-        // Do not include this module in the auto config, as this is for debugging purposes only.
-        doNotIncludeAlways()
-    }
-
-    override fun disable() {
-        classNames.clear()
-        fieldNames.clear()
-    }
+    private val selectedPackets by multiStringChoice("Packets", choices = classNames.values.sorted().toSet())
+    private val filter by enumChoice("Filter", Filter.BLACKLIST)
 
     @Suppress("unused")
-    private val packetHandler = handler<PacketEvent>(priority = EventPriorityConvention.READ_FINAL_STATE) { event ->
-        onPacket(event.origin, event.packet, event.isCancelled)
+    private val packetHandler = handler<PacketEvent>(priority = READ_FINAL_STATE) { event ->
+        if (event.origin != origin) {
+            return@handler
+        }
+
+        val name = classNames[event.packet::class.java] ?: return@handler
+        if (!filter(name, selectedPackets)) {
+            return@handler
+        }
+
+        buildLog(event.packet, name, event.isCancelled).also { log ->
+            chat(log, metadata = MessageMetadata(prefix = false))
+        }
     }
 
-    fun onPacket(origin: TransferOrigin, packet: Packet<*>, canceled: Boolean = false) {
-        if (!running || bound.none { it.origin == origin }) {
-            return
-        }
+    private fun buildLog(packet: Packet<*>, packetName: String, cancelled: Boolean): MutableText {
+        return Text.empty().formatted(Formatting.WHITE).apply {
+            append(ModulePacketLogger.message(if (origin == TransferOrigin.INCOMING) { "receive" } else { "send" }))
+            append(" $packetName")
 
-        val text = Text.empty().formatted(Formatting.WHITE)
-        if (origin == TransferOrigin.INCOMING) {
-            text.append(message("receive"))
-        } else {
-            text.append(message("send"))
-        }
-
-        val clazz = packet::class.java
-
-        text.append(" ")
-        val packetName = getPacketName(clazz)
-        if (!filter(packetName, packets)) {
-            return
-        }
-
-        text.append(packetName)
-
-        if (canceled) {
-            text.append(" (".asText().formatted(Formatting.RED))
-            text.append(message("canceled").formatted(Formatting.RED))
-            text.append(")".asText().formatted(Formatting.RED))
-        }
-
-        text.appendFields(clazz, packet)
-
-        chat(text, metadata = MessageMetadata(prefix = false))
-    }
-
-    private fun getPacketName(clazz: Class<out Packet<*>>): String {
-        fun getClassName(clazz: Class<*>): CharSequence {
-            val remapClassName = EnvironmentRemapper.remapClass(clazz)
-            val lastDotIndex = remapClassName.lastIndexOf('.')
-            val lastDollarIndex = remapClassName.lastIndexOf('$')
-            return remapClassName.subSequence(max(lastDotIndex, lastDollarIndex) + 1, remapClassName.length)
-        }
-
-        return classNames.computeIfAbsent(clazz) {
-            val classNames = ArrayDeque<CharSequence>()
-            classNames.add(getClassName(clazz))
-
-            var superclass: Class<*>? = clazz.superclass
-            while (superclass.isNotRoot()) {
-                classNames.addFirst(getClassName(superclass))
-                superclass = superclass.superclass
+            if (cancelled) {
+                append(" (".asText().formatted(Formatting.RED))
+                append(ModulePacketLogger.message("cancelled").formatted(Formatting.RED))
+                append(")".asText().formatted(Formatting.RED))
             }
 
-            classNames.joinToString(".")
+            appendFields(packet::class.java, packet)
         }
     }
 
-    private fun MutableText.appendFields(clazz: Class<out Packet<*>>, packet: Packet<*>) {
+    private fun MutableText.appendFields(clazz: PacketClass, packet: Packet<*>) {
         var start = true
 
         var currentClass: Class<*>? = clazz
@@ -148,41 +122,53 @@ object ModulePacketLogger : ClientModule("PacketLogger", Category.MISC) {
 
                 append("\n")
 
-                val name = fieldNames.computeIfAbsent(field) {
-                    EnvironmentRemapper.remapField(currentClass!!.name, field.name)
-                }
-
-                val value = try {
-                    field.get(packet)?.toString()
-                } catch (@Suppress("SwallowedException") _: IllegalAccessException) {
-                    "null"
-                }
-
+                val name = field.remappedFieldName(currentClass.name)
                 append("-$name: ".asText().formatted(Formatting.GRAY))
-                append("$value".asText().formatted(Formatting.GRAY))
+                append(field.getValue(packet).asText().formatted(Formatting.GRAY))
             }
 
             currentClass = currentClass.superclass
         }
     }
 
-    @OptIn(ExperimentalContracts::class)
-    fun Class<*>?.isNotRoot(): Boolean {
-        contract {
-            returns(true) implies (this@isNotRoot != null)
+    private fun Field.remappedFieldName(className: String): String {
+        return fieldNames.computeIfAbsent(this) {
+            EnvironmentRemapper.remapField(className, this.name)
         }
-        return !(this == null || this === java.lang.Record::class.java || this.superclass == null)
     }
 
-    override val running: Boolean
-        get() = !isDestructed && enabled
-
-    @Suppress("unused")
-    private enum class PacketBound(
-        override val choiceName: String,
-        val origin: TransferOrigin,
-    ) : NamedChoice {
-        CLIENT("Client", TransferOrigin.INCOMING),
-        SERVER("Server", TransferOrigin.OUTGOING)
+    private fun Field.getValue(instance: Any): String {
+        return runCatching {
+            get(instance)?.toString()
+        }.getOrDefault("null") ?: "null"
     }
+}
+
+private fun PacketClass.getPacketName(): String {
+    val classNames = ArrayDeque<CharSequence>()
+    classNames.add(this.getClassName())
+
+    var superclass: Class<*>? = superclass
+
+    while (superclass.isNotRoot()) {
+        classNames.addFirst(superclass.getClassName())
+        superclass = superclass.superclass
+    }
+
+    return classNames.joinToString(".")
+}
+
+private fun Class<*>.getClassName(): CharSequence {
+    val remapClassName = EnvironmentRemapper.remapClass(this)
+    val lastDotIndex = remapClassName.lastIndexOf('.')
+    val lastDollarIndex = remapClassName.lastIndexOf('$')
+    return remapClassName.subSequence(max(lastDotIndex, lastDollarIndex) + 1, remapClassName.length)
+}
+
+@OptIn(ExperimentalContracts::class)
+private fun Class<*>?.isNotRoot(): Boolean {
+    contract {
+        returns(true) implies (this@isNotRoot != null)
+    }
+    return !(this == null || this === Record::class.java || this.superclass == null)
 }
