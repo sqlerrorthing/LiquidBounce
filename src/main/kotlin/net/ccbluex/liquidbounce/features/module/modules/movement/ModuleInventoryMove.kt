@@ -32,7 +32,7 @@ import net.ccbluex.liquidbounce.utils.client.*
 import net.ccbluex.liquidbounce.utils.inventory.InventoryManager.isInventoryOpenServerSide
 import net.ccbluex.liquidbounce.utils.inventory.closeInventorySilently
 import net.ccbluex.liquidbounce.utils.inventory.isInInventoryScreen
-import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.FIRST_PRIORITY
+import net.ccbluex.liquidbounce.utils.kotlin.EventPriorityConvention.READ_FINAL_STATE
 import net.ccbluex.liquidbounce.utils.kotlin.Priority
 import net.minecraft.client.gui.screen.ChatScreen
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen
@@ -41,8 +41,6 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.item.ItemGroups
 import net.minecraft.network.packet.c2s.play.*
-import net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket
-import net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket
 import org.lwjgl.glfw.GLFW.GLFW_RELEASE
 
 /**
@@ -159,29 +157,26 @@ object ModuleInventoryMove : ClientModule("InventoryMove", Category.MOVEMENT) {
     }
 
     @Suppress("unused")
-    private val noSprintHandler = handler<SprintEvent>(priority = FIRST_PRIORITY) { event ->
-        if (Additions.NO_SPRINT in additions && event.sprint) {
+    private val noSprintHandler = handler<SprintEvent>(priority = READ_FINAL_STATE) { event ->
+        if (Additions.NO_SPRINT in additions && event.sprint && isInInventoryScreen) {
            event.sprint = false
         }
     }
 
-    @Suppress("unused")
+    @Suppress("unused", "ComplexCondition")
     private val noInventoryOpenPacketHandler = handler<PacketEvent> { event ->
         val packet = event.packet
-
-        if (!(
-            packet is CloseHandledScreenC2SPacket
-            || packet is CloseScreenS2CPacket
-            || packet is OpenScreenS2CPacket
-        )) {
-            return@handler
-        }
 
         if (Additions.NO_INVENTORY_OPEN_PACKET !in additions) {
             return@handler
         }
 
-        event.cancelEvent()
+        if (
+            (packet is CloseHandledScreenC2SPacket && packet.syncId == 0 && !isInventoryOpenServerSide)
+            || (packet is ClientCommandC2SPacket && packet.mode == ClientCommandC2SPacket.Mode.OPEN_INVENTORY)
+        ) {
+            event.cancelEvent()
+        }
     }
 
     @Suppress("unused", "ComplexCondition")
