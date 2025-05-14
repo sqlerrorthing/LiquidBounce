@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.render.animations
 
 import net.ccbluex.liquidbounce.config.types.ToggleableConfigurable
 
+@Suppress("MagicNumber")
 sealed class HandConfigurable(
     name: String,
     positionOffset: Float
@@ -14,6 +15,8 @@ sealed class HandConfigurable(
     val positiveZ by float("PositiveRotationZ", 0f, -50f..50f)
 }
 
-object MainHand : HandConfigurable("MainHand", 5f)
+@Suppress("MagicNumber")
+object MainHandConfiguration : HandConfigurable("MainHand", 5f)
 
-object OffHand : HandConfigurable("OffHand", 1f)
+@Suppress("MagicNumber")
+object OffHandConfiguration : HandConfigurable("OffHand", 1f)

@@ -65,8 +65,8 @@ public abstract class MixinHeldItemRenderer {
     private void hookRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (ModuleAnimations.INSTANCE.getRunning()) {
             var isInBothHands = Hand.MAIN_HAND == hand && item.contains(DataComponentTypes.MAP_ID) && offHand.isEmpty();
-            var mainHand = MainHand.INSTANCE;
-            var offHand = OffHand.INSTANCE;
+            var mainHand = MainHandConfiguration.INSTANCE;
+            var offHand = OffHandConfiguration.INSTANCE;
 
             if (isInBothHands && mainHand.getRunning() && offHand.getRunning()) {
                 liquid_bounce$applyTransformations(matrices,

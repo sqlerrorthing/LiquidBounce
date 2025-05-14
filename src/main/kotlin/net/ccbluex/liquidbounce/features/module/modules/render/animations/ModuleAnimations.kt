@@ -20,8 +20,8 @@ import net.ccbluex.liquidbounce.features.module.modules.render.animations.blocki
 @Suppress("MagicNumber")
 object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = arrayOf("ViewModel")) {
     init {
-        tree(MainHand)
-        tree(OffHand)
+        tree(MainHandConfiguration)
+        tree(OffHandConfiguration)
         tree(EquipOffset)
     }
 
