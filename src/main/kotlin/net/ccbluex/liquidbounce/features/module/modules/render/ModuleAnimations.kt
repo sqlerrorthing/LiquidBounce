@@ -26,7 +26,6 @@ import net.ccbluex.liquidbounce.event.events.PlayerStrideEvent
 import net.ccbluex.liquidbounce.event.handler
 import net.ccbluex.liquidbounce.features.module.Category
 import net.ccbluex.liquidbounce.features.module.ClientModule
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations.PushdownAnimation.applySwingOffset
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Arm
 import net.minecraft.util.math.MathHelper
@@ -43,44 +42,24 @@ import net.minecraft.util.math.RotationAxis
  */
 @Suppress("MagicNumber")
 object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = arrayOf("ViewModel")) {
-
     init {
         tree(MainHand)
         tree(OffHand)
         tree(EquipOffset)
     }
 
-    object MainHand : ToggleableConfigurable(this, "MainHand", false) {
-        val mainHandItemScale by float("ItemScale", 0f, -5f..5f)
-        val mainHandX by float("X", 0f, -5f..5f)
-        val mainHandY by float("Y", 0f, -5f..5f)
-        val mainHandPositiveX by float("PositiveRotationX", 0f, -50f..50f)
-        val mainHandPositiveY by float("PositiveRotationY", 0f, -50f..50f)
-        val mainHandPositiveZ by float("PositiveRotationZ", 0f, -50f..50f)
+    sealed class HandConfigurable(name: String, positionOffset: Float) : ToggleableConfigurable(this, name, false) {
+        val itemScale by float("ItemScale", 0f, -5f..5f)
+        val x by float("X", 0f, -positionOffset..positionOffset)
+        val y by float("Y", 0f, -positionOffset..positionOffset)
+        val positiveX by float("PositiveRotationX", 0f, -50f..50f)
+        val positiveY by float("PositiveRotationY", 0f, -50f..50f)
+        val positiveZ by float("PositiveRotationZ", 0f, -50f..50f)
     }
 
-    object OffHand : ToggleableConfigurable(this, "OffHand", false) {
-        val offHandItemScale by float("ItemScale", 0f, -5f..5f)
-        val offHandX by float("X", 0f, -1f..1f)
-        val offHandY by float("Y", 0f, -1f..1f)
-        val OffHandPositiveX by float("PositiveRotationX", 0f, -50f..50f)
-        val OffHandPositiveY by float("PositiveRotationY", 0f, -50f..50f)
-        val OffHandPositiveZ by float("PositiveRotationZ", 0f, -50f..50f)
-    }
+    object MainHand : HandConfigurable("MainHand", 5f)
 
-    val swingDuration by int("SwingDuration", 6, 1..20)
-
-    /**
-     * A choice that allows the user to choose the animation that will be used during the blocking
-     * of a sword.
-     * This choice is only used when the [ModuleSwordBlock] module is enabled.
-     */
-    val blockAnimationChoice = choices(
-        "BlockingAnimation", OneSevenAnimation, arrayOf(
-            OneSevenAnimation,
-            PushdownAnimation
-        )
-    )
+    object OffHand : HandConfigurable("OffHand", 1f)
 
     object EquipOffset : ToggleableConfigurable(this, "EquipOffset", true) {
         private val ignore by multiEnumChoice("Ignore",
@@ -100,6 +79,20 @@ object ModuleAnimations : ClientModule("Animations", Category.RENDER, aliases = 
             AMOUNT("Amount")
         }
     }
+
+    val swingDuration by int("SwingDuration", 6, 1..20)
+
+    /**
+     * A choice that allows the user to choose the animation that will be used during the blocking
+     * of a sword.
+     * This choice is only used when the [ModuleSwordBlock] module is enabled.
+     */
+    val blockAnimationChoice = choices(
+        "BlockingAnimation", OneSevenAnimation, arrayOf(
+            OneSevenAnimation,
+            PushdownAnimation
+        )
+    )
 
     /**
      * if true, the walk animation will also be applied in the air.

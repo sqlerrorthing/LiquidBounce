@@ -68,19 +68,19 @@ public abstract class MixinHeldItemRenderer {
             ModuleAnimations.OffHand offHand = ModuleAnimations.OffHand.INSTANCE;
             if (isInBothHands && mainHand.getRunning() && offHand.getRunning()) {
                 liquid_bounce$applyTransformations(matrices,
-                        (mainHand.getMainHandX() + offHand.getOffHandX()) / 2f,
-                        (mainHand.getMainHandY() + offHand.getOffHandY()) / 2f,
-                        (mainHand.getMainHandItemScale() + offHand.getOffHandItemScale()) / 2f,
-                        (mainHand.getMainHandPositiveX() + offHand.getOffHandPositiveX()) / 2f,
-                        (mainHand.getMainHandPositiveY() + offHand.getOffHandPositiveY()) / 2f,
-                        (mainHand.getMainHandPositiveZ() + offHand.getOffHandPositiveZ()) / 2f
+                        (mainHand.getX() + offHand.getX()) / 2f,
+                        (mainHand.getY() + offHand.getY()) / 2f,
+                        (mainHand.getItemScale() + offHand.getItemScale()) / 2f,
+                        (mainHand.getPositiveX() + offHand.getPositiveX()) / 2f,
+                        (mainHand.getPositiveY() + offHand.getPositiveY()) / 2f,
+                        (mainHand.getPositiveZ() + offHand.getPositiveZ()) / 2f
                 );
             } else if (isInBothHands && mainHand.getRunning()) {
-                matrices.translate(0f, 0f, mainHand.getMainHandItemScale());
+                matrices.translate(0f, 0f, mainHand.getItemScale());
             } else if (Hand.MAIN_HAND == hand && mainHand.getRunning()) {
-                liquid_bounce$applyTransformations(matrices, mainHand.getMainHandX(), mainHand.getMainHandY(), mainHand.getMainHandItemScale(), mainHand.getMainHandPositiveX(), mainHand.getMainHandPositiveY(), mainHand.getMainHandPositiveZ());
+                liquid_bounce$applyTransformations(matrices, mainHand);
             } else if (offHand.getRunning()) {
-                liquid_bounce$applyTransformations(matrices, offHand.getOffHandX(), offHand.getOffHandY(), offHand.getOffHandItemScale(), offHand.getOffHandPositiveX(), offHand.getOffHandPositiveY(), offHand.getOffHandPositiveZ());
+                liquid_bounce$applyTransformations(matrices, offHand);
             }
         }
     }
@@ -91,6 +91,14 @@ public abstract class MixinHeldItemRenderer {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rotateX));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotateY));
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotateZ));
+    }
+
+    @Unique
+    private void liquid_bounce$applyTransformations(MatrixStack matrices, ModuleAnimations.HandConfigurable hand) {
+        liquid_bounce$applyTransformations(matrices,
+                hand.getX(), hand.getY(), hand.getItemScale(),
+                hand.getPositiveX(), hand.getPositiveY(), hand.getPositiveZ()
+        );
     }
 
     @Inject(method = "renderFirstPersonItem", at = @At("HEAD"), cancellable = true)
