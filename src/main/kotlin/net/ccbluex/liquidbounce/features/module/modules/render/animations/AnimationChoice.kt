@@ -11,6 +11,7 @@ import net.minecraft.util.math.RotationAxis
 /**
  * A choice that aims to transform the held item transformation during the swing progress.
  */
+@Suppress("MagicNumber")
 abstract class AnimationChoice(name: String) : Choice(name) {
     override val parent: ChoiceConfigurable<*>
         get() = blockAnimationChoice
