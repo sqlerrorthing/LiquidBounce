@@ -18,7 +18,7 @@
  */
 package net.ccbluex.liquidbounce.injection.mixins.minecraft.entity;
 
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations;
+import net.ccbluex.liquidbounce.features.module.modules.render.animations.ModuleAnimations;
 import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;

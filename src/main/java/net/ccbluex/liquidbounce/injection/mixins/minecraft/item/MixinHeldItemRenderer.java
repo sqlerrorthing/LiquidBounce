@@ -21,8 +21,9 @@ package net.ccbluex.liquidbounce.injection.mixins.minecraft.item;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.ccbluex.liquidbounce.features.module.modules.combat.ModuleSwordBlock;
 import net.ccbluex.liquidbounce.features.module.modules.combat.killaura.features.KillAuraAutoBlock;
-import net.ccbluex.liquidbounce.features.module.modules.render.ModuleAnimations;
 import net.ccbluex.liquidbounce.features.module.modules.render.ModuleSilentHotbar;
+import net.ccbluex.liquidbounce.features.module.modules.render.animations.*;
+import net.ccbluex.liquidbounce.features.module.modules.render.animations.blocking.OneSevenAnimation;
 import net.ccbluex.liquidbounce.utils.client.SilentHotbar;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -64,23 +65,24 @@ public abstract class MixinHeldItemRenderer {
     private void hookRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (ModuleAnimations.INSTANCE.getRunning()) {
             var isInBothHands = Hand.MAIN_HAND == hand && item.contains(DataComponentTypes.MAP_ID) && offHand.isEmpty();
-            ModuleAnimations.MainHand mainHand = ModuleAnimations.MainHand.INSTANCE;
-            ModuleAnimations.OffHand offHand = ModuleAnimations.OffHand.INSTANCE;
+            var mainHand = MainHandConfiguration.INSTANCE;
+            var offHand = OffHandConfiguration.INSTANCE;
+
             if (isInBothHands && mainHand.getRunning() && offHand.getRunning()) {
                 liquid_bounce$applyTransformations(matrices,
-                        (mainHand.getMainHandX() + offHand.getOffHandX()) / 2f,
-                        (mainHand.getMainHandY() + offHand.getOffHandY()) / 2f,
-                        (mainHand.getMainHandItemScale() + offHand.getOffHandItemScale()) / 2f,
-                        (mainHand.getMainHandPositiveX() + offHand.getOffHandPositiveX()) / 2f,
-                        (mainHand.getMainHandPositiveY() + offHand.getOffHandPositiveY()) / 2f,
-                        (mainHand.getMainHandPositiveZ() + offHand.getOffHandPositiveZ()) / 2f
+                        (mainHand.getX() + offHand.getX()) / 2f,
+                        (mainHand.getY() + offHand.getY()) / 2f,
+                        (mainHand.getItemScale() + offHand.getItemScale()) / 2f,
+                        (mainHand.getPositiveX() + offHand.getPositiveX()) / 2f,
+                        (mainHand.getPositiveY() + offHand.getPositiveY()) / 2f,
+                        (mainHand.getPositiveZ() + offHand.getPositiveZ()) / 2f
                 );
             } else if (isInBothHands && mainHand.getRunning()) {
-                matrices.translate(0f, 0f, mainHand.getMainHandItemScale());
+                matrices.translate(0f, 0f, mainHand.getItemScale());
             } else if (Hand.MAIN_HAND == hand && mainHand.getRunning()) {
-                liquid_bounce$applyTransformations(matrices, mainHand.getMainHandX(), mainHand.getMainHandY(), mainHand.getMainHandItemScale(), mainHand.getMainHandPositiveX(), mainHand.getMainHandPositiveY(), mainHand.getMainHandPositiveZ());
+                liquid_bounce$applyTransformations(matrices, mainHand);
             } else if (offHand.getRunning()) {
-                liquid_bounce$applyTransformations(matrices, offHand.getOffHandX(), offHand.getOffHandY(), offHand.getOffHandItemScale(), offHand.getOffHandPositiveX(), offHand.getOffHandPositiveY(), offHand.getOffHandPositiveZ());
+                liquid_bounce$applyTransformations(matrices, offHand);
             }
         }
     }
@@ -91,6 +93,14 @@ public abstract class MixinHeldItemRenderer {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rotateX));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotateY));
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotateZ));
+    }
+
+    @Unique
+    private void liquid_bounce$applyTransformations(MatrixStack matrices, HandConfigurable hand) {
+        liquid_bounce$applyTransformations(matrices,
+                hand.getX(), hand.getY(), hand.getItemScale(),
+                hand.getPositiveX(), hand.getPositiveY(), hand.getPositiveZ()
+        );
     }
 
     @Inject(method = "renderFirstPersonItem", at = @At("HEAD"), cancellable = true)
@@ -168,7 +178,7 @@ public abstract class MixinHeldItemRenderer {
             ordinal = 3
     ), index = 2)
     private float injectIgnoreBlocking(float equipProgress) {
-        if (ModuleAnimations.EquipOffset.INSTANCE.getRunning() && ModuleAnimations.EquipOffset.INSTANCE.getIgnoreBlocking()) {
+        if (EquipOffset.INSTANCE.getRunning() && EquipOffset.INSTANCE.getIgnoreBlocking()) {
             return 0.0F;
         }
 
@@ -211,7 +221,7 @@ public abstract class MixinHeldItemRenderer {
             }
 
             // Default animation
-            ModuleAnimations.OneSevenAnimation.INSTANCE.transform(matrices, arm, equipProgress, swingProgress);
+            OneSevenAnimation.INSTANCE.transform(matrices, arm, equipProgress, swingProgress);
         }
     }
 
@@ -236,7 +246,7 @@ public abstract class MixinHeldItemRenderer {
 
     @Inject(method = "resetEquipProgress", at = @At("HEAD"), cancellable = true)
     private void injectIgnorePlace(Hand hand, CallbackInfo ci) {
-        if (ModuleAnimations.INSTANCE.getRunning() && ModuleAnimations.EquipOffset.INSTANCE.getIgnorePlace()) {
+        if (ModuleAnimations.INSTANCE.getRunning() && EquipOffset.INSTANCE.getIgnorePlace()) {
             ci.cancel();
         }
     }
@@ -244,8 +254,8 @@ public abstract class MixinHeldItemRenderer {
     @Inject(method = "shouldSkipHandAnimationOnSwap", at = @At("RETURN"), cancellable = true)
     private void injectIgnoreAmount(ItemStack from, ItemStack to, CallbackInfoReturnable<Boolean> cir) {
         if (ModuleAnimations.INSTANCE.getRunning() && !cir.getReturnValueZ()) {
-            cir.setReturnValue(!ModuleAnimations.EquipOffset.INSTANCE.getRunning()
-                    || (from.getCount() == to.getCount() || ModuleAnimations.EquipOffset.INSTANCE.getIgnoreAmount())
+            cir.setReturnValue(!EquipOffset.INSTANCE.getRunning()
+                    || (from.getCount() == to.getCount() || EquipOffset.INSTANCE.getIgnoreAmount())
                     && ItemStack.areItemsAndComponentsEqual(from, to)
             );
         }
@@ -253,7 +263,7 @@ public abstract class MixinHeldItemRenderer {
 
     @ModifyArg(method = "applyEquipOffset", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V"), index = 1)
     private float injectDisableEquipOffset(float y) {
-        if (ModuleAnimations.INSTANCE.getRunning() && !ModuleAnimations.EquipOffset.INSTANCE.getRunning()) {
+        if (ModuleAnimations.INSTANCE.getRunning() && !EquipOffset.INSTANCE.getRunning()) {
             return EQUIP_OFFSET_TRANSLATE_Y;
         }
 
