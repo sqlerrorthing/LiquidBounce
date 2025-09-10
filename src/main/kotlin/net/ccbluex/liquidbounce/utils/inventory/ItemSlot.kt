@@ -37,6 +37,8 @@ abstract class ItemSlot {
      */
     abstract fun getIdForServer(screen: GenericContainerScreen?): Int?
 
+    fun getIdForServerWithCurrentScreen() = getIdForServer(mc.currentScreen as? GenericContainerScreen)
+
     abstract override fun hashCode(): Int
 
     abstract override fun equals(other: Any?): Boolean
