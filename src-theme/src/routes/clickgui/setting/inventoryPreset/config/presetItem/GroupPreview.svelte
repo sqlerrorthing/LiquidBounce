@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type {PresetItemGroup} from "../../../../../integration/types";
-    import ItemImage from "../ItemImage.svelte";
+    import type {PresetItemGroup} from "../../../../../../integration/types";
+    import ItemImage from "../../ItemImage.svelte";
 
     export let group: PresetItemGroup
 </script>

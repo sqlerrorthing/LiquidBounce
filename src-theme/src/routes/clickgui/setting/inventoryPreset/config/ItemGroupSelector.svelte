@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {PresetItem} from "../../../../../integration/types";
     import {createEventDispatcher, onDestroy, onMount} from "svelte";
-    import PresetItemSelector from "./PresetItemSelector.svelte";
+    import PresetItemSelector from "./presetItem/PresetItemSelector.svelte";
     import ItemImage from "../ItemImage.svelte";
     import {scaleFactor} from "../../../clickgui_store";
     import {clickOutside, portal} from "../../../../../util/utils";

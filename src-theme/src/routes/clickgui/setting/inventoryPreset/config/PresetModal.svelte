@@ -4,7 +4,7 @@
     import {createEventDispatcher} from "svelte";
     import {fly, scale} from "svelte/transition"
     import {backOut} from "svelte/easing";
-    import PresetItemsGroup from "./PresetItems.svelte";
+    import ItemsGroup from "./presetItem/Items.svelte";
     import {scaleFactor} from "../../../clickgui_store";
     import MaxStacksContainer from "./maxStacks/MaxStacksContainer.svelte";
     import PresetTooltip from "./PresetTooltip.svelte";
@@ -46,7 +46,7 @@
         <div class="items-container">
             <div class="header muted">HOTBAR <PresetTooltip align="bottom_center" text="Items that will be in the hotbar, each item has its own slot selected"/></div>
 
-            <PresetItemsGroup
+            <ItemsGroup
                     bind:items={preset.items}
                     on:change={handleChange}
             />

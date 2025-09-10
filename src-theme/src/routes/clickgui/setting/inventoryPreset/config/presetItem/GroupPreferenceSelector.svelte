@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type {PresetItem} from "../../../../../integration/types";
-    import ItemGroupSelector from "./ItemGroupSelector.svelte";
+    import type {PresetItem} from "../../../../../../integration/types";
+    import ItemGroupSelector from "../ItemGroupSelector.svelte";
     import {createEventDispatcher, onMount} from "svelte";
-    import PresetTooltip from "./PresetTooltip.svelte";
+    import PresetTooltip from "../PresetTooltip.svelte";
 
     export let items: PresetItem[];
     export let parentExpanded: boolean
@@ -87,9 +87,9 @@
 
 <style lang="scss">
   @use "sass:color";
-  @use "../../../../../colors.scss" as *;
-  @use "select" as *;
-  @use "item" as *;
+  @use "../../../../../../colors" as *;
+  @use "../select" as *;
+  @use "../item" as *;
 
   .choices {
     margin-top: 20px;

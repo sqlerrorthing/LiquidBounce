@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type {PresetItemGroup} from "../../../../../integration/types";
+    import type {PresetItemGroup} from "../../../../../../integration/types";
     import {createEventDispatcher} from "svelte";
-    import PresetItemGroupComponent from "./PresetItemGroupComponent.svelte";
+    import GroupComponent from "./GroupComponent.svelte";
 
     export let items: PresetItemGroup[]
     let draggedIndex: number | null = null;
@@ -45,7 +45,7 @@
                 on:dragover={(e) => handleDragOver(e, idx)}
                 on:dragend={handleDragEnd}
         >
-            <PresetItemGroupComponent bind:group idx={idx} on:change={handleChange} />
+            <GroupComponent bind:group idx={idx} on:change={handleChange} />
         </div>
 
         {#if idx === 0}
@@ -56,7 +56,7 @@
 
 <style lang="scss">
   @use "sass:color";
-  @use "../../../../../colors.scss" as *;
+  @use "../../../../../../colors" as *;
 
   .draggable {
     cursor: grab;

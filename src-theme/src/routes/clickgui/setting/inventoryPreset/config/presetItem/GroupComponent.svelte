@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type {PresetItemGroup} from "../../../../../integration/types";
-    import {clickOutside} from "../../../../../util/utils";
+    import type {PresetItemGroup} from "../../../../../../integration/types";
+    import {clickOutside} from "../../../../../../util/utils";
     import {scale} from "svelte/transition";
     import {createEventDispatcher} from "svelte";
-    import PresetItemGroupPreview from "./PresetItemGroupPreview.svelte";
-    import PresetItemGroupPreferenceSelector from "./PresetItemGroupPreferenceSelector.svelte";
+    import GroupPreview from "./GroupPreview.svelte";
+    import GroupPreferenceSelector from "./GroupPreferenceSelector.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -34,7 +34,7 @@
          on:click|preventDefault={() => expanded = !expanded}
     >
         <div class="image-wrapper">
-            <PresetItemGroupPreview bind:group />
+            <GroupPreview bind:group />
         </div>
     </div>
 
@@ -45,7 +45,7 @@
                 on:click|preventDefault
                 use:clickOutside={handleClickOutside}
         >
-            <PresetItemGroupPreferenceSelector
+            <GroupPreferenceSelector
                     bind:parentExpanded={expanded}
                     bind:items={group}
                     on:change={handleChange}
@@ -61,9 +61,9 @@
 
 <style lang="scss">
   @use "sass:color";
-  @use "../../../../../colors.scss" as *;
-  @use "select" as *;
-  @use "item" as *;
+  @use "../../../../../../colors" as *;
+  @use "../select" as *;
+  @use "../item" as *;
 
   .wrapper {
     position: relative;

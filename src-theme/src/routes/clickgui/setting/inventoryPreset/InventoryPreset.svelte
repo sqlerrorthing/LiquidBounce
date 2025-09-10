@@ -2,7 +2,7 @@
     import type {InventoryPreset} from "../../../../integration/types";
     import PresetModal from "./config/PresetModal.svelte";
     import {createEventDispatcher} from "svelte";
-    import InventoryPresetItemPreview from "./InventoryPresetItemPreview.svelte";
+    import ItemPreview from "./ItemPreview.svelte";
 
     export let preset: InventoryPreset
 
@@ -19,7 +19,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="preset" on:click={() => configuring = true}>
     {#each preset.items as group, idx (idx)}
-        <InventoryPresetItemPreview bind:group />
+        <ItemPreview bind:group />
     {/each}
 </div>
 

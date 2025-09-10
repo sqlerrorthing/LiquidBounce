@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type {PresetItem} from "../../../../../integration/types";
-    import {convertToSpacedString, spaceSeperatedNames} from "../../../../../theme/theme_config";
-    import ItemImage from "../ItemImage.svelte";
+    import type {PresetItem} from "../../../../../../integration/types";
+    import {convertToSpacedString, spaceSeperatedNames} from "../../../../../../theme/theme_config";
+    import ItemImage from "../../ItemImage.svelte";
     import {onMount} from "svelte";
-    import {getRegistries, setTyping} from "../../../../../integration/rest";
-    import VirtualList from "../../blocks/VirtualList.svelte";
-    import {REST_BASE} from "../../../../../integration/host";
-    import PresetTooltip from "./PresetTooltip.svelte";
+    import {getRegistries, setTyping} from "../../../../../../integration/rest";
+    import VirtualList from "../../../blocks/VirtualList.svelte";
+    import {REST_BASE} from "../../../../../../integration/host";
+    import PresetTooltip from "../PresetTooltip.svelte";
 
     export let setItem: (item: PresetItem) => void
     export let filter: ((item: string) => boolean) | null = null
@@ -232,9 +232,9 @@
 
 <style lang="scss">
   @use "sass:color";
-  @use "../../../../../colors.scss" as *;
-  @use "select" as *;
-  @use "item" as *;
+  @use "../../../../../../colors" as *;
+  @use "../select" as *;
+  @use "../item" as *;
 
   .margin {
     margin-top: 5px;
